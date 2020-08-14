@@ -11,11 +11,26 @@ dm_pair <- function(data, outcome, outcome.pos, outcome.neg=NULL,
   if(is.null(outcome.neg)) {
     outcome.neg <- setdiff(unique(data[[outcome]]), outcome.pos)
   }
-  g.sm <- data %>%
-    dplyr::filter( !!sym(outcome) %in% c(outcome.pos, outcome.neg)) %>%
-    dplyr::select(one_of(marker1, marker2,outcome)) %>%
-    GGally::ggpairs(aes_string(color = outcome, alpha=0.5))
+  # g.sm <- data %>%
+  #   dplyr::filter( !!sym(outcome) %in% c(outcome.pos, outcome.neg)) %>%
+  #   dplyr::select(one_of(marker1, marker2,outcome)) %>%
+  #   GGally::ggpairs(aes_string(color = outcome, alpha=0.5))
+  g.sm <- dm_boxplot(data = data, outcome = outcome, outcome.pos = outcome.pos,
+                     outcome.neg = outcome.neg,
+                     marker1 = marker1, marker2 =  marker2,
+                     m1.cat.pos = m1.cat.pos, m1.cat.neg = m1.cat.neg,
+                     m2.cat.pos = m2.cat.pos, m2.cat.neg = m2.cat.neg)
 
+  # scatterplot
+  g.scatter <- dm_scatter_chart(data = data,
+                                outcome = outcome,
+                                outcome.pos=outcome.pos,
+                                outcome.neg=outcome.neg,
+                                marker1 = marker1,
+                                marker2 = marker2,
+                                num.cut.method = num.cut.method,
+                                m1.cat.pos = m1.cat.pos, m1.cat.neg = m1.cat.neg,
+                                m2.cat.pos = m2.cat.pos, m2.cat.neg = m2.cat.neg)
   ### four quadrant visualization
   res.4quad <- dm_4quadrant(data = clin.bmk,
                             outcome = outcome,
@@ -29,19 +44,9 @@ dm_pair <- function(data, outcome, outcome.pos, outcome.neg=NULL,
                             m2.cat.pos = m2.cat.pos,
                             m2.cat.neg = m2.cat.neg,
                             na.rm = T)
-  # scatterplot
-  g.scatter <- dm_scatter_chart(data = data,
-                                outcome = outcome,
-                                outcome.pos=outcome.pos,
-                                outcome.neg=outcome.neg,
-                                marker1 = marker1,
-                                marker2 = marker2,
-                                num.cut.method = num.cut.method,
-                                m1.cat.pos = m1.cat.pos, m1.cat.neg = m1.cat.neg,
-                                m2.cat.pos = m2.cat.pos, m2.cat.neg = m2.cat.neg)
 
   # four quadrant plot
-  g.4quad <- quadrant_chart(x = res.4quad$pos.n, n = res.4quad$total.n)
+  g.4quad.response <- quadrant_response_chart(x = res.4quad$pos.n, n = res.4quad$total.n)
 
   ### logistic regression model
   # as continuous variables
@@ -87,12 +92,19 @@ dm_pair <- function(data, outcome, outcome.pos, outcome.neg=NULL,
                     binarization = F, num.cut.method = num.cut.method,
                     m1.cat.pos = m1.cat.pos, m1.cat.neg = m1.cat.neg,
                     m2.cat.pos = m2.cat.pos, m2.cat.neg = m2.cat.neg)
+  g.4quad.surv <- quadrant_survival_chart(data = data, time = surv.time,
+                                          event = surv.event, marker1 = marker1,
+                                          marker2 = marker2, num.cut.method = num.cut.method,
+                                          m1.cat.pos = m1.cat.pos, m1.cat.neg = m1.cat.neg,
+                                          m2.cat.pos = m2.cat.pos, m2.cat.neg = m2.cat.neg)
+
   g.all <- list(sm = g.sm,
                 scatterplot = g.scatter,
-                four.quadrant = g.4quad,
+                four.quadrant.response = g.4quad.response,
                 logit = g.logit,
                 roc = g.roc,
-                km = g.km)
+                km = g.km,
+                four.quadrant.surv = g.4quad.surv)
   res <- list(summary.4quad = res.4quad,
               summary.logit = res.logit,
               summay.cox = res.cox

@@ -24,7 +24,6 @@ color.quadrant.1 <- t1[c(1,2,4,3)] %>% setNames(c("R1","R2","R3","R4"))
 t2 <- ggsci::pal_npg()(4)
 color.quadrant.2 <- t2[c(1,2,4,3)] %>% setNames(c("R1","R2","R3","R4"))
 
-load("inst/extdata/my_IMvigor210_data.RData")
 datatype.num.cat <- function(x){
   if(class(x) %in% c("factor","character")){
     res <- "cat"
@@ -148,7 +147,7 @@ binarize.cat <- function(x, pos, neg=NULL, return.binary=F, label.pos = "pos", l
 ##' binarize data for numeric and categorical dataytpe
 binarize.data <- function(x,
                         datatype="auto",
-                        return.binary = F, label.pos="pos", label.neg ="neg",
+                        return.binary = F, label.pos=NULL, label.neg =NULL,
                         cat.pos=NULL, cat.neg=NULL,
                         num.cut.method="median",
                         outcome=NULL, outcome.pos=NULL, outcome.neg=NULL,
@@ -167,9 +166,13 @@ binarize.data <- function(x,
                          auc.best.method = auc.best.method,
                          surv.time = surv.time , surv.event=surv.event,
                          surv.minprop=surv.minprop)
+    if(is.null(label.pos)) label.pos <- "high"
+    if(is.null(label.neg)) label.neg <- "low"
     m <- binarize.num(x = x, cutpoint = cutpoint, return.binary = return.binary,
-                      label.neg = "low", label.pos = "high")
+                      label.neg = label.neg, label.pos = label.pos)
   }else{
+    if(is.null(label.pos)) label.pos <- "pos"
+    if(is.null(label.neg)) label.neg <- "neg"
     assert_that(!is.null(cat.pos), msg="cat.pos should not be NULL")
     m <- binarize.cat(x = x, pos = cat.pos, neg = cat.neg, return.binary = return.binary,
                       label.pos = label.pos, label.neg = label.neg)
@@ -238,6 +241,7 @@ add_adjust_pvalues <- function(data, pvalues, method="BH"){
                 ifelse(p<0.05, "*",
                        ifelse(p<0.1, "?", ""))))
 }
+
 label_pvalues <- function(data, pvalues){
   res <- map_dfc(data[, pvalues, drop=F], .f = ~{
     .label_pvalue(p = .x)
@@ -245,3 +249,48 @@ label_pvalues <- function(data, pvalues){
   colnames(res) <- paste0(pvalues,".sign")
   bind_cols(data, res)
 }
+
+.survfit <- function(data, var, time, event){
+  data[[event]] %<>% as.character() %>% as.integer()
+  assert_that(all(data[[event]] %in% c(0,1)), msg = "event should be 0 and 1")
+  str.formula <- paste0("Surv(", time,",", event,") ~ ", var)
+  survfit <- do.call("survfit",
+                     list(as.formula(str.formula),data=data, conf.type = 'log-log')) # log-log to get the same result with SAS
+  survfit
+}
+
+.survplot <- function(survfit, data, ...){
+  ggsurvplot(survfit, data=data,
+             pval = T,risk.table = T,
+             ...)
+}
+
+##' the first level as negative, 2nd level as positve
+##' for (x1, x2):
+##' (pos, pos) => R1, first quadrant
+##' (neg, pos) => R2, 2nd quadrant
+##' (neg, neg) => R3, 3rd quadrant
+##' (pos, neg) => R4, 4th quadrant
+##' @param m1 factor with 2 levels
+##' @param m2 factor with 2 levels
+##'
+.label.quadrant <- function(m1, m2){
+  assert_that(class(m1) == "factor" && nlevels(m1) == 2,
+              msg = "marker1 should be factor with 2 levels")
+  assert_that(class(m2) == "factor" && nlevels(m2) == 2,
+              msg = "marker2 should be factor with 2 levels")
+  m1.neg <- levels(m1)[1]
+  m1.pos <- levels(m1)[2]
+  m2.neg <- levels(m2)[1]
+  m2.pos <- levels(m2)[2]
+  case_when(m1 %in% m1.pos & m2 %in% m2.pos ~ "R1",
+            m1 %in% m1.neg & m2 %in% m2.pos ~ "R2",
+            m1 %in% m1.neg & m2 %in% m2.neg ~ "R3",
+            m1 %in% m1.pos & m2 %in% m2.neg ~ "R4",
+            TRUE ~ ""
+  ) %>% factor(., levels = c("R1","R2","R3","R4"))
+}
+
+
+
+

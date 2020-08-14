@@ -2,21 +2,21 @@
 ### statistics of four quadrant
 ################################
 
-##' convert positive number and total numbers in each quadrant to dataframe
-##' @param x positive numbers in each quadrant
+##' statistic of response rate in each quadrant
+##' @param x positive number in each quadrant
 ##' @param n total numbers in each quadrant
 ##' @example
 ##' x <- c(5,3,12,9)
 ##' n <- c(8, 10, 20, 18)
-##' @return dataframe with n.total, n.pos, n.neg, pct.pos, pos.lower95, pos.upper95, region, .x1.level, .x2.level
-.quadrant.transform <- function(x, n, combined.quadrant=F){
+##' @return dataframe with n.total, n.pos, n.neg, pct.pos, pos.lower95, pos.upper95, region, .m1.level, .m2.level
+.quadrant.stats.response <- function(x, n, combined.quadrant=F){
   x <- x[1:4]
   n <- n[1:4]
   names(x) <- names(n) <- c("R1","R2","R3","R4")
   out.region <- tibble(
     region = c("R1","R2","R3","R4"),
-    .x1.level = c("pos","neg","neg","pos"),
-    .x2.level = c("pos","pos","neg","neg")
+    .m1.level = c("pos","neg","neg","pos"),
+    .m2.level = c("pos","pos","neg","neg")
   )
   if(combined.quadrant){
     x["R12"] <- x["R1"] + x["R2"]
@@ -31,8 +31,8 @@
     n["R1234"] <- n["R1"] + n["R2"] + n["R3"] + n["R4"]
     out.region.new <- tibble(
       region = c("R12","R34","R14","R23","R1234"),
-      .x1.level = c(NA,NA,"pos","neg", NA),
-      .x2.level = c("pos","neg",NA,NA,NA)
+      .m1.level = c(NA,NA,"pos","neg", NA),
+      .m2.level = c("pos","neg",NA,NA,NA)
     )
     out.region <- bind_rows(out.region, out.region.new)
   }
@@ -52,8 +52,8 @@
 ##' @description compare response rate between quadrants
 ##' @details R1 vs R4, R2 vs R3, R1 vs R2, R3 vs R4, R1 vs R3, R2 vs R4,
 ##' R14(R1+R4) vs R24(R2+R4), R12(R1+R2) vs R34(R3 + R4)
-.quadrant.test <- function(x,n, method="fisher.test", ...){
-  stats <- .quadrant.transform(x,n, combined.quadrant = T) %>%
+.quadrant.test.response <- function(x,n, method="fisher.test", ...){
+  stats <- .quadrant.stats.response(x,n, combined.quadrant = T) %>%
     as.data.frame() %>%
     column_to_rownames("region")
   pairs <- list("R1_vs_R4" = c("R1", "R4"),
@@ -78,32 +78,6 @@
     }
     bind_cols(out1, out2)
   }, .id = "comparison")
-}
-
-##' the first level as negative, 2nd level as positve
-##' for (x1, x2):
-##' (pos, pos) => R1, first quadrant
-##' (neg, pos) => R2, 2nd quadrant
-##' (neg, neg) => R3, 3rd quadrant
-##' (pos, neg) => R4, 4th quadrant
-##' @param m1 factor with 2 levels
-##' @param m2 factor with 2 levels
-##'
-.label.quadrant <- function(m1, m2){
-  assert_that(class(m1) == "factor" && nlevels(m1) == 2,
-              msg = "marker1 should be factor with 2 levels")
-  assert_that(class(m2) == "factor" && nlevels(m2) == 2,
-              msg = "marker2 should be factor with 2 levels")
-  m1.neg <- levels(m1)[1]
-  m1.pos <- levels(m1)[2]
-  m2.neg <- levels(m2)[1]
-  m2.pos <- levels(m2)[2]
-  case_when(m1 %in% m1.pos & m2 %in% m2.pos ~ "R1",
-            m1 %in% m1.neg & m2 %in% m2.pos ~ "R2",
-            m1 %in% m1.neg & m2 %in% m2.neg ~ "R3",
-            m1 %in% m1.pos & m2 %in% m2.neg ~ "R4",
-            TRUE ~ ""
-  )
 }
 
 ##' @param data
@@ -134,9 +108,9 @@
     group_by(.quadrant) %>% count() %>% pull(n)
   names(pos.n) <- c("R1","R2","R3","R4")
   # stats
-  stats <- .quadrant.transform(pos.n, total.n)
+  stats <- .quadrant.stats.response(pos.n, total.n)
   # test
-  test <- .quadrant.test(x =pos.n, n = total.n)
+  test <- .quadrant.test.response(x =pos.n, n = total.n)
   list(pos.n= pos.n, total.n = total.n, stats = stats, test =test)
 }
 

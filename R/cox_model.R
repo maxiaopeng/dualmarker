@@ -26,12 +26,6 @@ summary_cox <- function(cox.model){
 ##' @param marker1
 ##' @param marker2
 ##'
-data <- clin.bmk
-surv.time <- "os"
-surv.event <- "censOS"
-marker1 <- "TMB"
-marker2 <- "gepscore_gene19"
-na.rm=T
 .dm_cox_core <- function(data, surv.time, surv.event, marker1, marker2, na.rm=T){
   if(na.rm){
     data <- drop_na(data, !!sym(surv.time), !!sym(surv.event), !!sym(marker1), !!sym(marker2))
@@ -135,3 +129,4 @@ dm_cox <- function(data, surv.time, surv.event,
                       cutpoint.m2 = cutpoint.m2)
   bind_cols(out.basic, out)
 }
+

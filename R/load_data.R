@@ -72,7 +72,8 @@ es.gep <- fun.make.eSet(m.expr =expr.voom, sample.info = pData(cds2))
 
 # 2. signature
 data(human_gene_signatures)
-genesets <- fun.read.gmt("inst/extdata/BGsigDB_v2.0.gmt")
+#genesets <- fun.read.gmt("inst/extdata/BGsigDB_v2.0.gmt")
+genesets <- fun.read.gmt("inst/extdata/h.all.v7.0.symbols.gmt")
 names(genesets) %<>% make.names()
 human_gene_signatures <- c(human_gene_signatures, genesets)
 human_gene_signatures %<>% purrr::keep(.p = ~{length(intersect(.x, rownames(es.gep)))>0})
@@ -140,6 +141,7 @@ tmp.clin <- clin.info.gep %>%
 #goi <- c("CXCL13","HLA-DRA","B2M","CD163","CD68","CD80","CD86","NCR1","FCGR1A","FCGR1B","FCGR2A","FCGR2B","FCGR3A","FCGR3B","ADORA2A","CD226","HAVCR2","ENTPD1","CD274","NT5E","PDCD1","PVR","PVRL2","TIGIT","TNFRSF4","TNFSF4","VTCN1","PDCD1LG2","PIK3CD","CD4","CD8A","FOXP3","GZMB","IFNG","LAG3","NECTIN2","CD276","MAP4K1","IL2RA","IL2RB","TGFB1","TLR7","TLR8","TLR9","TMEM173","KLRC1","KLRC2","KLRD1","HLA-E","HLA-G","HLA-F","LILRB1","LILRB2","TIGIT","CD27","CD8A","PDCD1LG2","LAG3","CD274","CXCR6","CMKLR1","NKG7","CCL5","PSMB10","IDO1","CXCL9","HLA-DQA1","CD276","STAT1","HLA-DRB1","HLA-E")
 genesets <- fun.read.gmt("inst/extdata/panel_gene_list.txt")
 goi <- genesets$HTG_PIPIO
+goi <- rownames(es.gep)
 tmp.gep <- fun.subset.es(es = es.gep, subset.row = unique(goi)) %>%
   exprs() %>% t %>% as.data.frame() %>%
   setNames(paste0("gep_", make.names(colnames(.)))) %>%

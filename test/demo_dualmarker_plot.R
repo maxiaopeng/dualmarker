@@ -9,6 +9,8 @@ marker2 <- "gepscore_gene19"
 num.cut.method <- "median"
 m1.datatype <- "auto"
 m2.datatype <- "auto"
+time <- "os"
+event <- "censOS"
 
 
 ##################
@@ -144,7 +146,7 @@ res <- dm_pair(
   outcome.pos="CR/PR",
   outcome.neg="SD/PD",
   marker1 = "mut_ARID1A",
-  marker2 = "gep_MAP4K1",
+  marker2 = "gep_MUC1",
   num.cut.method = "median",
   m1.cat.pos = "YES",
   m1.cat.neg = "NO",
@@ -153,11 +155,9 @@ res <- dm_pair(
   surv.time = "os",
   surv.event = "censOS")
 
-pdf("test/Imvigor210_mutARID1A_gepMAP4K1_cutByMedian.pdf")
+pdf("test/Imvigor210_mutARID1A_gepMUC1_cutByMedian.pdf")
 walk(res$plot, print)
 dev.off()
-
-
 
 ##################
 ## mut_ARID1A + IC.Level signature

@@ -196,16 +196,16 @@ dm_searchM2_cox_plot <- function(res.searchM2, padj=F, max.n = 30, pval.threh = 
   d <- res.searchM2.sig %>%
     mutate(sign_m2 = sign(1 - HR_m2)) %>%
     dplyr::select(m2, sign_m2,
-                  M2_vs_Null = pval.waldtest_m2,
-                  Md_vs_M1 = pval.vsM1_md,
-                  Md.int_vs_M1 = pval.vsM1_md.int,
-                  Md_vs_M2 = pval.vsM2_md)
+                  M1_vs_dual = pval.vsM1_md,
+                  M1_vs_dual.int = pval.vsM1_md.int,
+                  M2_vs_dual = pval.vsM2_md,
+                  M2_vs_dual.int = pval.vsM2_md.int)
 
   .f <- function(pval, sign){ - sign * log10(pval) }
   dd <- mutate_at(.tbl = d, .vars = vars(contains("_vs_")),
                   .funs = .f, sign = d$sign_m2) %>%
     mutate(m2 = str_sub(m2, end= max.label) %>% make.names(unique=T)) %>%
-    mutate(m2 = reorder(m2, Md_vs_M1))
+    mutate(m2 = reorder(m2, M1_vs_dual))
 
   dd %>%
     gather(key = "comparison", value="pval", contains("_vs_")) %>%
