@@ -4,7 +4,7 @@
                                     marker1, marker2){
 
   data %<>% drop_na(!!sym(marker1), !!sym(marker2))
-  res <- data %>% group_by(!!sym(marker1), !!sym(marker2)) %>%
+  res <- data %>% dplyr::group_by(!!sym(marker1), !!sym(marker2)) %>%
     group_modify(.f = ~{
       res <- .survfit(data = .x, var = "1", time = time, event = event)
       summary(res)$table %>% t %>% as_tibble()
@@ -19,9 +19,9 @@
 .surv.test.binaryVar <- function(data, var, time, event){
 
   data[[event]] %<>% as.character() %>% as.integer()
-  assert_that(all(data[[event]] %in% c(0,1)), msg = "event should be 0 and 1")
+  assertthat::assert_that(all(data[[event]] %in% c(0,1)), msg = "event should be 0 and 1")
   data[[var]] %<>% base::droplevels()
-  assert_that(class(data[[var]]) == "factor" &&
+  assertthat::assert_that(class(data[[var]]) == "factor" &&
                 nlevels(data[[var]]) == 2,
               msg = "var should be factors with 2 levels")
 
@@ -62,11 +62,11 @@
                                         marker1, marker2){
   # check input
   data[[event]] %<>% as.character() %>% as.integer()
-  assert_that(all(data[[event]] %in% c(0,1)), msg = "event should be 0 and 1")
-  assert_that(class(data[[marker1]]) == "factor" &&
+  assertthat::assert_that(all(data[[event]] %in% c(0,1)), msg = "event should be 0 and 1")
+  assertthat::assert_that(class(data[[marker1]]) == "factor" &&
                 nlevels(data[[marker1]]) == 2,
               msg = "marker1 should be factors with 2 levels")
-  assert_that(class(data[[marker2]]) == "factor" &&
+  assertthat::assert_that(class(data[[marker2]]) == "factor" &&
                 nlevels(data[[marker2]]) == 2,
               msg = "marker2 should be factors with 2 levels")
   # prep data
@@ -81,28 +81,28 @@
 ##' @description
 ##' four quadrant analysis of survival
 dm_4quadrant_survival <- function(data, time, event,
-                                  marker1, marker2, num.cut.method="none",
-                                  m1.datatype = "auto",
-                                  m1.cat.pos = NULL, m1.cat.neg = NULL,
-                                  m2.datatype = "auto",
-                                  m2.cat.pos = NULL, m2.cat.neg = NULL){
+                                  marker1, marker2, num_cut_method="none",
+                                  m1_datatype = "auto",
+                                  m1_cat_pos = NULL, m1_cat_neg = NULL,
+                                  m2_datatype = "auto",
+                                  m2_cat_pos = NULL, m2_cat_neg = NULL){
   # prep .m1
-  res <- binarize.data(x = data[[marker1]],
-                       datatype = m1.datatype,
-                       num.cut.method = num.cut.method,
+  res <- binarize_data(x = data[[marker1]],
+                       datatype = m1_datatype,
+                       num_cut_method = num_cut_method,
                        outcome = data[[outcome]],
-                       outcome.pos = outcome.pos, outcome.neg =outcome.neg,
-                       cat.pos = m1.cat.pos, cat.neg = m1.cat.neg)
+                       outcome_pos = outcome_pos, outcome_neg =outcome_neg,
+                       cat.pos = m1_cat_pos, cat.neg = m1_cat_neg)
   data$.m1 <- res$data
   cutpoint.m1 <- res$cutpoint
-  if(m1.datatype=="auto"){m1.datatype <- datatype.num.cat(data[[marker1]])}
+  if(m1_datatype=="auto"){m1_datatype <- datatype_num_cat(data[[marker1]])}
   # prep .m2
-  res <- binarize.data(x = data[[marker2]], datatype = m2.datatype,
-                       num.cut.method = num.cut.method,
+  res <- binarize_data(x = data[[marker2]], datatype = m2_datatype,
+                       num_cut_method = num_cut_method,
                        outcome = data[[outcome]],
-                       outcome.pos = outcome.pos, outcome.neg =outcome.neg,
-                       cat.pos = m2.cat.pos, cat.neg = m2.cat.neg)
-  if(m2.datatype=="auto"){m2.datatype <- datatype.num.cat(data[[marker2]])}
+                       outcome_pos = outcome_pos, outcome_neg =outcome_neg,
+                       cat.pos = m2_cat_pos, cat.neg = m2_cat_neg)
+  if(m2_datatype=="auto"){m2_datatype <- datatype_num_cat(data[[marker2]])}
   data$.m2 <- res$data
   cutpoint.m2 <- res$cutpoint
   # run 4quadrant analysis
@@ -113,9 +113,9 @@ dm_4quadrant_survival <- function(data, time, event,
                       event = event,
                       m1=marker1,
                       m2 =marker2,
-                      marker.cut.method = num.cut.method,
-                      m1.datatype = m1.datatype,
-                      m2.datatype = m2.datatype,
+                      marker.cut.method = num_cut_method,
+                      m1_datatype = m1_datatype,
+                      m2_datatype = m2_datatype,
                       cutpoint.m1 = cutpoint.m1,
                       cutpoint.m2 = cutpoint.m2)
   out
@@ -125,21 +125,21 @@ dm_4quadrant_survival <- function(data, time, event,
 if(F){
   data <- clin.bmk
   outcome = "binaryResponse"
-  outcome.pos="CR/PR"
-  outcome.neg="SD/PD"
+  outcome_pos="CR/PR"
+  outcome_neg="SD/PD"
   marker1 = "TMB"
   marker2 <- "gepscore_gene19"
-  num.cut.method <- "median"
-  m1.datatype <- "auto"
-  m2.datatype <- "auto"
-  surv.time <- "os"
-  surv.event <- "censOS"
+  num_cut_method <- "median"
+  m1_datatype <- "auto"
+  m2_datatype <- "auto"
+  time <- "os"
+  event <- "censOS"
   dm_4quadrant_survival(data = clin.bmk, time = "os", event = "censOS", marker1 = "TMB",
-                        marker2 = "gepscore_gene19", num.cut.method = "median")
+                        marker2 = "gepscore_gene19", num_cut_method = "median")
   dm_4quadrant_survival(data = clin.bmk, time = "os", event = "censOS", marker1 = "mut_ARID1A",
-                        marker2 = "gep_CXCL13", num.cut.method = "median", m1.cat.pos = "YES", m1.cat.neg = "NO")
+                        marker2 = "gep_CXCL13", num_cut_method = "median", m1_cat_pos = "YES", m1_cat_neg = "NO")
   res <- dm_4quadrant_survival(data = clin.bmk, time = "os", event = "censOS", marker1 = "mut_ARID1A",
-                        marker2 = "IC.Level", num.cut.method = "median",
-                        m1.cat.pos = "YES", m1.cat.neg = "NO",
-                        m2.cat.pos = c("IC0","IC1"), m2.cat.neg = c("IC2+"))
+                        marker2 = "IC.Level", num_cut_method = "median",
+                        m1_cat_pos = "YES", m1_cat_neg = "NO",
+                        m2_cat_pos = c("IC0","IC1"), m2_cat_neg = c("IC2+"))
 }

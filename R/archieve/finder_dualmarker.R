@@ -27,7 +27,7 @@ sm_summary_logit <- function(logit.model){
     d$.fitted <- fitted(logit.model)
     response <- all.vars(logit.model$formula)[1]
     response.level <- levels(d[[response]])
-    auc.stats(data = d, response = response,
+    auc_stats(data = d, response = response,
                          case= response.level[2],
                          control= response.level[1],
                          predictor = ".fitted")
@@ -65,15 +65,15 @@ sm_summary_logit <- function(logit.model){
 ##' evaluate the logistic regression of dual marker
 ##' @param data
 ##' @param outcome factor, level should be [neg, pos]
-##' @param outcome.pos
-##' @param outcome.neg
+##' @param outcome_pos
+##' @param outcome_neg
 ##' @param marker1
 ##' @param marker2
 .dm_logit <- function(data, outcome, marker1, marker2, binary.regression=T, na.rm=T){
   if(na.rm){
     data %<>% drop_na( !!sym(outcome), !!sym(marker1), !!sym(marker2))
   }
-  assert_that(all(levels(data[[outcome]]) == c("neg","pos")),
+  assertthat::assert_that(all(levels(data[[outcome]]) == c("neg","pos")),
               msg = "outcome level should be ['neg','pos']")
   if(binary.regression){
     fml.m0 <- paste0( outcome, "~ 1") %>% as.formula()
@@ -87,7 +87,7 @@ sm_summary_logit <- function(logit.model){
     logit.md <- glm(formula = fml.md, data = data, family = binomial(link="logit"))
     logit.md.int <- glm(formula = fml.md.int, data = data, family = binomial(link="logit"))
   }else{
-    d <- data %>% group_by( !!sym(outcome), !!sym(marker1), !!sym(marker2)) %>%
+    d <- data %>% dplyr::group_by( !!sym(outcome), !!sym(marker1), !!sym(marker2)) %>%
       dplyr::count() %>%
       spread(key = outcome, value = "n") %>% ungroup()
     fml.m0 <- paste0( "cbind(pos, neg) ~ 1") %>% as.formula()
@@ -136,62 +136,62 @@ sm_summary_logit <- function(logit.model){
 ##' evaluate the logistic regression of dual marker
 ##' @param data
 ##' @param outcome
-##' @param outcome.pos
-##' @param outcome.neg
+##' @param outcome_pos
+##' @param outcome_neg
 ##' @param marker1
 ##' @param marker2
-##' @param num.cut.method marker cut method, [none, roc, median]
+##' @param num_cut_method marker cut method, [none, roc, median]
 ##' @return dual marker logistic regression summary
-dm_logit <- function(data, outcome, outcome.pos, outcome.neg=NULL,
-                     marker1, marker2, num.cut.method="none",
-                     m1.cat.pos = NULL, m1.cat.neg = NULL,
-                     m2.cat.pos = NULL, m2.cat.neg = NULL,
+dm_logit <- function(data, outcome, outcome_pos, outcome_neg=NULL,
+                     marker1, marker2, num_cut_method="none",
+                     m1_cat_pos = NULL, m1_cat_neg = NULL,
+                     m2_cat_pos = NULL, m2_cat_neg = NULL,
                      na.rm=T){
   n.marker.cat = 0 # number of markers which is binary, 0, 1 or 2
   cutpoint.m1 <- NA
   cutpoint.m2 <- NA
   # prep .outcome
-  data$.outcome <- binarize.cat(x = data[[outcome]],
-                                pos = outcome.pos, neg = outcome.neg)
-  assert_that(num.cut.method %in% c("none","roc", "median"),
-              msg = "num.cut.method should be [none, roc, median]")
+  data$.outcome <- binarize_cat(x = data[[outcome]],
+                                pos = outcome_pos, neg = outcome_neg)
+  assertthat::assert_that(num_cut_method %in% c("none","roc", "median"),
+              msg = "num_cut_method should be [none, roc, median]")
   # prep .m1
-  if(datatype.num.cat(data[[marker1]]) == "num"){
-    if(num.cut.method=="none"){
+  if(datatype_num_cat(data[[marker1]]) == "num"){
+    if(num_cut_method=="none"){
       data$.m1 <- data[[marker1]]
     }else{
       cutpoint.m1 <- cutpoint(x = data[[marker1]],
-                              method = num.cut.method,
+                              method = num_cut_method,
                               outcome = data[[outcome]],
-                              outcome.pos = outcome.pos,
-                              outcome.neg = outcome.neg)
-      data$.m1 <- binarize.num(x = data[[marker1]],
+                              outcome_pos = outcome_pos,
+                              outcome_neg = outcome_neg)
+      data$.m1 <- binarize_num(x = data[[marker1]],
                                cutpoint = cutpoint.m1,
-                               label.neg = "low", label.pos = "high")
+                               label_neg = "low", label_pos = "high")
       n.marker.cat <- n.marker.cat+1
       }
   }else{
-    assert_that(!is.null(m1.cat.pos) && !is.null(m1.cat.neg), msg="m1.cat.pos, m1.cat.neg should not be NULL")
-    data$.m1 <- binarize.cat(x = data[[marker1]], pos = m1.cat.pos, neg = m1.cat.neg)
+    assertthat::assert_that(!is.null(m1_cat_pos) && !is.null(m1_cat_neg), msg="m1_cat_pos, m1_cat_neg should not be NULL")
+    data$.m1 <- binarize_cat(x = data[[marker1]], pos = m1_cat_pos, neg = m1_cat_neg)
   }
   # prep .m2
-  if(datatype.num.cat(data[[marker2]]) == "num"){
-    if(num.cut.method=="none"){
+  if(datatype_num_cat(data[[marker2]]) == "num"){
+    if(num_cut_method=="none"){
       data$.m2 <- data[[marker2]]
     }else{
       cutpoint.m2 <- cutpoint(x = data[[marker2]],
-                              method = num.cut.method,
+                              method = num_cut_method,
                               outcome = data[[outcome]],
-                              outcome.pos = outcome.pos,
-                              outcome.neg = outcome.neg)
-      data$.m2 <- binarize.num(x = data[[marker2]],
+                              outcome_pos = outcome_pos,
+                              outcome_neg = outcome_neg)
+      data$.m2 <- binarize_num(x = data[[marker2]],
                                cutpoint = cutpoint.m2,
-                               label.neg = "low", label.pos = "high")
+                               label_neg = "low", label_pos = "high")
       n.marker.cat <- n.marker.cat+1
     }
   }else{
-    assert_that(!is.null(m2.cat.pos) && !is.null(m2.cat.neg), msg="m2.cat.neg, m2.cat.neg should not be NULL")
-    data$.m2 <- binarize.cat(x = data[[marker2]], pos = m1.cat.pos, neg = m2.cat.neg)
+    assertthat::assert_that(!is.null(m2_cat_pos) && !is.null(m2_cat_neg), msg="m2_cat_neg, m2_cat_neg should not be NULL")
+    data$.m2 <- binarize_cat(x = data[[marker2]], pos = m1_cat_pos, neg = m2_cat_neg)
   }
   # run logistic regression
   out <- .dm_logit(data = data,
@@ -200,10 +200,10 @@ dm_logit <- function(data, outcome, outcome.pos, outcome.neg=NULL,
                    binary.regression = n.marker.cat!=2,
                    na.rm = na.rm)
   out.basic <- tibble(outcome = outcome,
-                      outcome.pos = toString(outcome.pos),
-                      outcome.neg = toString(outcome.neg),
+                      outcome_pos = toString(outcome_pos),
+                      outcome_neg = toString(outcome_neg),
                       m1=marker1, m2 =marker2,
-                      marker.cut.method = num.cut.method,
+                      marker.cut.method = num_cut_method,
                       cutpoint.m1 = cutpoint.m1,
                       cutpoint.m2 = cutpoint.m2)
   bind_cols(out.basic, out)
@@ -233,9 +233,9 @@ dm_logit_plot <- function(dm.summ, type = "deviance.diff"){
 ##' @param m2 factor with 2 levels
 ##'
 .label.quadrant <- function(m1, m2){
-  assert_that(class(m1) == "factor" && nlevels(m1) == 2,
+  assertthat::assert_that(class(m1) == "factor" && nlevels(m1) == 2,
               msg = "marker1 should be factor with 2 levels")
-  assert_that(class(m2) == "factor" && nlevels(m2) == 2,
+  assertthat::assert_that(class(m2) == "factor" && nlevels(m2) == 2,
               msg = "marker2 should be factor with 2 levels")
   m1.neg <- levels(m1)[1]
   m1.pos <- levels(m1)[2]
@@ -253,15 +253,15 @@ dm_logit_plot <- function(dm.summ, type = "deviance.diff"){
 ##' @param outcome should be [ pos, neg ]
 .dm_4quadrant_count <- function(data, outcome=".outcome", marker1=".m1", marker2=".m2",na.rm=T){
   # check input
-  assert_that(class(data[[outcome]]) == "factor" &&
+  assertthat::assert_that(class(data[[outcome]]) == "factor" &&
                 nlevels(data[[outcome]]) == 2,
               msg = "outcome should be factors with 2 levels")
-  assert_that(all(levels(data[[outcome]]) == c("neg","pos")),
+  assertthat::assert_that(all(levels(data[[outcome]]) == c("neg","pos")),
               msg = "outcome level should be ['neg','pos']")
-  assert_that(class(data[[marker1]]) == "factor" &&
+  assertthat::assert_that(class(data[[marker1]]) == "factor" &&
                 nlevels(data[[marker1]]) == 2,
               msg = "marker1 should be factors with 2 levels")
-  assert_that(class(data[[marker2]]) == "factor" &&
+  assertthat::assert_that(class(data[[marker2]]) == "factor" &&
                 nlevels(data[[marker2]]) == 2,
               msg = "marker2 should be factors with 2 levels")
   # prep data
@@ -269,10 +269,11 @@ dm_logit_plot <- function(dm.summ, type = "deviance.diff"){
     data %<>% drop_na( !!sym(outcome), !!sym(marker1), !!sym(marker2))
   }
   data$.quadrant <- .label.quadrant(data[[marker1]], data[[marker2]])
-  total.n <- data %>% group_by(.quadrant) %>% count() %>% pull(n)
+  total.n <- data %>% dplyr::group_by(.quadrant) %>%
+    dplyr::count() %>% dplyr::pull(n)
   names(total.n) <- c("R1","R2","R3","R4")
   pos.n <- data %>% dplyr::filter(!!sym(outcome) %in% "pos") %>%
-    group_by(.quadrant) %>% count() %>% pull(n)
+    dplyr::group_by(.quadrant) %>% dplyr::count() %>% dplyr::pull(n)
   names(pos.n) <- c("R1","R2","R3","R4")
   list(pos.n= pos.n, total.n = total.n)
 }
@@ -281,55 +282,55 @@ dm_logit_plot <- function(dm.summ, type = "deviance.diff"){
 ##' evaluate the logistic regression of dual marker
 ##' @param data
 ##' @param outcome
-##' @param outcome.pos
-##' @param outcome.neg
+##' @param outcome_pos
+##' @param outcome_neg
 ##' @param marker1
 ##' @param marker2
-##' @param num.cut.method marker cut method, [none, roc, median]
+##' @param num_cut_method marker cut method, [none, roc, median]
 ##' @return dual marker logistic regression summary
-dm_4quadrant <- function(data, outcome, outcome.pos, outcome.neg=NULL,
-                     marker1, marker2, num.cut.method="none",
-                     m1.cat.pos = NULL, m1.cat.neg = NULL,
-                     m2.cat.pos = NULL, m2.cat.neg = NULL,
+dm_4quadrant <- function(data, outcome, outcome_pos, outcome_neg=NULL,
+                     marker1, marker2, num_cut_method="none",
+                     m1_cat_pos = NULL, m1_cat_neg = NULL,
+                     m2_cat_pos = NULL, m2_cat_neg = NULL,
                      na.rm=T){
   cutpoint.m1 <- NA
   cutpoint.m2 <- NA
   # prep .outcome
-  data$.outcome <- binarize.cat(x = data[[outcome]],
-                                pos = outcome.pos, neg = outcome.neg)
+  data$.outcome <- binarize_cat(x = data[[outcome]],
+                                pos = outcome_pos, neg = outcome_neg)
   # prep .m1
-  if(datatype.num.cat(data[[marker1]]) == "num"){
-    assert_that(num.cut.method %in% c("roc", "median"),
-                msg = "num.cut.method should be [roc, median]")
+  if(datatype_num_cat(data[[marker1]]) == "num"){
+    assertthat::assert_that(num_cut_method %in% c("roc", "median"),
+                msg = "num_cut_method should be [roc, median]")
     cutpoint.m1 <- cutpoint(x = data[[marker1]],
-                            method = num.cut.method,
+                            method = num_cut_method,
                             outcome = data[[outcome]],
-                            outcome.pos = outcome.pos,
-                            outcome.neg = outcome.neg)
-    data$.m1 <- binarize.num(x = data[[marker1]],
+                            outcome_pos = outcome_pos,
+                            outcome_neg = outcome_neg)
+    data$.m1 <- binarize_num(x = data[[marker1]],
                              cutpoint = cutpoint.m1,
-                             label.neg = "low", label.pos = "high")
+                             label_neg = "low", label_pos = "high")
   }else{
-    assert_that(!is.null(m1.cat.pos) && !is.null(m1.cat.neg),
-                msg="m1.cat.pos, m1.cat.neg should not be NULL")
-    data$.m1 <- binarize.cat(x = data[[marker1]], pos = m1.cat.pos, neg = m1.cat.neg)
+    assertthat::assert_that(!is.null(m1_cat_pos) && !is.null(m1_cat_neg),
+                msg="m1_cat_pos, m1_cat_neg should not be NULL")
+    data$.m1 <- binarize_cat(x = data[[marker1]], pos = m1_cat_pos, neg = m1_cat_neg)
   }
   # prep .m2
-  if(datatype.num.cat(data[[marker2]]) == "num"){
-    assert_that(num.cut.method %in% c("roc", "median"),
-                msg = "num.cut.method should be [roc, median]")
+  if(datatype_num_cat(data[[marker2]]) == "num"){
+    assertthat::assert_that(num_cut_method %in% c("roc", "median"),
+                msg = "num_cut_method should be [roc, median]")
     cutpoint.m2 <- cutpoint(x = data[[marker2]],
-                            method = num.cut.method,
+                            method = num_cut_method,
                             outcome = data[[outcome]],
-                            outcome.pos = outcome.pos,
-                            outcome.neg = outcome.neg)
-    data$.m2 <- binarize.num(x = data[[marker2]],
+                            outcome_pos = outcome_pos,
+                            outcome_neg = outcome_neg)
+    data$.m2 <- binarize_num(x = data[[marker2]],
                              cutpoint = cutpoint.m2,
-                             label.neg = "low", label.pos = "high")
+                             label_neg = "low", label_pos = "high")
   }else{
-    assert_that(!is.null(m2.cat.pos) && !is.null(m2.cat.neg),
-                msg="m2.cat.neg, m2.cat.neg should not be NULL")
-    data$.m2 <- binarize.cat(x = data[[marker2]], pos = m1.cat.pos, neg = m2.cat.neg)
+    assertthat::assert_that(!is.null(m2_cat_pos) && !is.null(m2_cat_neg),
+                msg="m2_cat_neg, m2_cat_neg should not be NULL")
+    data$.m2 <- binarize_cat(x = data[[marker2]], pos = m1_cat_pos, neg = m2_cat_neg)
   }
   # run 4quadrant analysis
   out <- .dm_4quadrant_count(data, outcome=".outcome",
@@ -337,10 +338,10 @@ dm_4quadrant <- function(data, outcome, outcome.pos, outcome.neg=NULL,
   out$data <- data
   out$stats <- .quadrant.transform(out$pos.n, out$total.n)
   out$param <- tibble(outcome = outcome,
-                  outcome.pos = toString(outcome.pos),
-                  outcome.neg = toString(outcome.neg),
+                  outcome_pos = toString(outcome_pos),
+                  outcome_neg = toString(outcome_neg),
                   m1=marker1, m2 =marker2,
-                  marker.cut.method = num.cut.method,
+                  marker.cut.method = num_cut_method,
                   cutpoint.m1 = cutpoint.m1,
                   cutpoint.m2 = cutpoint.m2)
   out

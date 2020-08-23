@@ -124,7 +124,6 @@ quadrant_matrix_chart <- function(x, n){
 ##' x <- c(5,3,12,9)
 ##' n <- c(8, 10, 20, 18)
 ##' bubblepie_chart(x,n)
-##' @import ggforce
 ##' @export
 quadrant_donut_chart <- function(x, n){
   data <- .quadrant.transform(x,n) %>%

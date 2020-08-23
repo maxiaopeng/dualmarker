@@ -2,47 +2,47 @@
 
 ##' dual biomarker plot and statistics
 ##'
-dm_pair <- function(data, outcome, outcome.pos, outcome.neg=NULL,
-                    marker1, marker2, surv.time, surv.event,
-                    num.cut.method = "median",
-                    m1.cat.pos = NULL, m1.cat.neg = NULL,
-                    m2.cat.pos = NULL, m2.cat.neg = NULL){
+dm_pair <- function(data, outcome, outcome_pos, outcome_neg=NULL,
+                    marker1, marker2, time, event,
+                    num_cut_method = "median",
+                    m1_cat_pos = NULL, m1_cat_neg = NULL,
+                    m2_cat_pos = NULL, m2_cat_neg = NULL){
   ### single marker
-  if(is.null(outcome.neg)) {
-    outcome.neg <- setdiff(unique(data[[outcome]]), outcome.pos)
+  if(is.null(outcome_neg)) {
+    outcome_neg <- setdiff(unique(data[[outcome]]), outcome_pos)
   }
   # g.sm <- data %>%
-  #   dplyr::filter( !!sym(outcome) %in% c(outcome.pos, outcome.neg)) %>%
+  #   dplyr::filter( !!sym(outcome) %in% c(outcome_pos, outcome_neg)) %>%
   #   dplyr::select(one_of(marker1, marker2,outcome)) %>%
   #   GGally::ggpairs(aes_string(color = outcome, alpha=0.5))
-  g.sm <- dm_boxplot(data = data, outcome = outcome, outcome.pos = outcome.pos,
-                     outcome.neg = outcome.neg,
+  g.sm <- dm_boxplot(data = data, outcome = outcome, outcome_pos = outcome_pos,
+                     outcome_neg = outcome_neg,
                      marker1 = marker1, marker2 =  marker2,
-                     m1.cat.pos = m1.cat.pos, m1.cat.neg = m1.cat.neg,
-                     m2.cat.pos = m2.cat.pos, m2.cat.neg = m2.cat.neg)
+                     m1_cat_pos = m1_cat_pos, m1_cat_neg = m1_cat_neg,
+                     m2_cat_pos = m2_cat_pos, m2_cat_neg = m2_cat_neg)
 
   # scatterplot
   g.scatter <- dm_scatter_chart(data = data,
                                 outcome = outcome,
-                                outcome.pos=outcome.pos,
-                                outcome.neg=outcome.neg,
+                                outcome_pos=outcome_pos,
+                                outcome_neg=outcome_neg,
                                 marker1 = marker1,
                                 marker2 = marker2,
-                                num.cut.method = num.cut.method,
-                                m1.cat.pos = m1.cat.pos, m1.cat.neg = m1.cat.neg,
-                                m2.cat.pos = m2.cat.pos, m2.cat.neg = m2.cat.neg)
+                                num_cut_method = num_cut_method,
+                                m1_cat_pos = m1_cat_pos, m1_cat_neg = m1_cat_neg,
+                                m2_cat_pos = m2_cat_pos, m2_cat_neg = m2_cat_neg)
   ### four quadrant visualization
   res.4quad <- dm_4quadrant(data = clin.bmk,
                             outcome = outcome,
-                            outcome.pos= outcome.pos,
-                            outcome.neg= outcome.neg,
+                            outcome_pos= outcome_pos,
+                            outcome_neg= outcome_neg,
                             marker1  = marker1,
                             marker2 =  marker2,
-                            num.cut.method = num.cut.method,
-                            m1.cat.pos = m1.cat.pos,
-                            m1.cat.neg = m1.cat.neg,
-                            m2.cat.pos = m2.cat.pos,
-                            m2.cat.neg = m2.cat.neg,
+                            num_cut_method = num_cut_method,
+                            m1_cat_pos = m1_cat_pos,
+                            m1_cat_neg = m1_cat_neg,
+                            m2_cat_pos = m2_cat_pos,
+                            m2_cat_neg = m2_cat_neg,
                             na.rm = T)
 
   # four quadrant plot
@@ -52,13 +52,13 @@ dm_pair <- function(data, outcome, outcome.pos, outcome.neg=NULL,
   # as continuous variables
   res.logit <- dm_logit(data = clin.bmk,
                         outcome = outcome,
-                        outcome.pos= outcome.pos,
-                        outcome.neg= outcome.neg,
+                        outcome_pos= outcome_pos,
+                        outcome_neg= outcome_neg,
                         marker1 = marker1,
                         marker2 = marker2,
-                        num.cut.method = num.cut.method,
-                        m1.cat.pos = m1.cat.pos, m1.cat.neg = m1.cat.neg,
-                        m2.cat.pos = m1.cat.pos, m2.cat.neg = m2.cat.neg,
+                        num_cut_method = num_cut_method,
+                        m1_cat_pos = m1_cat_pos, m1_cat_neg = m1_cat_neg,
+                        m2_cat_pos = m1_cat_pos, m2_cat_neg = m2_cat_neg,
                         binarization = F)
   # barplot
   g.logit <- dm_logit_plot(res.logit)
@@ -66,37 +66,37 @@ dm_pair <- function(data, outcome, outcome.pos, outcome.neg=NULL,
   # ROC
   g.roc <- dm_roc(data = data,
                   outcome = outcome,
-                  outcome.pos= outcome.pos,
-                  outcome.neg= outcome.neg,
+                  outcome_pos= outcome_pos,
+                  outcome_neg= outcome_neg,
                   marker1 = marker1,
                   marker2 = marker2,
-                  m1.cat.pos = m1.cat.pos, m1.cat.neg = m1.cat.neg,
-                  m2.cat.pos = m2.cat.pos, m2.cat.neg = m2.cat.neg,
+                  m1_cat_pos = m1_cat_pos, m1_cat_neg = m1_cat_neg,
+                  m2_cat_pos = m2_cat_pos, m2_cat_neg = m2_cat_neg,
                   logistic.reg = T,
                   logistic.reg.int = T)
   # survival
   g.km <- dm_KMplot(data = data,
-                    surv.time = surv.time,
-                    surv.event = surv.event,
+                    time = time,
+                    event = event,
                     marker1 = marker1,
                     marker2 = marker2,
-                    num.cut.method = num.cut.method,
+                    num_cut_method = num_cut_method,
                     outcome = outcome,
-                    outcome.pos = outcome.pos,
-                    outcome.neg = outcome.neg,
-                    m1.cat.pos = m1.cat.pos, m1.cat.neg = m1.cat.neg,
-                    m2.cat.pos = m2.cat.pos, m2.cat.neg = m2.cat.neg)
+                    outcome_pos = outcome_pos,
+                    outcome_neg = outcome_neg,
+                    m1_cat_pos = m1_cat_pos, m1_cat_neg = m1_cat_neg,
+                    m2_cat_pos = m2_cat_pos, m2_cat_neg = m2_cat_neg)
   res.cox <- dm_cox(data = data,
-                    surv.time = surv.time, surv.event = surv.event,
+                    time = time, event = event,
                     marker1 = marker1, marker2 = marker2,
-                    binarization = F, num.cut.method = num.cut.method,
-                    m1.cat.pos = m1.cat.pos, m1.cat.neg = m1.cat.neg,
-                    m2.cat.pos = m2.cat.pos, m2.cat.neg = m2.cat.neg)
-  g.4quad.surv <- quadrant_survival_chart(data = data, time = surv.time,
-                                          event = surv.event, marker1 = marker1,
-                                          marker2 = marker2, num.cut.method = num.cut.method,
-                                          m1.cat.pos = m1.cat.pos, m1.cat.neg = m1.cat.neg,
-                                          m2.cat.pos = m2.cat.pos, m2.cat.neg = m2.cat.neg)
+                    binarization = F, num_cut_method = num_cut_method,
+                    m1_cat_pos = m1_cat_pos, m1_cat_neg = m1_cat_neg,
+                    m2_cat_pos = m2_cat_pos, m2_cat_neg = m2_cat_neg)
+  g.4quad.surv <- quadrant_survival_chart(data = data, time = time,
+                                          event = event, marker1 = marker1,
+                                          marker2 = marker2, num_cut_method = num_cut_method,
+                                          m1_cat_pos = m1_cat_pos, m1_cat_neg = m1_cat_neg,
+                                          m2_cat_pos = m2_cat_pos, m2_cat_neg = m2_cat_neg)
 
   g.all <- list(sm = g.sm,
                 scatterplot = g.scatter,

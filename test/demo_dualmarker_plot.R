@@ -1,4 +1,4 @@
-source("R/load_all_functions.R")
+devtools::load_all()
 
 data <- clin.bmk
 outcome = "binaryResponse"

@@ -3,16 +3,16 @@
 ################################
 
 quadrant_survival_chart <- function(data, time, event, marker1, marker2,
-                                    num.cut.method = "median",
-                                    m1.datatype ="auto",  m1.cat.pos = NULL, m1.cat.neg =NULL,
-                                    m2.datatype = "auto", m2.cat.pos = NULL, m2.cat.neg = NULL){
+                                    num_cut_method = "median",
+                                    m1_datatype ="auto",  m1_cat_pos = NULL, m1_cat_neg =NULL,
+                                    m2_datatype = "auto", m2_cat_pos = NULL, m2_cat_neg = NULL){
   res <- dm_4quadrant_survival(data = data, time = time, event= event,
                        marker1 =marker1, marker2 = marker2,
-                       num.cut.method= num.cut.method,
-                       m1.datatype = m1.datatype,
-                       m1.cat.pos = m1.cat.pos, m1.cat.neg = m1.cat.neg,
-                       m2.datatype = m2.datatype,
-                       m2.cat.pos = m2.cat.pos, m2.cat.neg = m2.cat.neg)
+                       num_cut_method= num_cut_method,
+                       m1_datatype = m1_datatype,
+                       m1_cat_pos = m1_cat_pos, m1_cat_neg = m1_cat_neg,
+                       m2_datatype = m2_datatype,
+                       m2_cat_pos = m2_cat_pos, m2_cat_neg = m2_cat_neg)
   g.area.prop <- .quadrant_prop_chart(res$stats$records)
   # matrix
   d <- res$stats %>%
@@ -55,11 +55,11 @@ quadrant_survival_chart <- function(data, time, event, marker1, marker2,
 
 if(F){
   quadrant_survival_chart(data = clin.bmk, time = "os", event = "censOS", marker1 = "TMB",
-                          marker2 = "gepscore_gene19", num.cut.method = "median")
+                          marker2 = "gepscore_gene19", num_cut_method = "median")
   quadrant_survival_chart(data = clin.bmk, time = "os", event = "censOS", marker1 = "mut_ARID1A",
-                        marker2 = "gep_CXCL13", num.cut.method = "median", m1.cat.pos = "YES", m1.cat.neg = "NO")
+                        marker2 = "gep_CXCL13", num_cut_method = "median", m1_cat_pos = "YES", m1_cat_neg = "NO")
   quadrant_survival_chart(data = clin.bmk, time = "os", event = "censOS", marker1 = "mut_ARID1A",
-                               marker2 = "IC.Level", num.cut.method = "median",
-                               m1.cat.pos = "YES", m1.cat.neg = "NO",
-                               m2.cat.pos = c("IC0","IC1"), m2.cat.neg = c("IC2+"))
+                               marker2 = "IC.Level", num_cut_method = "median",
+                               m1_cat_pos = "YES", m1_cat_neg = "NO",
+                               m2_cat_pos = c("IC0","IC1"), m2_cat_neg = c("IC2+"))
 }

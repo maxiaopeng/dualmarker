@@ -6,22 +6,22 @@
 ##' @param m1.cutpoint
 ##' @param cut
 ##' @param outcome
-##' @param outcome.pos
-##' @param outcome.neg
+##' @param outcome_pos
+##' @param outcome_neg
 ##' @return ggplot object
 ##' @export
-dm_scatterplot <- function(data, m1, m2,outcome, m1.cutpoint, m2.cutpoint, outcome.pos, outcome.neg=NULL){
+dm_scatterplot <- function(data, m1, m2,outcome, m1.cutpoint, m2.cutpoint, outcome_pos, outcome_neg=NULL){
   # check input
-  assert_that(all(c(outcome, m1, m2) %in% colnames(data)),
+  assertthat::assert_that(all(c(outcome, m1, m2) %in% colnames(data)),
               msg = paste(c(m1, m2, outcome, "not in your data")))
-  if(is.null(outcome.neg)) outcome.neg <- setdiff(na.omit(unique(data[[outcome]])), outcome.pos)
+  if(is.null(outcome_neg)) outcome_neg <- setdiff(na.omit(unique(data[[outcome]])), outcome_pos)
   # prep data
-  keep <- data[[outcome]] %in% c(outcome.pos, outcome.neg)
+  keep <- data[[outcome]] %in% c(outcome_pos, outcome_neg)
   if(any(!keep)){
     print(paste0("warning: ",sum(!keep), " records have no expected outcome, removed\n"))
     data <- data[keep,]
   }
-  data$.outcome <- ifelse(data[[outcome]] %in% outcome.pos, "pos","neg") %>%
+  data$.outcome <- ifelse(data[[outcome]] %in% outcome_pos, "pos","neg") %>%
     factor(levels = c("pos","neg"))
   data$region <- case_when(m1 >= m1.cutpoint & m2 >= m2.cutpoint ~ "R1",
                            m1 < m1.cutpoint & m2 >= m2.cutpoint ~ "R2",
@@ -54,24 +54,24 @@ dm_scatterplot <- function(data, m1, m2,outcome, m1.cutpoint, m2.cutpoint, outco
 ##' @param m1.pos
 ##' @param m1.neg
 ##' @param m2.cutpoint
-##' @param outcome.pos
-##' @param outcome.neg
+##' @param outcome_pos
+##' @param outcome_neg
 ##' @return ggplot object
 dm_boxplot <- function(data, m1, m2,outcome,
                        m1.pos, m1.neg=NULL,
                        m2.cutpoint,
-                       outcome.pos, outcome.neg=NULL){
+                       outcome_pos, outcome_neg=NULL){
   # check input
-  assert_that(all(c(outcome, m1, m2) %in% colnames(data)),
+  assertthat::assert_that(all(c(outcome, m1, m2) %in% colnames(data)),
               msg = paste(c(m1, m2, outcome, "not in your data")))
-  if(is.null(outcome.neg)) outcome.neg <- setdiff(na.omit(unique(data[[outcome]])), outcome.pos)
+  if(is.null(outcome_neg)) outcome_neg <- setdiff(na.omit(unique(data[[outcome]])), outcome_pos)
   # prep data
-  keep <- data[[outcome]] %in% c(outcome.pos, outcome.neg)
+  keep <- data[[outcome]] %in% c(outcome_pos, outcome_neg)
   if(any(!keep)){
     print(paste0("warning: ",sum(!keep), " records have no expected outcome, removed\n"))
     data <- data[keep,]
   }
-  data$.outcome <- ifelse(data[[outcome]] %in% outcome.pos, "pos","neg") %>%
+  data$.outcome <- ifelse(data[[outcome]] %in% outcome_pos, "pos","neg") %>%
     factor(levels = c("pos","neg"))
   data %<>% mutate( region = case_when(!!sym(m1) %in% m1.pos & !!sym(m2) >= m2.cutpoint ~ "R1",
                                        !!sym(m1) %in% m1.neg & !!sym(m2) >= m2.cutpoint ~ "R2",
@@ -106,24 +106,24 @@ dm_boxplot <- function(data, m1, m2,outcome,
 ##' @param m1.pos
 ##' @param m1.neg
 ##' @param m2.cut
-##' @param outcome.pos
-##' @param outcome.neg
+##' @param outcome_pos
+##' @param outcome_neg
 ##' @return ggplot object
 dm_jitter <- function(data, m1, m2, outcome,
                        m1.pos, m1.neg=NULL,
                        m2.pos, m2.neg = NULL,
-                       outcome.pos, outcome.neg=NULL){
+                       outcome_pos, outcome_neg=NULL){
   # check input
-  assert_that(all(c(outcome, m1, m2) %in% colnames(data)),
+  assertthat::assert_that(all(c(outcome, m1, m2) %in% colnames(data)),
               msg = paste(c(m1, m2, outcome, "not in your data")))
-  if(is.null(outcome.neg)) outcome.neg <- setdiff(na.omit(unique(data[[outcome]])), outcome.pos)
+  if(is.null(outcome_neg)) outcome_neg <- setdiff(na.omit(unique(data[[outcome]])), outcome_pos)
   # prep data
-  keep <- data[[outcome]] %in% c(outcome.pos, outcome.neg)
+  keep <- data[[outcome]] %in% c(outcome_pos, outcome_neg)
   if(any(!keep)){
     print(paste0("warning: ",sum(!keep), " records have no expected outcome, removed\n"))
     data <- data[keep,]
   }
-  data$.outcome <- ifelse(data[[outcome]] %in% outcome.pos, "pos","neg") %>%
+  data$.outcome <- ifelse(data[[outcome]] %in% outcome_pos, "pos","neg") %>%
     factor(levels = c("pos","neg"))
   data %<>% mutate( region = case_when(!!sym(m1) %in% m1.pos & !!sym(m2) %in% m2.pos ~ "R1",
                                        !!sym(m1) %in% m1.neg & !!sym(m2) %in% m2.pos ~ "R2",
@@ -145,13 +145,13 @@ dm_jitter <- function(data, m1, m2, outcome,
 }
 
 ##' plot survival of dual markers
-dm_surv <- function(data, surv.time, surv.event, marker1, marker2, na.rm=T){
+dm_surv <- function(data, time, event, marker1, marker2, na.rm=T){
   if(na.rm){
     data %<>% drop_na(!!sym(marker1), !!sym(marker2))
   }
   data$.m.combined <- paste(data[[marker1]], data[[marker2]], sep = "_")
   survfit <- .survfit(data = data, var = ".m.combined",
-                      time = surv.time, event = surv.event)
+                      time = time, event = event)
   .survplot(survfit = survfit,data= data)
 }
 
@@ -166,27 +166,27 @@ if(F){
   m1 <- "Sepal.Length"
   m2 <- "Sepal.Width"
   outcome <- "Species"
-  outcome.pos <- "setosa"
-  outcome.neg <- "versicolor"
+  outcome_pos <- "setosa"
+  outcome_neg <- "versicolor"
   m1.cutpoint <- median(data[[m1]])
   m2.cut <- median(data[[m2]])
-  dm_scatterplot(data, m1, m2, m1.cutpoint, m2.cut, outcome, outcome.pos, outcome.neg)
+  dm_scatterplot(data, m1, m2, m1.cutpoint, m2.cut, outcome, outcome_pos, outcome_neg)
 
   # dm_scatterplot
   data <- clin.bmk
   m1 <- "TMB"
   m2 <- "gepscore_CD.8.T.effector"
   outcome <- "binaryResponse"
-  outcome.pos <- "CR/PR"
-  outcome.neg <- "SD/PD"
+  outcome_pos <- "CR/PR"
+  outcome_neg <- "SD/PD"
   m1.cutpoint <- cutponit.num(x = data[[m1]], method = "roc", outcome = data[[outcome]],
-                              outcome.pos = outcome.pos, outcome.neg = outcome.neg)
+                              outcome_pos = outcome_pos, outcome_neg = outcome_neg)
   m2.cutpoint <- cutponit.num(x = data[[m2]], method = "roc", outcome = data[[outcome]],
-                              outcome.pos = outcome.pos, outcome.neg = outcome.neg)
+                              outcome_pos = outcome_pos, outcome_neg = outcome_neg)
 
   dm_scatterplot(data =data, m1=m1, m2=m2,  outcome = outcome,
                  m1.cutpoint=m1.cutpoint, m2.cutpoint=m2.cutpoint,
-                 outcome.pos=outcome.pos, outcome.neg=outcome.neg)
+                 outcome_pos=outcome_pos, outcome_neg=outcome_neg)
 
   # dm_boxplot
   data <- clin.bmk
@@ -195,23 +195,23 @@ if(F){
   m1.neg <- "NO"
   m2 <- "gep_CXCL13"
   outcome <- "binaryResponse"
-  outcome.pos <- "CR/PR"
-  outcome.neg <- "SD/PD"
+  outcome_pos <- "CR/PR"
+  outcome_neg <- "SD/PD"
   #m2.cut <- median(data[[m2]], na.rm=T)
   m2.cutpoint <- cutponit.num(x = data[[m2]], method = "roc", outcome = data[[outcome]],
-                              outcome.pos = outcome.pos, outcome.neg = outcome.neg)
+                              outcome_pos = outcome_pos, outcome_neg = outcome_neg)
   m2.cutpoint <- cutponit.num(x = data[[m2]], method = "optimal_surv",
-                              surv.time = data$os, surv.event = data$censOS)
+                              time = data$os, event = data$censOS)
   dm_boxplot(data = data, m1=m1, m2=m2,outcome=outcome,
              m1.pos = m1.pos, m1.neg= m1.neg,
              m2.cutpoint = m2.cutpoint,
-             outcome.pos = outcome.pos,
-             outcome.neg= outcome.neg)
+             outcome_pos = outcome_pos,
+             outcome_neg= outcome_neg)
 
   # dm_jitter
   dm_jitter(data = clin.bmk,
             m1 = "mut_ARID1A", m2 = "Sex", outcome="binaryResponse",
             m1.pos = "YES", m1.neg= "NO",
             m2.pos = "F", m2.neg = "M",
-            outcome.pos = "CR/PR", outcome.neg="SD/PD")
+            outcome_pos = "CR/PR", outcome_neg="SD/PD")
 }

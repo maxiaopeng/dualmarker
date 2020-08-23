@@ -26,11 +26,11 @@ summary_cox <- function(cox.model){
 ##' @param marker1
 ##' @param marker2
 ##'
-.dm_cox_core <- function(data, surv.time, surv.event, marker1, marker2, na.rm=T){
+.dm_cox_core <- function(data, time, event, marker1, marker2, na.rm=T){
   if(na.rm){
-    data <- drop_na(data, !!sym(surv.time), !!sym(surv.event), !!sym(marker1), !!sym(marker2))
+    data <- drop_na(data, !!sym(time), !!sym(event), !!sym(marker1), !!sym(marker2))
   }
-  surv <- paste0("Surv(",surv.time,",", surv.event,")")
+  surv <- paste0("Surv(",time,",", event,")")
   fml.m0 <- paste0( surv, "~ 1") %>% as.formula()
   fml.m1 <- paste0( surv, " ~ ", marker1) %>% as.formula()
   fml.m2 <- paste0( surv, " ~ ", marker2) %>% as.formula()
@@ -79,18 +79,18 @@ summary_cox <- function(cox.model){
 ##' evaluate the logistic regression of dual marker
 ##' @param data
 ##' @param outcome
-##' @param outcome.pos
-##' @param outcome.neg
+##' @param outcome_pos
+##' @param outcome_neg
 ##' @param marker1
 ##' @param marker2
-##' @param num.cut.method marker cut method, [none, roc, median]
+##' @param num_cut_method marker cut method, [none, roc, median]
 ##' @return dual marker logistic regression summary
-dm_cox <- function(data, surv.time, surv.event,
+dm_cox <- function(data, time, event,
                    marker1, marker2,
                    binarization = F,
-                   num.cut.method="none",
-                   m1.cat.pos = NULL, m1.cat.neg = NULL,
-                   m2.cat.pos = NULL, m2.cat.neg = NULL,
+                   num_cut_method="none",
+                   m1_cat_pos = NULL, m1_cat_neg = NULL,
+                   m2_cat_pos = NULL, m2_cat_neg = NULL,
                    na.rm=T){
   cutpoint.m1 <- NA
   cutpoint.m2 <- NA
@@ -99,32 +99,32 @@ dm_cox <- function(data, surv.time, surv.event,
     data$.m1 <- data[[marker1]]
     data$.m2 <- data[[marker2]]
     out <- .dm_cox_core(data = data,
-                        surv.time= surv.time, surv.event=surv.event,
+                        time= time, event=event,
                         marker1 = ".m1", marker2 = ".m2", na.rm = na.rm)
   }else{
     # m1
-    res <- binarize.data(x = data[[marker1]], datatype = "auto",
-                cat.pos = m1.cat.pos, cat.neg = m1.cat.neg,
-                num.cut.method = num.cut.method)
+    res <- binarize_data(x = data[[marker1]], datatype = "auto",
+                cat.pos = m1_cat_pos, cat.neg = m1_cat_neg,
+                num_cut_method = num_cut_method)
     data$.m1 <- res$data
     cutpoint.m1 <- res$cutpoint
     # m2
-    res <- binarize.data(x = data[[marker2]], datatype = "auto",
-                       cat.pos = m2.cat.pos, cat.neg = m2.cat.neg,
-                       num.cut.method = num.cut.method)
+    res <- binarize_data(x = data[[marker2]], datatype = "auto",
+                       cat.pos = m2_cat_pos, cat.neg = m2_cat_neg,
+                       num_cut_method = num_cut_method)
     data$.m2 <- res$data
     cutpoint.m2 <- res$cutpoint
 
     out <- .dm_cox_core(data = data,
-                          surv.time = surv.time, surv.event = surv.event,
+                          time = time, event = event,
                           marker1 = ".m1", marker2 = ".m2",
                           na.rm = na.rm)
   }
 
-  out.basic <- tibble(surv.time = surv.time,
-                      surv.even = surv.event,
+  out.basic <- tibble(time = time,
+                      surv.even = event,
                       m1=marker1, m2 =marker2,
-                      marker.cut.method = num.cut.method,
+                      marker.cut.method = num_cut_method,
                       cutpoint.m1 = cutpoint.m1,
                       cutpoint.m2 = cutpoint.m2)
   bind_cols(out.basic, out)

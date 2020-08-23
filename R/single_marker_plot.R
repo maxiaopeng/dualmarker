@@ -16,9 +16,9 @@
 ##############
 .sm_barplot <- function(data, outcome, marker, percent = F, title = ""){
   d <- data %>%
-    group_by(!!sym(outcome), !!sym(marker)) %>%
+    dplyr::group_by(!!sym(outcome), !!sym(marker)) %>%
     dplyr::count(name = "Freq") %>%
-    group_by(!!sym(marker)) %>%
+    dplyr::group_by(!!sym(marker)) %>%
     mutate( Percent = round(Freq / sum(Freq), 2))
   yvar <- ifelse(percent, "Percent", "Freq")
   g <- ggplot(d,
@@ -36,35 +36,41 @@
 #############
 ## integration
 ##############
-dm_boxplot <- function(data, outcome, outcome.pos, outcome.neg=NULL,
+dm_boxplot <- function(data, outcome, outcome_pos, outcome_neg=NULL,
                        marker1, marker2,
-                       m1.datatype = "auto", m1.cat.pos = NULL, m1.cat.neg =NULL,
-                       m2.datatype = "auto", m2.cat.pos = NULL, m2.cat.neg =NULL){
-  if(m1.datatype == "auto"){
-    m1.datatype <- datatype.num.cat(data[[marker1]])}
-  if(m2.datatype == "auto"){
-    m2.datatype <- datatype.num.cat(data[[marker2]])}
-  data$.outcome <- binarize.cat(as.character(data[[outcome]]),
-                                pos = outcome.pos,
-                                neg = outcome.neg) %>%
+                       m1_datatype = "auto", m1_cat_pos = NULL, m1_cat_neg =NULL,
+                       m2_datatype = "auto", m2_cat_pos = NULL, m2_cat_neg =NULL){
+  if(m1_datatype == "auto"){
+    m1_datatype <- datatype_num_cat(data[[marker1]])}
+  if(m2_datatype == "auto"){
+    m2_datatype <- datatype_num_cat(data[[marker2]])}
+  data$.outcome <- binarize_cat(as.character(data[[outcome]]),
+                                pos = outcome_pos,
+                                neg = outcome_neg) %>%
     factor(levels = c("pos","neg"))
   data %<>% drop_na(.outcome)
-  if(m1.datatype == "num"){
-    g1 <- .sm_boxplot(data = data, outcome = ".outcome", marker = marker1, title = paste0("Marker1:", marker1))+
+  if(m1_datatype == "num"){
+    g1 <- .sm_boxplot(data = data, outcome = ".outcome",
+                      marker = marker1, title = paste0("Marker1:", marker1))+
       theme(legend.position = "none")
   }else{
-    data$.m1 <- binarize.cat( x = as.character(data[[marker1]]), pos = m1.cat.pos, neg = m1.cat.neg) %>%
+    data$.m1 <- binarize_cat( x = as.character(data[[marker1]]),
+                              pos = m1_cat_pos, neg = m1_cat_neg) %>%
       factor(levels = c("pos","neg"))
-    g1 <- .sm_barplot(data = data, outcome = ".outcome", marker = ".m1", title = paste0("Marker1:", marker1))+
+    g1 <- .sm_barplot(data = data, outcome = ".outcome", marker = ".m1",
+                      title = paste0("Marker1:", marker1))+
       theme(legend.position = "none")
   }
-  if(m2.datatype == "num"){
-    g2 <- .sm_boxplot(data = data, outcome = ".outcome", marker = marker2, title = paste0("Marker2:", marker2))+
+  if(m2_datatype == "num"){
+    g2 <- .sm_boxplot(data = data, outcome = ".outcome", marker = marker2,
+                      title = paste0("Marker2:", marker2))+
       theme(legend.position = "none")
   }else{
-    data$.m2 <- binarize.cat( x = as.character(data[[marker2]]), pos = m2.cat.pos, neg = m2.cat.neg) %>%
+    data$.m2 <- binarize_cat( x = as.character(data[[marker2]]),
+                              pos = m2_cat_pos, neg = m2_cat_neg) %>%
       factor(levels = c("pos","neg"))
-    g2 <- .sm_barplot(data = data, outcome = ".outcome", marker = ".m2", title = paste0("Marker2:", marker2))+
+    g2 <- .sm_barplot(data = data, outcome = ".outcome", marker = ".m2",
+                      title = paste0("Marker2:", marker2))+
       theme(legend.position = "none")
   }
   cowplot::plot_grid(g1,g2, align = "h", axis = "l", ncol = 2
@@ -81,17 +87,17 @@ if(F){
               marker = "Sepal.Length.level", percent = T)
 
   dm_boxplot(data = iris, outcome = "Species",
-             outcome.pos = "setosa",
-             outcome.neg = "versicolor",
+             outcome_pos = "setosa",
+             outcome_neg = "versicolor",
              marker1 = "Sepal.Length",
              marker2  = "Sepal.Width")
 
   dm_boxplot(data = mtcars, outcome = "vs",
-             outcome.pos = "1",
-             outcome.neg = "0",
+             outcome_pos = "1",
+             outcome_neg = "0",
              marker2 = "wt",
-             marker1  = "gear", m1.datatype = "cat",
-             m1.cat.pos = c("5"), m1.cat.neg = c("3","4"))
+             marker1  = "gear", m1_datatype = "cat",
+             m1_cat_pos = c("5"), m1_cat_neg = c("3","4"))
 }
 
 

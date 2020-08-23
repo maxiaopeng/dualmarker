@@ -1,28 +1,27 @@
-##' dm_searchM2_1
+##' dm_searchM2_logit
 ##' search marker2 to combine with marker1
 ##' @param data
 ##' @param outcome
-##' @param outcome.pos
-##' @param outcome.neg
+##' @param outcome_pos
+##' @param outcome_neg
 ##' @param marker1
 ##' @param targets
-##' @import rcompanion
-dm_searchM2_logit <- function(data, outcome, outcome.pos, outcome.neg=NULL,
+dm_searchM2_logit <- function(data, outcome, outcome_pos, outcome_neg=NULL,
                         marker1, targets,
                         binarization = F,
-                        num.cut.method = "none",
-                        m1.cat.pos = NULL, m1.cat.neg = NULL,
+                        num_cut_method = "none",
+                        m1_cat_pos = NULL, m1_cat_neg = NULL,
                         na.rm=T){
   targets <- base::intersect(targets, colnames(data))
-  assert_that(length(targets)>0, msg = "target features don't exist")
+  assertthat::assert_that(length(targets)>0, msg = "target features don't exist")
   names(targets) <- targets
   purrr::map_dfr(targets, .f = ~{
     dm_logit(data = data, outcome = outcome,
-             outcome.pos = outcome.pos, outcome.neg = outcome.neg,
+             outcome_pos = outcome_pos, outcome_neg = outcome_neg,
              marker1 = marker1, marker2 = .x,
              binarization = binarization,
-             num.cut.method = num.cut.method,
-             m1.cat.pos = m1.cat.pos, m1.cat.neg = m1.cat.neg,
+             num_cut_method = num_cut_method,
+             m1_cat_pos = m1_cat_pos, m1_cat_neg = m1_cat_neg,
              na.rm=na.rm)
   })
 }
@@ -64,45 +63,26 @@ dm_searchM2_logit_plot <- function(res.searchM2, max.n = 50, pval.threh = 0.01){
     coord_flip()
 }
 
-# dm_searchM2_logit_2 <- function(data, outcome, outcome.pos, outcome.neg=NULL,
-#                               num.cut.method = "none",marker1, targets, na.rm=T){
-#   marker1 <- base::intersect(marker1, colnames(data))
-#   assert_that(length(marker1)>0, msg = "marker1 don't exist")
-#   targets <- base::intersect(targets, colnames(data))
-#   assert_that(length(targets)>0, msg = "target features don't exist")
-#   purrr::map_dfr(marker1, .f = ~{
-#     m1 <- .x
-#     purrr::map_dfr(setdiff(targets, m1), .f = ~{
-#       m2 = .x
-#       dm_logit(data = data, outcome = outcome,
-#               outcome.pos = outcome.pos, outcome.neg = outcome.neg,
-#               marker1 = m1, marker2 = m2, num.cut.method = num.cut.method,
-#               na.rm=na.rm)
-#     })
-#   })
-# }
-
-
 ##' @description
 ##' find dual marker by four-quadrant analysis
 ##' @export
-dm_searchM2_4quadrant <- function(data, outcome, outcome.pos, outcome.neg=NULL,
+dm_searchM2_4quadrant <- function(data, outcome, outcome_pos, outcome_neg=NULL,
                                   marker1, targets,
-                                  num.cut.method = "none",
-                                  m1.cat.pos = NULL, m1.cat.neg = NULL
+                                  num_cut_method = "none",
+                                  m1_cat_pos = NULL, m1_cat_neg = NULL
                                   ){
   targets <- base::intersect(targets, colnames(data))
-  assert_that(length(targets)>0, msg = "target features don't exist")
+  assertthat::assert_that(length(targets)>0, msg = "target features don't exist")
   names(targets) <- targets
   purrr::map_dfr(targets, .f = ~{
     res.quad <- dm_4quadrant(data = data, outcome = outcome,
-                 outcome.pos = outcome.pos, outcome.neg = outcome.neg,
+                 outcome_pos = outcome_pos, outcome_neg = outcome_neg,
                  marker1 = marker1,
                  marker2 = .x,
-                 num.cut.method = num.cut.method,
-                 m1.cat.pos = m1.cat.pos, m1.cat.neg = m1.cat.neg,
+                 num_cut_method = num_cut_method,
+                 m1_cat_pos = m1_cat_pos, m1_cat_neg = m1_cat_neg,
                  na.rm = T)
-    out.basic <- tibble(m1 = marker1, m2 = .x, num.cut.method=num.cut.method)
+    out.basic <- tibble(m1 = marker1, m2 = .x, num_cut_method=num_cut_method)
     out.4quad.count <- res.quad$stats %>% dplyr::select(region, n.total, n.pos, pct.pos) %>%
       gather(key = "key", value ="value", -region) %>%
       unite(., col = ".id", region, key) %>%
@@ -158,26 +138,26 @@ dm_searchM2_4quadrant_plot <- function(res.searchM2, max.n = 30, pval.threh = 0.
 
 ##' find marker2 to combine with M1 for survival prediction
 ##' @param data
-##' @param surv.time
-##' @param surv.event
+##' @param time
+##' @param event
 ##' @param marker1
 ##' @export
-dm_searchM2_cox <- function(data, surv.time, surv.event,
+dm_searchM2_cox <- function(data, time, event,
                             marker1, targets, binarization=F,
-                            num.cut.method = "none",
-                            m1.cat.pos=NULL, m1.cat.neg=NULL,
+                            num_cut_method = "none",
+                            m1_cat_pos=NULL, m1_cat_neg=NULL,
                             na.rm=T){
   targets <- base::intersect(targets, colnames(data))
-  assert_that(length(targets)>0, msg = "target features don't exist")
+  assertthat::assert_that(length(targets)>0, msg = "features don't exist")
   names(targets) <- targets
   purrr::map_dfr(targets, .f = ~{
     dm_cox(data = data,
-           surv.time = surv.time,
-           surv.event = surv.event,
+           time = time,
+           event = event,
            marker1 = marker1, marker2 = .x,
            binarization = binarization,
-           num.cut.method = num.cut.method,
-           m1.cat.pos = m1.cat.pos, m1.cat.neg = m1.cat.neg,
+           num_cut_method = num_cut_method,
+           m1_cat_pos = m1_cat_pos, m1_cat_neg = m1_cat_neg,
            na.rm=na.rm)
   })
 }

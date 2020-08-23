@@ -1,30 +1,46 @@
 #source("~/working/Biomarker_integrated_reporter/src/my_functions.R")
-library(assertthat)
-library(magrittr)
-library(dplyr)
-library(tibble)
-library(tidyr)
-library(purrr)
-library(ggplot2)
-library(stringr)
-library(survival)
-library(survminer)
-library(ggforce)
-library(GGally)
-library(survminer)
-library(pROC)
-library(rcompanion)
-#library(gridExtra)
-library(cowplot)
+# library(assertthat)
+# library(magrittr)
+# library(dplyr)
+# library(tibble)
+# library(tidyr)
+# library(purrr)
+# library(ggplot2)
+# library(stringr)
+# library(survival)
+# library(survminer)
+# library(ggforce)
+# library(GGally)
+# library(survminer)
+# library(pROC)
+# library(rcompanion)
+# #library(gridExtra)
+# library(cowplot)
 
-color.quadrant.1 <- c(R1="#F9BEC0",R2="#CFECF2", R3="#F1F1F1", R4="#CFD7E4")
-# npg
-t1 <- ggsci::pal_npg(alpha=0.1)(4)
-color.quadrant.1 <- t1[c(1,2,4,3)] %>% setNames(c("R1","R2","R3","R4"))
-t2 <- ggsci::pal_npg()(4)
-color.quadrant.2 <- t2[c(1,2,4,3)] %>% setNames(c("R1","R2","R3","R4"))
+#' attach library
+#'
+#' @import survival
+#' @import ggplot2
+#' @importFrom survminer ggsurvplot
+#' @import pROC
+#' @importFrom  tidyr drop_na
+#' @import magrittr
+#' @importFrom assertthat assert_that
+#' @import stringr
+#' @import dplyr
+#' @import tibble
+.attach_library <- function(){
 
-datatype.num.cat <- function(x){
+}
+
+
+#' get datatype "num" or "cat"
+#'
+#' @param x vector
+#' @return "num" or "cat"
+#' @examples
+#'
+datatype_num_cat <- function(x){
   if(class(x) %in% c("factor","character")){
     res <- "cat"
   }else if(class(x) %in% c("numeric","integer","float", "double")){
@@ -35,23 +51,24 @@ datatype.num.cat <- function(x){
   res
 }
 
-##' cutpoint
-##' get cutpoint
-##' @param x
-##' @param method median(default), roc, optimal_surv
-##' @param outcome used if method='roc'
-##' @param outcome.pos used if method='roc', positive outcome label
-##' @param outcome.neg used if method='roc', negative outcome label, if NULL, use all other samples except outcome.pos
-##' @param auc.best.method used if method='roc'
-##' @param surv.time used if method='optimal_surv_cut', survival time used for
-##' @param surv.minprop used if method='optimal_surv_cut', min proportion in high and low group
-##' @return cutpoint
-##' @export
+#' cutpoint
+#'
+#' get cutpoint
+#' @param x vector
+#' @param method median(default), roc, optimal_surv
+#' @param outcome used if method='roc'
+#' @param outcome_pos used if method='roc', positive outcome label
+#' @param outcome_neg used if method='roc', negative outcome label, if NULL, use all other samples except outcome_pos
+#' @param auc.best.method used if method='roc'
+#' @param time used if method='optimal_surv_cut', survival time used for
+#' @param surv.minprop used if method='optimal_surv_cut', min proportion in high and low group
+#' @return cutpoint
+#' @export
 cutpoint <- function(x, method="median",
-                         outcome=NULL, outcome.pos=NULL, outcome.neg=NULL,
+                         outcome=NULL, outcome_pos=NULL, outcome_neg=NULL,
                          auc.best.method = "youden",
-                         surv.time = NULL, surv.event=NULL, surv.minprop=0.3){
-  assert_that(all(class(x) %in% c("numeric","integer")),
+                         time = NULL, event=NULL, surv.minprop=0.3){
+  assertthat::assert_that(all(class(x) %in% c("numeric","integer")),
               msg = "x should be numeric")
   min <- min(x, na.rm = T)
   max <- max(x, na.rm = T)
@@ -59,20 +76,19 @@ cutpoint <- function(x, method="median",
   if(method == "median"){
     cutpoint <- median(x, na.rm = T)
   }else if(method %in% c("roc")){
-    assert_that(! is.null(outcome) && !is.null(outcome.pos),
-                msg= "outcome and outcome.pos are required")
+    assertthat::assert_that(! is.null(outcome) && !is.null(outcome_pos),
+                msg= "outcome and outcome_pos are required")
     df <- data.frame(predictor = x,
                        response = outcome)
-    cutpoint <- auc.stats(data = df, response="response",
-                            control = outcome.neg,
-                            case = outcome.pos,
+    cutpoint <- auc_stats(data = df, response="response",
+                            control = outcome_neg,
+                            case = outcome_pos,
                             predictor = "predictor",
                             best.method = auc.best.method)$threhold[1]
   }else if(method %in% c("optimal_surv")){
-    assert_that(! is.null(surv.time) && !is.null(surv.event),
-                msg="surv.time and surv.event are required")
-    suppressPackageStartupMessages(require(survminer))
-    df <- data.frame(time = surv.time, event = surv.event, feature = x)
+    assertthat::assert_that(! is.null(time) && !is.null(event),
+                msg="time and event are required")
+    df <- data.frame(time = time, event = event, feature = x)
     surv.cutp <- do.call("surv_cutpoint",
                          list(data= df, time= "time",
                               event= "event",
@@ -82,115 +98,133 @@ cutpoint <- function(x, method="median",
   }else{
     stop("method should be [median, roc, optimal_surv_cut]")
   }
-  assert_that(cutpoint >= min && cutpoint <= max,
+  assertthat::assert_that(cutpoint >= min && cutpoint <= max,
               msg = paste0("cut point should be [",min, ",", max,"]"))
   cutpoint
 }
 
-##' binarize numeric values
-##'
-##' binarize numeric values using median(cut="median"), ROC youden cutoff(cut="youden"),
-##' optimal survival(cut="opt_surv") or custome values(e.g. cut=1)
-##'
-##' param x vector of numeric
-##' param cut can be 'median',"youden"
-##' param outcome necessary if cut = "youden_ROC"
-##' param label.pos label for the 'high' values, default 'high'
-##' param label.neg label for the 'low' values, default 'low'
-##' return binary value
-##' @export
-binarize.num <- function(x, cutpoint, return.binary=F,
-                         label.pos = "pos", label.neg = "neg"){
+#' binarize numeric values
+#'
+#' binarize numeric values by predefined cutpoint
+#'
+#' @param x vector of numeric
+#' @param cutpoint the cutpoint
+#' @param outcome necessary if cut = "youden_ROC"
+#' @param label_pos label for 'positive' group, default 'high'
+#' @param label_neg label for 'negative' group, default 'low'
+#' @return binary value
+#' @export
+binarize_num <- function(x, cutpoint, return.binary=F,
+                         label_pos = "high", label_neg = "low"){
   min <- min(x, na.rm = T)
   max <- max(x, na.rm = T)
-  assert_that(cutpoint >= min && cutpoint <= max,
+  assertthat::assert_that(cutpoint >= min && cutpoint <= max,
               msg = paste0("cut point should be [",min, ",", max,"]"))
   breaks <- c(min -1, cutpoint, max +1)
   if(return.binary){
     out <- cut(x, breaks = breaks, labels = c(0,1)) %>%
       as.character() %>% as.integer()
   }else{
-    out <- cut(x, breaks = breaks, labels = c(label.neg,label.pos))
+    out <- cut(x, breaks = breaks, labels = c(label_neg,label_pos))
   }
   out
 }
 
-##' binarize categorical variable
-##' @param x vector
-##' @param pos positive values
-##' @param neg negative values, if NULL, use all other values except 'pos', the non-pos, non-neg values in x will be converted to NA
-##' @param return.binary return the binary 0(negative), 1(positive)
-##' @label.pos label for positive values, default 'pos'
-##' @label.neg label for negative values, default 'neg'
-binarize.cat <- function(x, pos, neg=NULL, return.binary=F, label.pos = "pos", label.neg = "neg"){
-  assert_that(all(class(x) %in% c("factor","character")), msg = "x should be factor/character")
-  assert_that(!all(is.na(x)), msg =" all x is NA, can't be cutted")
+#' binarize categorical variable
+#' @param x vector
+#' @param pos positive values
+#' @param neg negative values, if NULL, use all other values except 'pos', the non-pos,
+#' non-neg values in x will be converted to NA
+#' @param return.binary return the binary 0(negative), 1(positive), default FALSE
+#' @label_pos label for positive values, default 'pos'
+#' @label_neg label for negative values, default 'neg'
+binarize_cat <- function(x, pos, neg=NULL, return.binary=F,
+                         label_pos = "pos", label_neg = "neg"){
+
+  assertthat::assert_that(all(class(x) %in% c("factor","character")), msg = "x should be factor/character")
+  assertthat::assert_that(!all(is.na(x)), msg =" all x is NA, can't be cutted")
   if("factor" %in% class(x)){ x <- as.character(x) }
   all.val <- na.omit(unique(x))
   if(is.null(neg)) neg <- setdiff(all.val, pos)
-  assert_that(all(c(pos, neg) %in% all.val), msg = "pos or neg isn't in x")
+  assertthat::assert_that(all(c(pos, neg) %in% all.val), msg = "pos or neg isn't in x")
   out <- base::rep(NA, times = length(x))
   if(return.binary){
     out[x %in% pos] <- 1
     out[x %in% neg] <- 0
     out <- as.integer(out)
   }else{
-    out[x %in% pos] <- label.pos
-    out[x %in% neg] <- label.neg
-    out <- factor(out, levels = c(label.neg, label.pos))
+    out[x %in% pos] <- label_pos
+    out[x %in% neg] <- label_neg
+    out <- factor(out, levels = c(label_neg, label_pos))
   }
   out
 }
 
 
-##' @description
-##' binarize data for numeric and categorical dataytpe
-binarize.data <- function(x,
+#' binarize categorical or numeric data
+#'
+#' @param x input vector
+#' @param datatype "num" or "cat", default "auto", which will get by \code{\link{datatype_num_cat}(x)}
+#' @param return.binary return the binary 0(negative), 1(positive), default FALSE
+#' @param label_pos label for positive values, default 'pos'
+#' @param label_neg label for negative values, default 'neg'
+#' @param cat.pos if x is categorical, the positive group values
+#' @param cat.neg if x is categorical, the negative group values
+#' @param num_cut_method
+#' @param outcome
+#' @param outcome_pos
+#' @param outcome_neg
+#' @param auc.best.method
+#' @param time
+#' @param event
+#' @param surv.minprop
+binarize_data <- function(x,
                         datatype="auto",
-                        return.binary = F, label.pos=NULL, label.neg =NULL,
+                        return.binary = F, label_pos=NULL, label_neg =NULL,
                         cat.pos=NULL, cat.neg=NULL,
-                        num.cut.method="median",
-                        outcome=NULL, outcome.pos=NULL, outcome.neg=NULL,
+                        num_cut_method="median",
+                        outcome=NULL, outcome_pos=NULL, outcome_neg=NULL,
                         auc.best.method = "youden",
-                        surv.time = NULL, surv.event=NULL, surv.minprop=0.3){
-  assert_that(datatype %in% c("auto","num","cat"), msg =" datatype should be [auto, num, cat]")
+                        time = NULL, event=NULL, surv.minprop=0.3){
+  assertthat::assert_that(datatype %in% c("auto","num","cat"), msg =" datatype should be [auto, num, cat]")
   cutpoint <- NA
   if(datatype=="auto"){
-      datatype <- datatype.num.cat(x)
+      datatype <- datatype_num_cat(x)
   }
   if( datatype == "num"){
-    assert_that(num.cut.method %in% c("roc", "median", "optimal_surv"),
-                msg = "num.cut.method should be [roc, median, optimal_surv]")
-    cutpoint <- cutpoint(x = x, method= num.cut.method, outcome= outcome,
-                         outcome.pos= outcome.pos, outcome.neg= outcome.neg,
+    assertthat::assert_that(num_cut_method %in% c("roc", "median", "optimal_surv"),
+                msg = "num_cut_method should be [roc, median, optimal_surv]")
+    cutpoint <- cutpoint(x = x, method= num_cut_method, outcome= outcome,
+                         outcome_pos= outcome_pos, outcome_neg= outcome_neg,
                          auc.best.method = auc.best.method,
-                         surv.time = surv.time , surv.event=surv.event,
+                         time = time , event=event,
                          surv.minprop=surv.minprop)
-    if(is.null(label.pos)) label.pos <- "high"
-    if(is.null(label.neg)) label.neg <- "low"
-    m <- binarize.num(x = x, cutpoint = cutpoint, return.binary = return.binary,
-                      label.neg = label.neg, label.pos = label.pos)
+    if(is.null(label_pos)) label_pos <- "high"
+    if(is.null(label_neg)) label_neg <- "low"
+    m <- binarize_num(x = x, cutpoint = cutpoint, return.binary = return.binary,
+                      label_neg = label_neg, label_pos = label_pos)
   }else{
-    if(is.null(label.pos)) label.pos <- "pos"
-    if(is.null(label.neg)) label.neg <- "neg"
-    assert_that(!is.null(cat.pos), msg="cat.pos should not be NULL")
-    m <- binarize.cat(x = x, pos = cat.pos, neg = cat.neg, return.binary = return.binary,
-                      label.pos = label.pos, label.neg = label.neg)
+    if(is.null(label_pos)) label_pos <- "pos"
+    if(is.null(label_neg)) label_neg <- "neg"
+    assertthat::assert_that(!is.null(cat.pos), msg="cat.pos should not be NULL")
+    m <- binarize_cat(x = x, pos = cat.pos, neg = cat.neg, return.binary = return.binary,
+                      label_pos = label_pos, label_neg = label_neg)
   }
   list(data = m, cutpoint = cutpoint)
 }
 
-##' auc.stats
-##' get statistics of AUC
-##' @param data
-##' @param response
-##' @example
-##' auc.stats(data = iris, response = "Species", case = "setosa", control = "versicolor", predictor = "Sepal.Length")
-##' @export
-##' @import pROC
-auc.stats <- function(data, response, case, control=NULL, predictor, best.method="youden"){
+#' auc_stats
+#'
+#' get statistics of AUC
+#'
+#' @param data
+#' @param response
+#' @example auc_stats(data = iris, response = "Species", case = "setosa",
+#' control = "versicolor", predictor = "Sepal.Length")
+#' @export
+auc_stats <- function(data, response, case, control=NULL, predictor, best.method="youden"){
   suppressPackageStartupMessages(require(pROC))
-  assert_that(all(c(response, predictor) %in% colnames(data)),
+  assertthat::assert_that(all(c(response, predictor) %in% colnames(data)),
               msg = paste(response, "or", predictor, "not in data"))
   if(is.null(control)) control <- setdiff(na.omit(unique(data[[response]])), case)
   # remove non-case and non-control record
@@ -226,7 +260,7 @@ auc.stats <- function(data, response, case, control=NULL, predictor, best.method
          npv.threhold = res.coords$npv)
 }
 
-##' @description add adjusted pvalues to the data
+#' @description add adjusted pvalues to the data
 add_adjust_pvalues <- function(data, pvalues, method="BH"){
   res <- map_dfc(data[, pvalues, drop=F], .f = ~{
     stats::p.adjust(p = .x, method = method)
@@ -250,34 +284,54 @@ label_pvalues <- function(data, pvalues){
   bind_cols(data, res)
 }
 
+
+#' Title
+#'
+#' @param data
+#' @param var
+#' @param time
+#' @param event
+#'
+#' @return
+#' @import survival
+#' @import magrittr
 .survfit <- function(data, var, time, event){
   data[[event]] %<>% as.character() %>% as.integer()
-  assert_that(all(data[[event]] %in% c(0,1)), msg = "event should be 0 and 1")
+  assertthat::assert_that(all(data[[event]] %in% c(0,1)), msg = "event should be 0 and 1")
   str.formula <- paste0("Surv(", time,",", event,") ~ ", var)
   survfit <- do.call("survfit",
                      list(as.formula(str.formula),data=data, conf.type = 'log-log')) # log-log to get the same result with SAS
   survfit
 }
 
+
+
+#' KMplot(internal)
+#'
+#' @param survfit survfit model
+#' @param data
+#' @param ... parameters for ggsurvplot
+#' @return ggplot
+#' @importFrom survminer ggsurvplot
 .survplot <- function(survfit, data, ...){
   ggsurvplot(survfit, data=data,
              pval = T,risk.table = T,
              ...)
 }
 
-##' the first level as negative, 2nd level as positve
-##' for (x1, x2):
-##' (pos, pos) => R1, first quadrant
-##' (neg, pos) => R2, 2nd quadrant
-##' (neg, neg) => R3, 3rd quadrant
-##' (pos, neg) => R4, 4th quadrant
-##' @param m1 factor with 2 levels
-##' @param m2 factor with 2 levels
-##'
+#' the first level as negative, 2nd level as positve
+#' for (x1, x2):
+#' (pos, pos) => R1, first quadrant
+#' (neg, pos) => R2, 2nd quadrant
+#' (neg, neg) => R3, 3rd quadrant
+#' (pos, neg) => R4, 4th quadrant
+#' @param m1 factor with 2 levels
+#' @param m2 factor with 2 levels
+#'
 .label.quadrant <- function(m1, m2){
-  assert_that(class(m1) == "factor" && nlevels(m1) == 2,
+  assertthat::assert_that(class(m1) == "factor" && nlevels(m1) == 2,
               msg = "marker1 should be factor with 2 levels")
-  assert_that(class(m2) == "factor" && nlevels(m2) == 2,
+  assertthat::assert_that(class(m2) == "factor" && nlevels(m2) == 2,
               msg = "marker2 should be factor with 2 levels")
   m1.neg <- levels(m1)[1]
   m1.pos <- levels(m1)[2]

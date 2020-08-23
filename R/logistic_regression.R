@@ -26,7 +26,7 @@ summary_logit <- function(logit.model){
     d$.fitted <- fitted(logit.model)
     response <- all.vars(logit.model$formula)[1]
     response.level <- levels(d[[response]])
-    auc.stats(data = d, response = response,
+    auc_stats(data = d, response = response,
               case= response.level[2],
               control= response.level[1],
               predictor = ".fitted")
@@ -64,15 +64,15 @@ summary_logit <- function(logit.model){
 ##' evaluate the logistic regression of dual marker
 ##' @param data
 ##' @param outcome factor, level should be [neg, pos]
-##' @param outcome.pos
-##' @param outcome.neg
+##' @param outcome_pos
+##' @param outcome_neg
 ##' @param marker1
 ##' @param marker2
 .dm_logit_core <- function(data, outcome, marker1, marker2, binary.regression=T, na.rm=T){
   if(na.rm){
     data %<>% drop_na( !!sym(outcome), !!sym(marker1), !!sym(marker2))
   }
-  assert_that(all(levels(data[[outcome]]) == c("neg","pos")),
+  assertthat::assert_that(all(levels(data[[outcome]]) == c("neg","pos")),
               msg = "outcome level should be ['neg','pos']")
   if(binary.regression){
     fml.m0 <- paste0( outcome, "~ 1") %>% as.formula()
@@ -86,7 +86,7 @@ summary_logit <- function(logit.model){
     logit.md <- glm(formula = fml.md, data = data, family = binomial(link="logit"))
     logit.md.int <- glm(formula = fml.md.int, data = data, family = binomial(link="logit"))
   }else{
-    d <- data %>% group_by( !!sym(outcome), !!sym(marker1), !!sym(marker2)) %>%
+    d <- data %>% dplyr::group_by( !!sym(outcome), !!sym(marker1), !!sym(marker2)) %>%
       dplyr::count() %>%
       spread(key = outcome, value = "n") %>% ungroup()
     fml.m0 <- paste0( "cbind(pos, neg) ~ 1") %>% as.formula()
@@ -136,24 +136,24 @@ summary_logit <- function(logit.model){
 ##' evaluate the logistic regression of dual marker
 ##' @param data
 ##' @param outcome
-##' @param outcome.pos
-##' @param outcome.neg
+##' @param outcome_pos
+##' @param outcome_neg
 ##' @param marker1
 ##' @param marker2
-##' @param num.cut.method marker cut method, [none, roc, median]
+##' @param num_cut_method marker cut method, [none, roc, median]
 ##' @return dual marker logistic regression summary
-dm_logit <- function(data, outcome, outcome.pos, outcome.neg=NULL,
+dm_logit <- function(data, outcome, outcome_pos, outcome_neg=NULL,
                      marker1, marker2,
                      binarization = F,
                      binary.regression=T,
-                     num.cut.method="none",
-                     m1.cat.pos = NULL, m1.cat.neg = NULL,
-                     m2.cat.pos = NULL, m2.cat.neg = NULL,
+                     num_cut_method="none",
+                     m1_cat_pos = NULL, m1_cat_neg = NULL,
+                     m2_cat_pos = NULL, m2_cat_neg = NULL,
                      na.rm=T){
   cutpoint.m1 <- NA
   cutpoint.m2 <- NA
-  data$.outcome <- binarize.cat(x = data[[outcome]],
-                                pos = outcome.pos, neg = outcome.neg)
+  data$.outcome <- binarize_cat(x = data[[outcome]],
+                                pos = outcome_pos, neg = outcome_neg)
   # run logistic regression
   if(!binarization){
     data$.m1 <- data[[marker1]]
@@ -165,10 +165,10 @@ dm_logit <- function(data, outcome, outcome.pos, outcome.neg=NULL,
                      na.rm = na.rm)
   }else{
     res.4quadrant <- dm_4quadrant(data = data, outcome = outcome,
-                                  outcome.pos = outcome.pos, outcome.neg = outcome.neg,
-                                  marker1 = marker1, marker2 = marker2, num.cut.method = num.cut.method,
-                                  m1.cat.pos = m1.cat.pos, m1.cat.neg = m1.cat.neg,
-                                  m2.cat.pos = m2.cat.pos, m2.cat.neg = m2.cat.neg,
+                                  outcome_pos = outcome_pos, outcome_neg = outcome_neg,
+                                  marker1 = marker1, marker2 = marker2, num_cut_method = num_cut_method,
+                                  m1_cat_pos = m1_cat_pos, m1_cat_neg = m1_cat_neg,
+                                  m2_cat_pos = m2_cat_pos, m2_cat_neg = m2_cat_neg,
                                   na.rm = na.rm)
     out <- .dm_logit_core(data = res.4quadrant$data,
                      outcome = '.outcome',
@@ -180,10 +180,10 @@ dm_logit <- function(data, outcome, outcome.pos, outcome.neg=NULL,
   }
 
   out.basic <- tibble(outcome = outcome,
-                      outcome.pos = toString(outcome.pos),
-                      outcome.neg = toString(outcome.neg),
+                      outcome_pos = toString(outcome_pos),
+                      outcome_neg = toString(outcome_neg),
                       m1=marker1, m2 =marker2,
-                      marker.cut.method = num.cut.method,
+                      marker.cut.method = num_cut_method,
                       cutpoint.m1 = cutpoint.m1,
                       cutpoint.m2 = cutpoint.m2)
   bind_cols(out.basic, out)

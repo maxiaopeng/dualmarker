@@ -58,8 +58,8 @@ bubblepie_chart2 <- function(x, n){
 
 fun.quadrant.analysis <- function(data,
                                   class, class.pos, class.neg=NULL,
-                                  x1, x1.datatype="auto", x1.cont.cut = NULL, x1.cat.pos = NULL, x1.cat.neg = NULL, x1.label.pos="pos",x1.label.neg="neg",
-                                  x2, x2.datatype="auto", x2.cont.cut = NULL, x2.cat.pos = NULL, x2.cat.neg = NULL, x2.label.pos="pos",x2.label.neg="neg",
+                                  x1, x1.datatype="auto", x1.cont.cut = NULL, x1.cat.pos = NULL, x1.cat.neg = NULL, x1.label_pos="pos",x1.label_neg="neg",
+                                  x2, x2.datatype="auto", x2.cont.cut = NULL, x2.cat.pos = NULL, x2.cat.neg = NULL, x2.label_pos="pos",x2.label_neg="neg",
                                   stats.only = F,
                                   rm.na=T,
                                   scale.log = "none",
@@ -84,18 +84,18 @@ fun.quadrant.analysis <- function(data,
   if(is.null(x2.datatype)) x2.datatype <- fun.class.catcont(data[[x2]])
   if(is.null(x1.cont.cut) && x1.datatype == "cont") {
     x1.cont.cut <- median(data[[x1]], na.rm = T)
-    assert_that(!is.na(x1.cont.cut), msg = "x1 is not continous var")
+    assertthat::assert_that(!is.na(x1.cont.cut), msg = "x1 is not continous var")
   }
   if(is.null(x2.cont.cut) && x2.datatype == "cont"){
     x2.cont.cut <- median(data[[x2]], na.rm = T)
-    assert_that(!is.na(x2.cont.cut), msg = "x2 is not continous var")
+    assertthat::assert_that(!is.na(x2.cont.cut), msg = "x2 is not continous var")
   }
   data$.x1.level <- fun.binarize(x=data[[x1]],datatype = x1.datatype, cont.cut = x1.cont.cut,
                                  cat.pos = x1.cat.pos, cat.neg = x1.cat.neg,
-                                 label.pos = x1.label.pos, label.neg = x1.label.neg)
+                                 label_pos = x1.label_pos, label_neg = x1.label_neg)
   data$.x2.level <- fun.binarize(x=data[[x2]],datatype = x2.datatype, cont.cut = x2.cont.cut,
                                  cat.pos = x2.cat.pos, cat.neg = x2.cat.neg,
-                                 label.pos = x2.label.pos, label.neg = x2.label.neg)
+                                 label_pos = x2.label_pos, label_neg = x2.label_neg)
   #data %<>% dplyr::filter(!is.na(.x1.level), !is.na(.x2.level))
   # x1, x2 rm NA
   if(rm.na){
@@ -113,42 +113,42 @@ fun.quadrant.analysis <- function(data,
   data.0$.x2.level <- data.2$.x2.level <- "all"
   data.all <-   bind_rows(data.0, data.1, data.2, data)
   stats <- data.all %>%
-    group_by(.x1.level, .x2.level) %>%
+    dplyr::group_by(.x1.level, .x2.level) %>%
     group_modify(.f = ~{
       tibble(n.total = nrow(.x),
              n.pos = sum(.x$.class.binary, na.rm = T),
              n.neg = sum(1-.x$.class.binary,na.rm = T),
              pct.pos = mean(.x$.class.binary))
     }) %>% ungroup()
-  stats %<>% mutate(region = case_when(.x1.level %in% x1.label.pos & .x2.level %in% x2.label.pos ~ "R1",
-                                       .x1.level %in% x1.label.neg & .x2.level %in% x2.label.pos ~ "R2",
-                                       .x1.level %in% x1.label.neg & .x2.level %in% x2.label.neg ~ "R3",
-                                       .x1.level %in% x1.label.pos & .x2.level %in% x2.label.neg ~ "R4",
-                                       .x1.level %in% "all" & .x2.level %in% x2.label.pos ~ "R12",
-                                       .x1.level %in% "all" & .x2.level %in% x2.label.neg ~ "R34",
-                                       .x1.level %in% x1.label.pos & .x2.level %in% "all" ~ "R14",
-                                       .x1.level %in% x1.label.neg & .x2.level %in% "all" ~ "R23",
+  stats %<>% mutate(region = case_when(.x1.level %in% x1.label_pos & .x2.level %in% x2.label_pos ~ "R1",
+                                       .x1.level %in% x1.label_neg & .x2.level %in% x2.label_pos ~ "R2",
+                                       .x1.level %in% x1.label_neg & .x2.level %in% x2.label_neg ~ "R3",
+                                       .x1.level %in% x1.label_pos & .x2.level %in% x2.label_neg ~ "R4",
+                                       .x1.level %in% "all" & .x2.level %in% x2.label_pos ~ "R12",
+                                       .x1.level %in% "all" & .x2.level %in% x2.label_neg ~ "R34",
+                                       .x1.level %in% x1.label_pos & .x2.level %in% "all" ~ "R14",
+                                       .x1.level %in% x1.label_neg & .x2.level %in% "all" ~ "R23",
                                        .x1.level %in% "all" & .x2.level %in% "all" ~ "R1234",
                                        TRUE ~ "other" )) %>%
-    mutate(.x1.level = factor(.x1.level, levels = c(x1.label.pos, x1.label.neg, "all")),
-           .x2.level = factor(.x2.level, levels = c(x2.label.pos, x2.label.neg, "all"))
+    mutate(.x1.level = factor(.x1.level, levels = c(x1.label_pos, x1.label_neg, "all")),
+           .x2.level = factor(.x2.level, levels = c(x2.label_pos, x2.label_neg, "all"))
     ) %>%
     dplyr::select(region, .x1.level, .x2.level, everything())
   # fisher.test
-  test.x1 <- stats %>% group_by(.x1.level) %>%
+  test.x1 <- stats %>% dplyr::group_by(.x1.level) %>%
     group_modify(.f = ~{
       .x %>%
-        dplyr::filter(.x2.level %in% c(x2.label.pos,x2.label.neg)) %>%
+        dplyr::filter(.x2.level %in% c(x2.label_pos,x2.label_neg)) %>%
         dplyr::select(.x2.level, n.pos, n.neg) %>%
         as.data.frame() %>%
         column_to_rownames(".x2.level") %>%
         as.matrix() %>%
         fisher.test() %>% broom::tidy()
     }) %>% ungroup()
-  test.x2 <- stats %>% group_by(.x2.level) %>%
+  test.x2 <- stats %>% dplyr::group_by(.x2.level) %>%
     group_modify(.f = ~{
       .x %>%
-        dplyr::filter(.x1.level %in% c(x1.label.pos,x1.label.neg)) %>%
+        dplyr::filter(.x1.level %in% c(x1.label_pos,x1.label_neg)) %>%
         dplyr::select(.x1.level, n.pos, n.neg) %>%
         as.data.frame() %>%
         column_to_rownames(".x1.level") %>%
@@ -156,11 +156,11 @@ fun.quadrant.analysis <- function(data,
         fisher.test() %>% broom::tidy()
     }) %>% ungroup()
   test.merge <- bind_rows(test.x1, test.x2) %>%
-    mutate( cmp = case_when( .x1.level %in% x1.label.neg & is.na(.x2.level) ~ "R2vsR3",
-                             .x1.level %in% x1.label.pos & is.na(.x2.level) ~ "R1vsR4",
+    mutate( cmp = case_when( .x1.level %in% x1.label_neg & is.na(.x2.level) ~ "R2vsR3",
+                             .x1.level %in% x1.label_pos & is.na(.x2.level) ~ "R1vsR4",
                              .x1.level %in% "all" & is.na(.x2.level) ~ "R12vsR34",
-                             is.na(.x1.level) & .x2.level %in% x2.label.neg ~ "R3vsR4",
-                             is.na(.x1.level) & .x2.level %in% x2.label.pos ~ "R1vsR2",
+                             is.na(.x1.level) & .x2.level %in% x2.label_neg ~ "R3vsR4",
+                             is.na(.x1.level) & .x2.level %in% x2.label_pos ~ "R1vsR2",
                              is.na(.x1.level) & .x2.level %in% c("all") ~ "R14vsR23",
                              TRUE ~ "other")) %>%
     dplyr::select(cmp, .x1.level, .x2.level, everything())
@@ -207,12 +207,12 @@ fun.quadrant.analysis <- function(data,
     d <- stats %>%
       gather(key = ".class", value="count", n.pos, n.neg) %>%
       mutate(.class = ifelse(.class %in% "n.pos", "1_pos", "2_neg")) %>%
-      mutate(.x1.level = factor(.x1.level, levels = c(x1.label.neg,x1.label.pos,"all")),
-             .x2.level = factor(.x2.level, levels = c(x2.label.neg,x2.label.pos,"all"))) %>%
+      mutate(.x1.level = factor(.x1.level, levels = c(x1.label_neg,x1.label_pos,"all")),
+             .x2.level = factor(.x2.level, levels = c(x2.label_neg,x2.label_pos,"all"))) %>%
       dplyr::filter(! is.na(.x1.level), !is.na(.x2.level))
     # barplot
     d.pie <- d %>%
-      mutate(.x2.level = factor(.x2.level, levels = c(x2.label.pos,x2.label.neg,"all")))
+      mutate(.x2.level = factor(.x2.level, levels = c(x2.label_pos,x2.label_neg,"all")))
     if(! pie.include.all)
       d.pie %<>%  dplyr::filter( !.x1.level %in% "all", !.x2.level %in% "all")
     theme.bar <- theme(axis.text.x=element_blank(),
@@ -311,19 +311,19 @@ data <- clin.bmk
 marker1 <- "TMB"
 marker2 <- "gepscore_CD.8.T.effector"
 outcome <- "binaryResponse"
-outcome.pos <- "CR/PR"
-outcome.neg <- "SD/PD"
-surv.time <- "os"
-surv.event <- "censOS"
+outcome_pos <- "CR/PR"
+outcome_neg <- "SD/PD"
+time <- "os"
+event <- "censOS"
 dualmarker.plot <- function(data, marker1, marker2,
-                            outcome, outcome.pos, outcome.neg=NULL,
-                            surv.time, surv.event, quiet=F){
+                            outcome, outcome_pos, outcome_neg=NULL,
+                            time, event, quiet=F){
   # check input
-  assert_that(all(c(outcome, marker1, marker2) %in% colnames(data)),
+  assertthat::assert_that(all(c(outcome, marker1, marker2) %in% colnames(data)),
               msg = paste(c(marker1, marker2, outcome, "not in your data")))
-  if(is.null(outcome.neg)) outcome.neg <- setdiff(na.omit(unique(data[[outcome]])), outcome.pos)
+  if(is.null(outcome_neg)) outcome_neg <- setdiff(na.omit(unique(data[[outcome]])), outcome_pos)
   # prep data
-  keep <- data[[outcome]] %in% c(outcome.pos, outcome.neg)
+  keep <- data[[outcome]] %in% c(outcome_pos, outcome_neg)
   if(any(!keep)){
     if(!quiet) print(paste0("warning: ",sum(!keep), " records have no expected outcome, removed\n"))
     data <- data[keep,]
@@ -402,26 +402,26 @@ plot(fitted(logit.model), rstandard(logit.model))
 ##' @description
 ##' binarize x
 ##' @param x
-##' @return vector with binary values: (label.pos, label.neg) or (0,1)
-binarize.data <- function(x, datatype="auto",
+##' @return vector with binary values: (label_pos, label_neg) or (0,1)
+binarize_data <- function(x, datatype="auto",
                           num.cutpoint = NULL,
                           cat.pos=NULL, cat.neg = NULL,
                           as.binary=F,
-                          label.pos = "pos", label.neg = "neg"){
+                          label_pos = "pos", label_neg = "neg"){
   if("factor" %in% class(x)){ x <- as.character(x)}
-  assert_that(datatype %in% c("auto","cat","num"),
+  assertthat::assert_that(datatype %in% c("auto","cat","num"),
               msg = "datatype should be [auto,num, cat]")
   if(datatype %in% "auto")
-    datatype <- datatype.num.cat(x)
+    datatype <- datatype_num_cat(x)
   if(datatype %in% "cat"){
-    assert_that(!is.null(cat.pos), msg = "cat.pos is reqired")
-    binarize.cat(x = x, pos = cat.pos, neg = cat.neg,
+    assertthat::assert_that(!is.null(cat.pos), msg = "cat.pos is reqired")
+    binarize_cat(x = x, pos = cat.pos, neg = cat.neg,
                  as.binary = as.binary,
-                 label.pos = label.pos, label.neg = label.neg)
+                 label_pos = label_pos, label_neg = label_neg)
   }else if(all(datatype %in% "num")){
-    assert_that(!is.null(num.cutpoint), msg = "num.cutpoint is reqired")
-    binarize.num(x = as.numeric(x), cutpoint = num.cutpoint,
-                 as.binary = as.binary, label.pos = label.pos, label.neg = label.neg)
+    assertthat::assert_that(!is.null(num.cutpoint), msg = "num.cutpoint is reqired")
+    binarize_num(x = as.numeric(x), cutpoint = num.cutpoint,
+                 as.binary = as.binary, label_pos = label_pos, label_neg = label_neg)
   }
 }
 
@@ -430,7 +430,7 @@ binarize.data <- function(x, datatype="auto",
 ##' @return list of stat.quad and test.quad
 ##'
 .stat4quad <- function(binary.data){
-  assert_that( all(c(".outcome",".m1",".m2") %in% colnames(binary.data)),
+  assertthat::assert_that( all(c(".outcome",".m1",".m2") %in% colnames(binary.data)),
                msg = ".outcome, .m1, .m2 are required")
   data <- binary.data
   data$.binary.outcome <- ifelse(data$.outcome == "pos", 1,
@@ -440,7 +440,7 @@ binarize.data <- function(x, datatype="auto",
   data.0$.m2 <- data.2$.m2 <- "all"
   data.all <- bind_rows(data.0, data.1, data.2, data)
   stats <- data.all %>%
-    group_by(.m1, .m2) %>%
+    dplyr::group_by(.m1, .m2) %>%
     group_modify(.f = ~{
       n.total <- nrow(.x)
       n.pos <- sum(.x$.binary.outcome, na.rm = T)
@@ -467,7 +467,7 @@ binarize.data <- function(x, datatype="auto",
            .m2 = factor(.m2, levels = c("pos", "neg", "all"))
     ) %>%  dplyr::select(region, .m1, .m2, everything())
   # fisher.test
-  test.x1 <- stats %>% group_by(.m1) %>%
+  test.x1 <- stats %>% dplyr::group_by(.m1) %>%
     group_modify(.f = ~{
       .x %>%
         dplyr::filter(.m2 %in% c("pos","neg")) %>%
@@ -477,7 +477,7 @@ binarize.data <- function(x, datatype="auto",
         as.matrix() %>%
         fisher.test() %>% broom::tidy()
     }) %>% ungroup()
-  test.x2 <- stats %>% group_by(.m2) %>%
+  test.x2 <- stats %>% dplyr::group_by(.m2) %>%
     group_modify(.f = ~{
       .x %>%
         dplyr::filter(.m1 %in% c("pos","neg")) %>%
