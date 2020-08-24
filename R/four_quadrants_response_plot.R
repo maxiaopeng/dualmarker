@@ -56,7 +56,7 @@
 ##' bubblepie_chart(x,n)
 
 .quadrant_interact_chart <- function(x, n){
-  data <- .quadrant.stats.response(x,n)
+  data <- .quadrant_stats_response(x,n)
   g1 <- data %>%
     ggplot(aes(x = .m1.level, y = pct.pos, group = .m2.level))+
     #geom_line(aes(color = .m2.level, linetype=.m2.level))+
@@ -87,7 +87,7 @@
 ##' n <- c(10, 10, 20, 18)
 ##' quadrant_matrix_chart(x,n)
 .quadrant_matrix_chart <- function(x, n){
-  data <- .quadrant.stats.response(x,n) %>%
+  data <- .quadrant_stats_response(x,n) %>%
     mutate(.m2.level = factor(.m2.level, levels =c("neg","pos")),
            .m1.level = factor(.m1.level, levels =c("neg","pos")),
            label = paste0(round(pct.pos,2)*100, "% (", n.pos, "/", n.total,")\n",
@@ -116,19 +116,19 @@
 ##' bubblepie_chart(x,n)
 ##'
 .quadrant_donut_chart <- function(x, n){
-  data <- .quadrant.stats.response(x,n) %>%
+  data <- .quadrant_stats_response(x,n) %>%
     mutate(.m1.level = factor(.m1.level, levels = c("neg","pos")),
            .m2.level = factor(.m2.level, levels = c("pos","neg"))) %>%
     mutate(n.total.relative = n.total / max(n.total))
   # pie plot
   d <- data %>%
-    gather(key = ".class", value="count", n.pos, n.neg) %>%
+    tidyr::gather(key = ".class", value="count", n.pos, n.neg) %>%
     mutate(.class = ifelse(.class %in% "n.pos", "pos", "neg") %>% factor(levels=c("pos","neg")))
 
   ggplot(data =d) +
     #geom_rect(aes(fill = region),xmin = -Inf,xmax = Inf,
     #          ymin = -Inf,ymax = Inf,alpha = .4) +
-    geom_arc_bar(aes(x0 = 0, y0 = 0, r0 = 1-n.total.relative, r = 1, amount = count,
+    ggforce::geom_arc_bar(aes(x0 = 0, y0 = 0, r0 = 1-n.total.relative, r = 1, amount = count,
                      fill = .class),
                  stat = 'pie', size=0)+
     #geom_text(aes(x=0, y=0, label = region), color = "royalblue", size=3)+

@@ -9,7 +9,7 @@
       res <- .survfit(data = .x, var = "1", time = time, event = event)
       summary(res)$table %>% t %>% as_tibble()
     }) %>% ungroup()
-  res$.quadrant <- .label.quadrant(res[[marker1]], res[[marker2]]) %>%
+  res$.quadrant <- .label_quadrant(res[[marker1]], res[[marker2]]) %>%
     as.factor()
   res %>% dplyr::select(.quadrant, everything()) %>%
     dplyr::arrange(.quadrant)
@@ -19,9 +19,9 @@
 .surv.test.binaryVar <- function(data, var, time, event){
 
   data[[event]] %<>% as.character() %>% as.integer()
-  assertthat::assert_that(all(data[[event]] %in% c(0,1)), msg = "event should be 0 and 1")
+  assert_that(all(data[[event]] %in% c(0,1)), msg = "event should be 0 and 1")
   data[[var]] %<>% base::droplevels()
-  assertthat::assert_that(class(data[[var]]) == "factor" &&
+  assert_that(class(data[[var]]) == "factor" &&
                 nlevels(data[[var]]) == 2,
               msg = "var should be factors with 2 levels")
 
@@ -42,7 +42,7 @@
   if(na.rm){
     data %<>% drop_na(!!sym(marker1), !!sym(marker2))
   }
-  data$.quadrant <- .label.quadrant(data[[marker1]], data[[marker2]])
+  data$.quadrant <- .label_quadrant(data[[marker1]], data[[marker2]])
   pairs <- list("R1_vs_R4" = c("R1", "R4"),
                 "R2_vs_R3" = c("R2","R3"),
                 "R1_vs_R2" = c("R1","R2"),
@@ -62,11 +62,11 @@
                                         marker1, marker2){
   # check input
   data[[event]] %<>% as.character() %>% as.integer()
-  assertthat::assert_that(all(data[[event]] %in% c(0,1)), msg = "event should be 0 and 1")
-  assertthat::assert_that(class(data[[marker1]]) == "factor" &&
+  assert_that(all(data[[event]] %in% c(0,1)), msg = "event should be 0 and 1")
+  assert_that(class(data[[marker1]]) == "factor" &&
                 nlevels(data[[marker1]]) == 2,
               msg = "marker1 should be factors with 2 levels")
-  assertthat::assert_that(class(data[[marker2]]) == "factor" &&
+  assert_that(class(data[[marker2]]) == "factor" &&
                 nlevels(data[[marker2]]) == 2,
               msg = "marker2 should be factors with 2 levels")
   # prep data
@@ -90,18 +90,18 @@ dm_4quadrant_survival <- function(data, time, event,
   res <- binarize_data(x = data[[marker1]],
                        datatype = m1_datatype,
                        num_cut_method = num_cut_method,
-                       outcome = data[[outcome]],
-                       outcome_pos = outcome_pos, outcome_neg =outcome_neg,
-                       cat.pos = m1_cat_pos, cat.neg = m1_cat_neg)
+                       response = data[[response]],
+                       response_pos = response_pos, response_neg =response_neg,
+                       cat_pos = m1_cat_pos, cat_neg = m1_cat_neg)
   data$.m1 <- res$data
   cutpoint.m1 <- res$cutpoint
   if(m1_datatype=="auto"){m1_datatype <- datatype_num_cat(data[[marker1]])}
   # prep .m2
   res <- binarize_data(x = data[[marker2]], datatype = m2_datatype,
                        num_cut_method = num_cut_method,
-                       outcome = data[[outcome]],
-                       outcome_pos = outcome_pos, outcome_neg =outcome_neg,
-                       cat.pos = m2_cat_pos, cat.neg = m2_cat_neg)
+                       response = data[[response]],
+                       response_pos = response_pos, response_neg =response_neg,
+                       cat_pos = m2_cat_pos, cat_neg = m2_cat_neg)
   if(m2_datatype=="auto"){m2_datatype <- datatype_num_cat(data[[marker2]])}
   data$.m2 <- res$data
   cutpoint.m2 <- res$cutpoint
@@ -124,9 +124,9 @@ dm_4quadrant_survival <- function(data, time, event,
 
 if(F){
   data <- clin.bmk
-  outcome = "binaryResponse"
-  outcome_pos="CR/PR"
-  outcome_neg="SD/PD"
+  response = "binaryResponse"
+  response_pos="CR/PR"
+  response_neg="SD/PD"
   marker1 = "TMB"
   marker2 <- "gepscore_gene19"
   num_cut_method <- "median"

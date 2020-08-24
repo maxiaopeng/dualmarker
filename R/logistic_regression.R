@@ -1,30 +1,38 @@
-##' summarize logistic regression model
-##' @param logit.model logistic regression model
-summary_logit <- function(logit.model){
+###########################################
+### logistic regression of dual markers
+###########################################
+
+#' summarize logistic regression model
+#'
+#' summarize logistic regression model, including the coefficient, AIC, and ROC/AUC of fitted values
+#'
+#' @param logistic_model logistic regression model
+#' @return list of 'coef' and 'summary'
+summary_logistic_reg <- function(logistic_model){
   # 1. parameters
-  coef <- broom::tidy(logit.model)
+  coef <- broom::tidy(logistic_model)
 
   # 2 Likelihood Ratio Test
-  #lrt <- anova(update(logit.model, ~1), logit.model, test="Chisq")
+  #lrt <- anova(update(logistic_model, ~1), logistic_model, test="Chisq")
   #lrt <- res.nag$Likelihood.ratio.test
   # equal to
-  # lmtest::lrtest(logit.model) # likehood ratio test
+  # lmtest::lrtest(logistic_model) # likehood ratio test
 
   # 3 Hosmer-Lemeshow Test
   #library(MKmisc)
-  #MKmisc::HLgof.test(fit = fitted(logit.model), obs = logit.model$data$.outcome)
+  #MKmisc::HLgof.test(fit = fitted(logistic_model), obs = logistic_model$data$.response)
 
   # 4 pesudo-R
-  #res.nag <- rcompanion::nagelkerke(logit.model)
+  #res.nag <- rcompanion::nagelkerke(logistic_model)
   #pR2 <- res.nag$Pseudo.R.squared.for.model.vs.null
 
   # 5. ROC
   auc <- auc.lower95 <- auc.upper95 <- NA
   errFlag <- F
   res.auc <- tryCatch({
-    d <- logit.model$data
-    d$.fitted <- fitted(logit.model)
-    response <- all.vars(logit.model$formula)[1]
+    d <- logistic_model$data
+    d$.fitted <- fitted(logistic_model)
+    response <- all.vars(logistic_model$formula)[1]
     response.level <- levels(d[[response]])
     auc_stats(data = d, response = response,
               case= response.level[2],
@@ -44,10 +52,10 @@ summary_logit <- function(logit.model){
   colnames(estimate) %<>% paste0("estimate.", .) %>%
     make.names() %>% str_replace_all("\\.+","\\.") %>%
     str_replace("\\.$","")
-  summary <- tibble(deviance = logit.model$deviance,
-                    deviance.null = logit.model$null.deviance,
-                    deviance.diff = logit.model$null.deviance - logit.model$deviance,
-                    AIC = logit.model$aic,
+  summary <- tibble(deviance = logistic_model$deviance,
+                    deviance.null = logistic_model$null.deviance,
+                    deviance.diff = logistic_model$null.deviance - logistic_model$deviance,
+                    AIC = logistic_model$aic,
                     #pR2.McFadden = pR2[1,1],
                     #pR2.CoxSnell = pR2[2,1],
                     #pR2.CraggUhler = pR2[3,1]
@@ -60,51 +68,51 @@ summary_logit <- function(logit.model){
     summary = list(summary))
 }
 
-##' dm_logit
-##' evaluate the logistic regression of dual marker
-##' @param data
-##' @param outcome factor, level should be [neg, pos]
-##' @param outcome_pos
-##' @param outcome_neg
-##' @param marker1
-##' @param marker2
-.dm_logit_core <- function(data, outcome, marker1, marker2, binary.regression=T, na.rm=T){
-  if(na.rm){
-    data %<>% drop_na( !!sym(outcome), !!sym(marker1), !!sym(marker2))
+#' dual marker analysis for logistic regression(core)
+#'
+#' evaluate the logistic regression of dual marker
+#'
+#' @param data data frame
+#' @param response factor, 2 level, 'neg' and 'pos'
+#' @param marker1
+#' @param marker2
+.dm_logit_core <- function(data, response, marker1, marker2, binary_regression=T, na_rm=T){
+  if(na_rm){
+    data %<>% drop_na( !!sym(response), !!sym(marker1), !!sym(marker2))
   }
-  assertthat::assert_that(all(levels(data[[outcome]]) == c("neg","pos")),
-              msg = "outcome level should be ['neg','pos']")
-  if(binary.regression){
-    fml.m0 <- paste0( outcome, "~ 1") %>% as.formula()
-    fml.m1 <- paste0( outcome, " ~ ", marker1) %>% as.formula()
-    fml.m2 <- paste0( outcome, " ~ ", marker2) %>% as.formula()
-    fml.md <- paste0( outcome, " ~ ", marker1, "+", marker2) %>% as.formula()
-    fml.md.int <- paste0( outcome , " ~ ", marker1, "*", marker2) %>% as.formula()
-    logit.m0 <- glm(formula = fml.m0, data = data, family = binomial(link="logit"))
-    logit.m1 <- glm(formula = fml.m1, data = data, family = binomial(link="logit"))
-    logit.m2 <- glm(formula = fml.m2, data = data, family = binomial(link="logit"))
-    logit.md <- glm(formula = fml.md, data = data, family = binomial(link="logit"))
-    logit.md.int <- glm(formula = fml.md.int, data = data, family = binomial(link="logit"))
+  assert_that(all(levels(data[[response]]) == c("neg","pos")),
+              msg = "response level should be ['neg','pos']")
+  if(binary_regression){
+    fml.m0 <- paste0( response, "~ 1") %>% as.formula()
+    fml.m1 <- paste0( response, " ~ ", marker1) %>% as.formula()
+    fml.m2 <- paste0( response, " ~ ", marker2) %>% as.formula()
+    fml.md <- paste0( response, " ~ ", marker1, "+", marker2) %>% as.formula()
+    fml.md.int <- paste0( response , " ~ ", marker1, "*", marker2) %>% as.formula()
+    logit.m0 <- stats::glm(formula = fml.m0, data = data, family = binomial(link="logit"))
+    logit.m1 <- stats::glm(formula = fml.m1, data = data, family = binomial(link="logit"))
+    logit.m2 <- stats::glm(formula = fml.m2, data = data, family = binomial(link="logit"))
+    logit.md <- stats::glm(formula = fml.md, data = data, family = binomial(link="logit"))
+    logit.md.int <- stats::glm(formula = fml.md.int, data = data, family = binomial(link="logit"))
   }else{
-    d <- data %>% dplyr::group_by( !!sym(outcome), !!sym(marker1), !!sym(marker2)) %>%
+    d <- data %>% dplyr::group_by( !!sym(response), !!sym(marker1), !!sym(marker2)) %>%
       dplyr::count() %>%
-      spread(key = outcome, value = "n") %>% ungroup()
+      tidyr::spread(key = response, value = "n") %>% ungroup()
     fml.m0 <- paste0( "cbind(pos, neg) ~ 1") %>% as.formula()
     fml.m1 <- paste0( "cbind(pos, neg) ~ ", marker1) %>% as.formula()
     fml.m2 <- paste0( "cbind(pos, neg) ~ ",marker2) %>% as.formula()
     fml.md <- paste0( "cbind(pos, neg) ~ ", marker1, "+", marker2) %>% as.formula()
     fml.md.int <- paste0( "cbind(pos, neg) ~ ", marker1, "*", marker2) %>% as.formula()
-    logit.m0 <- glm(formula = fml.m0, data = d, family = binomial(link="logit"))
-    logit.m1<- glm(formula = fml.m1, data = d, family = binomial(link="logit"))
-    logit.m2 <- glm(formula = fml.m2, data = d, family = binomial(link="logit"))
-    logit.md <- glm(formula = fml.md, data = d, family = binomial(link="logit"))
-    logit.md.int <- glm(formula = fml.md.int, data = d, family = binomial(link="logit"))
+    logit.m0 <- stats::glm(formula = fml.m0, data = d, family = binomial(link="logit"))
+    logit.m1<- stats::glm(formula = fml.m1, data = d, family = binomial(link="logit"))
+    logit.m2 <- stats::glm(formula = fml.m2, data = d, family = binomial(link="logit"))
+    logit.md <- stats::glm(formula = fml.md, data = d, family = binomial(link="logit"))
+    logit.md.int <- stats::glm(formula = fml.md.int, data = d, family = binomial(link="logit"))
   }
   # summary of model
-  summ.m1 <- summary_logit(logit.m1)
-  summ.m2 <- summary_logit(logit.m2)
-  summ.md <- summary_logit(logit.md)
-  summ.md.int <- summary_logit(logit.md.int)
+  summ.m1 <- summary_logistic_reg(logit.m1)
+  summ.m2 <- summary_logistic_reg(logit.m2)
+  summ.md <- summary_logistic_reg(logit.md)
+  summ.md.int <- summary_logistic_reg(logit.md.int)
 
   # m1
   out.m1 <- summ.m1$summary %>% dplyr::select(-deviance.null)
@@ -132,56 +140,66 @@ summary_logit <- function(logit.model){
   bind_cols(out.m1, out.m2, out.md, out.md.int)
 }
 
-##' dm_logit
-##' evaluate the logistic regression of dual marker
-##' @param data
-##' @param outcome
-##' @param outcome_pos
-##' @param outcome_neg
-##' @param marker1
-##' @param marker2
-##' @param num_cut_method marker cut method, [none, roc, median]
-##' @return dual marker logistic regression summary
-dm_logit <- function(data, outcome, outcome_pos, outcome_neg=NULL,
+#' Logistic regression for dual marker
+#'
+#' Evaluate the logistic regression of dual marker
+#'
+#' @param data data.frame
+#' @param response response variables
+#' @param response_pos positive values of response
+#' @param response_neg negative values of response
+#' @param marker1 marker1 variable
+#' @param marker2 marker2 variable
+#' @param binarization
+#' @param binary_regression
+#' @param m1_cat_pos positive value(s) if marker1 is categorical
+#' @param m1_cat_neg negative value(s) if marker1 is categorical
+#' @param m2_cat_pos positive value(s) if marker2 is categorical
+#' @param m2_cat_neg negative value(s) if marker2 is categorical
+#' @param na_rm remove NA, default TRUE
+#' @param num_cut_method marker cut method. Possible values can be 'none'(default) and 'roc', 'median'
+#' @return summary of dual marker logistic regression
+#' @export
+dm_logit <- function(data, response, response_pos, response_neg=NULL,
                      marker1, marker2,
                      binarization = F,
-                     binary.regression=T,
+                     binary_regression=T,
                      num_cut_method="none",
                      m1_cat_pos = NULL, m1_cat_neg = NULL,
                      m2_cat_pos = NULL, m2_cat_neg = NULL,
-                     na.rm=T){
+                     na_rm=T){
   cutpoint.m1 <- NA
   cutpoint.m2 <- NA
-  data$.outcome <- binarize_cat(x = data[[outcome]],
-                                pos = outcome_pos, neg = outcome_neg)
+  data$.response <- binarize_cat(x = data[[response]],
+                                pos = response_pos, neg = response_neg)
   # run logistic regression
   if(!binarization){
     data$.m1 <- data[[marker1]]
     data$.m2 <- data[[marker2]]
     out <- .dm_logit_core(data = data,
-                     outcome = ".outcome",
+                     response = ".response",
                      marker1 = ".m1", marker2 = ".m2",
-                     binary.regression = T,
-                     na.rm = na.rm)
+                     binary_regression = T,
+                     na_rm = na_rm)
   }else{
-    res.4quadrant <- dm_4quadrant(data = data, outcome = outcome,
-                                  outcome_pos = outcome_pos, outcome_neg = outcome_neg,
+    res.4quadrant <- dm_4quadrant_response(data = data, response = response,
+                                  response_pos = response_pos, response_neg = response_neg,
                                   marker1 = marker1, marker2 = marker2, num_cut_method = num_cut_method,
                                   m1_cat_pos = m1_cat_pos, m1_cat_neg = m1_cat_neg,
                                   m2_cat_pos = m2_cat_pos, m2_cat_neg = m2_cat_neg,
-                                  na.rm = na.rm)
+                                  na_rm = na_rm)
     out <- .dm_logit_core(data = res.4quadrant$data,
-                     outcome = '.outcome',
+                     response = '.response',
                      marker1 = ".m1", marker2 = ".m2",
-                     binary.regression = binary.regression,
-                     na.rm = na.rm)
+                     binary_regression = binary_regression,
+                     na_rm = na_rm)
     cutpoint.m1 <- res.4quadrant$param$cutpoint.m1
     cutpoint.m2 <- res.4quadrant$param$cutpoint.m2
   }
 
-  out.basic <- tibble(outcome = outcome,
-                      outcome_pos = toString(outcome_pos),
-                      outcome_neg = toString(outcome_neg),
+  out.basic <- tibble(response = response,
+                      response_pos = toString(response_pos),
+                      response_neg = toString(response_neg),
                       m1=marker1, m2 =marker2,
                       marker.cut.method = num_cut_method,
                       cutpoint.m1 = cutpoint.m1,
@@ -189,17 +207,15 @@ dm_logit <- function(data, outcome, outcome_pos, outcome_neg=NULL,
   bind_cols(out.basic, out)
 }
 
-##' plot logistic regression
-##' @param dm.summ
-dm_logit_plot <- function(dm.summ, type = "deviance.diff"){
-  # explain variables
-  d <- dm.summ %>% dplyr::select(contains(type)) %>%
-    dplyr::select(-contains("pval")) %>%
-    gather()
-  d %>%
-    ggplot(aes(x=key,y = value))+
-    geom_bar(stat = "identity")+
-    scale_x_discrete(labels = c(dm.summ$m1,dm.summ$m2, "Dual","Dual_int"))+
-    labs(y = type, x= "")
-}
+# dm_logit_plot <- function(dm.summ, type = "deviance.diff"){
+#   # explain variables
+#   d <- dm.summ %>% dplyr::select(contains(type)) %>%
+#     dplyr::select(-contains("pval")) %>%
+#     tidyr::gather()
+#   d %>%
+#     ggplot(aes(x=key,y = value))+
+#     geom_bar(stat = "identity")+
+#     scale_x_discrete(labels = c(dm.summ$m1,dm.summ$m2, "Dual","Dual_int"))+
+#     labs(y = type, x= "")
+# }
 

@@ -1,23 +1,23 @@
 ##' dm_searchM2_logit
 ##' search marker2 to combine with marker1
 ##' @param data
-##' @param outcome
-##' @param outcome_pos
-##' @param outcome_neg
+##' @param response
+##' @param response_pos
+##' @param response_neg
 ##' @param marker1
 ##' @param targets
-dm_searchM2_logit <- function(data, outcome, outcome_pos, outcome_neg=NULL,
+dm_searchM2_logit <- function(data, response, response_pos, response_neg=NULL,
                         marker1, targets,
                         binarization = F,
                         num_cut_method = "none",
                         m1_cat_pos = NULL, m1_cat_neg = NULL,
                         na.rm=T){
   targets <- base::intersect(targets, colnames(data))
-  assertthat::assert_that(length(targets)>0, msg = "target features don't exist")
+  assert_that(length(targets)>0, msg = "target features don't exist")
   names(targets) <- targets
   purrr::map_dfr(targets, .f = ~{
-    dm_logit(data = data, outcome = outcome,
-             outcome_pos = outcome_pos, outcome_neg = outcome_neg,
+    dm_logit(data = data, response = response,
+             response_pos = response_pos, response_neg = response_neg,
              marker1 = marker1, marker2 = .x,
              binarization = binarization,
              num_cut_method = num_cut_method,
@@ -52,13 +52,13 @@ dm_searchM2_logit_plot <- function(res.searchM2, max.n = 50, pval.threh = 0.01){
     mutate(m2 = reorder(m2, Md_vs_M1))
 
   dd %>%
-    gather(key = "comparison", value="pval", contains("_vs_")) %>%
+    tidyr::gather(key = "comparison", value="pval", contains("_vs_")) %>%
     ggplot(aes(y = pval, x = m2, color = comparison))+
     geom_point()+
     geom_hline(yintercept = c(-log10(c(0.05, 0.01)),log10(c(0.05, 0.01))),
                linetype="dashed", color="grey")+
     theme_bw()+
-    labs(y = "worse outcome <- signed log10-pValue -> better outcome", x = "marker2",
+    labs(y = "worse response <- signed log10-pValue -> better response", x = "marker2",
          title = paste0("Significant marker2 to combine with ", m1.name))+
     coord_flip()
 }
@@ -66,17 +66,17 @@ dm_searchM2_logit_plot <- function(res.searchM2, max.n = 50, pval.threh = 0.01){
 ##' @description
 ##' find dual marker by four-quadrant analysis
 ##' @export
-dm_searchM2_4quadrant <- function(data, outcome, outcome_pos, outcome_neg=NULL,
+dm_searchM2_4quadrant <- function(data, response, response_pos, response_neg=NULL,
                                   marker1, targets,
                                   num_cut_method = "none",
                                   m1_cat_pos = NULL, m1_cat_neg = NULL
                                   ){
   targets <- base::intersect(targets, colnames(data))
-  assertthat::assert_that(length(targets)>0, msg = "target features don't exist")
+  assert_that(length(targets)>0, msg = "target features don't exist")
   names(targets) <- targets
   purrr::map_dfr(targets, .f = ~{
-    res.quad <- dm_4quadrant(data = data, outcome = outcome,
-                 outcome_pos = outcome_pos, outcome_neg = outcome_neg,
+    res.quad <- dm_4quadrant(data = data, response = response,
+                 response_pos = response_pos, response_neg = response_neg,
                  marker1 = marker1,
                  marker2 = .x,
                  num_cut_method = num_cut_method,
@@ -84,12 +84,12 @@ dm_searchM2_4quadrant <- function(data, outcome, outcome_pos, outcome_neg=NULL,
                  na.rm = T)
     out.basic <- tibble(m1 = marker1, m2 = .x, num_cut_method=num_cut_method)
     out.4quad.count <- res.quad$stats %>% dplyr::select(region, n.total, n.pos, pct.pos) %>%
-      gather(key = "key", value ="value", -region) %>%
+      tidyr::gather(key = "key", value ="value", -region) %>%
       unite(., col = ".id", region, key) %>%
-      spread(key = ".id", value="value")
+      tidyr::spread(key = ".id", value="value")
     out.4quad.test <- res.quad$test %>% dplyr::select(comparison, p.value) %>%
       mutate(comparison = paste0("pval.", comparison)) %>%
-      spread(key = "comparison", value="p.value")
+      tidyr::spread(key = "comparison", value="p.value")
     estimate.m2 <- res.quad$test %>%
       dplyr::filter(comparison %in% "R12_vs_R34") %>%
       pull(estimate) %>% .[1]
@@ -124,7 +124,7 @@ dm_searchM2_4quadrant_plot <- function(res.searchM2, max.n = 30, pval.threh = 0.
     mutate(m2 = reorder(m2, R12_vs_R34))
 
   dd %>%
-    gather(key = "comparison", value="pval", contains("_vs_")) %>%
+    tidyr::gather(key = "comparison", value="pval", contains("_vs_")) %>%
     ggplot(aes(y = pval, x = m2, color = comparison))+
     geom_point()+
     geom_hline(yintercept = c(-log10(c(0.05, 0.01)),log10(c(0.05, 0.01))),
@@ -148,7 +148,7 @@ dm_searchM2_cox <- function(data, time, event,
                             m1_cat_pos=NULL, m1_cat_neg=NULL,
                             na.rm=T){
   targets <- base::intersect(targets, colnames(data))
-  assertthat::assert_that(length(targets)>0, msg = "features don't exist")
+  assert_that(length(targets)>0, msg = "features don't exist")
   names(targets) <- targets
   purrr::map_dfr(targets, .f = ~{
     dm_cox(data = data,
@@ -188,7 +188,7 @@ dm_searchM2_cox_plot <- function(res.searchM2, padj=F, max.n = 30, pval.threh = 
     mutate(m2 = reorder(m2, M1_vs_dual))
 
   dd %>%
-    gather(key = "comparison", value="pval", contains("_vs_")) %>%
+    tidyr::gather(key = "comparison", value="pval", contains("_vs_")) %>%
     ggplot(aes(y = pval, x = m2, color = comparison))+
     geom_point()+
     geom_hline(yintercept = c(-log10(c(0.05, 0.01)),log10(c(0.05, 0.01))),

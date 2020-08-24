@@ -78,9 +78,9 @@ summary_cox <- function(cox.model){
 ##' dm_cox
 ##' evaluate the logistic regression of dual marker
 ##' @param data
-##' @param outcome
-##' @param outcome_pos
-##' @param outcome_neg
+##' @param response
+##' @param response_pos
+##' @param response_neg
 ##' @param marker1
 ##' @param marker2
 ##' @param num_cut_method marker cut method, [none, roc, median]
@@ -104,13 +104,13 @@ dm_cox <- function(data, time, event,
   }else{
     # m1
     res <- binarize_data(x = data[[marker1]], datatype = "auto",
-                cat.pos = m1_cat_pos, cat.neg = m1_cat_neg,
+                cat_pos = m1_cat_pos, cat_neg = m1_cat_neg,
                 num_cut_method = num_cut_method)
     data$.m1 <- res$data
     cutpoint.m1 <- res$cutpoint
     # m2
     res <- binarize_data(x = data[[marker2]], datatype = "auto",
-                       cat.pos = m2_cat_pos, cat.neg = m2_cat_neg,
+                       cat_pos = m2_cat_pos, cat_neg = m2_cat_neg,
                        num_cut_method = num_cut_method)
     data$.m2 <- res$data
     cutpoint.m2 <- res$cutpoint
