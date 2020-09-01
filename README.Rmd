@@ -1,0 +1,181 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# dualmarker
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of dualmarker is to analysis dual marker for response and survival using logistic regression and cox model
+
+## Installation
+
+You can install the released version of dualmarker from [github](https://github.com/) with: devtools::install("maxiaopeng/dualmarker")
+
+```{r, include=F}
+library(dualmarker)
+library(stringr)
+library(dplyr)
+```
+
+## dataset
+We demonstrate the data using Imvigor210 result. 
+
+## Example1
+Here we demonstrated the visitation of TMB and TGFb signature for response and survival analysis
+
+```{r example, fig.width=6, fig.height=5, include=F, warning=F, message=F}
+## basic example code
+res.pair <- dm_pair(data = clin_bmk_IMvigor210, response = "binaryResponse", 
+        response.pos = "CR/PR", response.neg = "SD/PD", 
+        marker1 = "TMB", 
+        marker2 = "gepscore_TGFb.19gene")
+```
+
+plot1: single-markers
+```{r, fig.width=5, fig.height=3}
+res.pair$plot$single.marker
+```
+
+plot2: Scatter-chart
+```{r, fig.width=4, fig.height=3}
+res.pair$plot$scatter.chart
+```
+
+plot3: Four-quadrant response rate
+```{r, fig.width=6, fig.height=5}
+res.pair$plot$response.4quad
+```
+
+plot4: ROC curve
+```{r, fig.width=5, fig.height=4}
+res.pair$plot$roc
+```
+plot5: KMplot, not available
+plot6: four-quadrant show of survival
+
+stats-1: four quadrant statistics
+```{r}
+res.pair$stats$response.4quad$param
+res.pair$stats$response.4quad$pos.n
+res.pair$stats$response.4quad$total.n
+res.pair$stats$response.4quad$stats.4quad
+```
+
+stats-2: summary of logit
+```{r}
+glimpse(res.pair$stats$logit)
+```
+
+stats-3:  summary of survival in each quadrant(not available here)
+stats-4:  summary of cox(not available here)
+
+## Example2
+Here we demonstrated the visualization of CXCL13 expression and ARID1A mutation status
+```{r fig.width=6, fig.height=5, warning=F}
+res.pair <- dm_pair(data = clin_bmk_IMvigor210, 
+               time = "os", event = "censOS",
+               marker1 = "mut_ARID1A", marker2 = "gep_CXCL13", 
+               m1.cat.pos = "YES", m1.cat.neg = "NO")
+```
+
+plot1: single markers(not available here)
+plot2: scatter chart( not available here)
+plot3: Four-quadrant response rate( not available here)
+plot4: ROC curve( not available here)
+plot5: KMplot
+```{r,  fig.width=5, fig.height=5}
+res.pair$plot$KMplot$marker1
+res.pair$plot$KMplot$marker2
+```
+```{r, fig.width=5, fig.height=6}
+res.pair$plot$KMplot$dualmarker
+```
+
+plot6: four-quadrant show of survival
+```{r, fig.width=6, fig.height=5}
+res.pair$plot$surv.4quad
+```
+
+stats-1: four quadrant response(not available)
+stats-2: summary of logit for response(not available)
+stats-3:  summary of survival in each quadrant
+```{r}
+res.pair$stats$surv.4quad$param
+res.pair$stats$surv.4quad$stats
+```
+
+stats-4:  summary of cox
+```{r}
+glimpse(res.pair$stats$cox)
+```
+
+## Example3
+find the candidate marker2 in gene signatures to combine with ARID1A mutation, using ECOG, metastatistic-status as the confounding factor
+```{r}
+m2.candidates <- str_subset(colnames(clin_bmk_IMvigor210),"gep_") 
+res.m2.cox <- dm_searchM2_cox(
+  data = clin_bmk_IMvigor210, 
+   # survival
+   time = "os", 
+   event = "censOS",
+   # marker1
+   marker1 = "mut_ARID1A", 
+   m1.binarize = T, 
+   m1.cat.pos = "YES", 
+   m1.cat.neg = "NO", 
+   # marker2
+   m2.candidates = m2.candidates
+  )
+```
+
+Plot the searchM2 result, the top20 most significant marker2 will be shown
+```{r}
+plot.m2.cox <- dm_searchM2_topPlot(res.m2.cox, top.n = 30)
+```
+
+plot-1, 'm2_effect' is dot-chart, showing the top significant marker2s, whose introduction to dual-maker model(w/ or w/o interaction) significantly increase the prediction of survival. Likelihood ratio test(LRT) is carried out to compare dual-marker model and marker1 solo model, the signed log10-pValue is shown on x-axis, and 'sign' indicates the effect direction of marker2 to survival.
+```{r}
+plot.m2.cox$m2_effect
+```
+
+plot-2: 'interaction' is dot-chart, showing the top significant marker2s, which has statistical interaction with given marker1. Signed log10-pValue is shown like 'm2_effect'
+```{r, fig.width=4, fig.height=5}
+plot.m2.cox$interact
+```
+
+plot-3: 'm1_m2_effect' is scatter-plot, showing the log10-pValue of model comparison, i.e. dual-vs-marker1 and dual-vs-marker2. Dual model that superior to both marker1 and marker2 is preferred, located top-right on the figure.
+```{r}
+plot.m2.cox$m1_m2_effect
+```
+
+resulting table: 
+```{r}
+glimpse(res.m2.cox)
+```
+
+## Example 4
+```{r fig.width=6, fig.height=5, warning=F}
+res.pair <- dm_pair(data = clin_bmk_IMvigor210, 
+               time = "os", event = "censOS",
+               response = "binaryResponse", response.pos = "CR/PR", response.neg = "SD/PD",
+               marker1 = "mut_ARID1A", marker2 = "gep_HMGB1", 
+               m1.cat.pos = "YES", m1.cat.neg = "NO")
+```
+
+```{r, fig.height=5, fig.width=6}
+res.pair$plot
+```
+

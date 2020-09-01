@@ -9,4 +9,4 @@
 #'   ...
 #' }
 #' @source \url{http://research-pub.gene.com/IMvigor210CoreBiologies/packageVersions/IMvigor210CoreBiologies_1.0.0.tar.gz}
-"clin_bmk_imvigor210"
+"clin_bmk_IMvigor210"

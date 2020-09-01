@@ -1,4 +1,4 @@
 library(testthat)
-library(combimarker)
+library(dualmarker)
 
-test_check("combimarker")
+test_check("dualmarker")

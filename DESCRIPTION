@@ -15,7 +15,7 @@ RoxygenNote: 7.1.1
 Suggests: 
     knitr,
     rmarkdown,
-    testthat
+    testthat (>= 2.1.0)
 VignetteBuilder: knitr
 Imports: 
     magrittr,
@@ -28,6 +28,13 @@ Imports:
     assertthat,
     tidyr,
     ggforce,
-    ggpubr
+    ggpubr,
+    broom,
+    glue,
+    purrr,
+    rlang,
+    stringr,
+    tibble,
+    ggrepel
 Depends: 
     R (>= 2.10)

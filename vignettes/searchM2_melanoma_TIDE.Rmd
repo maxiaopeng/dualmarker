@@ -1,0 +1,73 @@
+---
+title: "searchM2"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{searchM2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+#library(dualmarker)
+library(dplyr)
+library(magrittr)
+library(readr)
+```
+
+
+```{r, echo=F, message=F}
+file.clin.info <- system.file("extdata","TCGA_melanoma_meta_info.csv", package = "dualmarker")
+file.gepscore <- system.file("extdata","TCGA_melanoma_GEPscore.csv", package = "dualmarker")
+file.gep <- system.file("extdata","TCGA_melanoma_GEP.csv", package = "dualmarker")
+
+clin <- read_csv(file.clin.info)
+gep <- read_csv(file.gep) %>%
+   as.data.frame() %>% column_to_rownames(".id") %>% t %>% as.data.frame %>% rownames_to_column(".id")
+colnames(gep)[-1] %<>% paste0("gep.", .)
+gepscore <- read_csv(file.gepscore) %>% 
+   as.data.frame() %>% column_to_rownames(".id") %>% t %>% as.data.frame %>% rownames_to_column(".id")
+colnames(gepscore)[-1] %<>% paste0("gepscore.", .)
+
+clin.bmk <- plyr::join_all(list(clin, gep, gepscore), by = ".id")
+```
+
+# SearchM2 signature
+```{r}
+m2.candidates <- colnames(gepscore)[-1]
+res <- dm_searchM2_cox(data = clin.bmk %>% dplyr::filter(OS %in% c(0,1)), 
+                       time = "OS.time", event="OS", 
+                marker1 = "gepscore.CTL", m1.binarize = F, 
+                m2.candidates = m2.candidates, m2.binarize = T, m2.num.cut = "mean+sd")
+
+dm_searchM2_topPlot(res)
+```
+
+# SearchM2 genes
+```{r}
+m2.candidates <- colnames(gep)[-1]
+res <- dm_searchM2_cox(
+  data = clin.bmk %>% dplyr::filter(OS %in% c(0,1)), 
+  time = "OS.time", 
+  event="OS", 
+  marker1 = "gepscore.CTL", m1.binarize = F, 
+  m2.candidates = m2.candidates, m2.binarize = T, m2.num.cut = "mean+sd")
+
+dm_searchM2_topPlot(res)
+```
+
+```{r, fig.height=7}
+res <- clin.bmk %>% 
+  dplyr::filter(OS %in% c(0,1)) %>% 
+  dm_pair(data = ., time = "OS.time", event= "OS", 
+          marker1 = "gepscore.CTL", m1.num.cut = "median",
+          marker2 = "gep.NT5E", m2.num.cut = "mean+sd")
+res$plot
+```
+

@@ -3,6 +3,4 @@
 .RData
 .Ruserdata
 inst/doc
-renv
-renv.lock
-data-raw
+data-raw/
