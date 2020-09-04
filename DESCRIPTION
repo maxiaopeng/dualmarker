@@ -32,7 +32,6 @@ Imports:
     broom,
     glue,
     purrr,
-    rlang,
     stringr,
     tibble,
     ggrepel
