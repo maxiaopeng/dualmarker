@@ -77,7 +77,7 @@
   }
   data$.m1 <- binarize_cat(x = data[[marker1]], pos = m1.cat.pos,
                            neg = m1.cat.neg, label.pos = "pos", label.neg = "neg")
-  data %<>% tidyr::drop_na(.response, .m1, !!sym(marker2))
+  data %<>% tidyr::drop_na(.m1, !!sym(marker2))
 
   data %<>% mutate(
     region = case_when(
@@ -100,7 +100,7 @@
     annotate( "rect", xmin = -Inf, xmax = 1.5, ymin = -Inf, ymax = m2.cutpoint, fill = color.quadrant.1[3], alpha = 0.1 ) +
     annotate( "rect", xmin = 1.5, xmax = Inf, ymin = -Inf, ymax = m2.cutpoint, fill = color.quadrant.1[4], alpha = 0.1) +
     #geom_boxplot(size=0.05, alpha=0.4, outlier.shape = "")+
-    geom_jitter(aes_string(color = ".response"), width = 0.3) +
+    geom_jitter(width = 0.3) +
     #stat_signif(comparisons = list(c("YES","NO")))+
     geom_hline(yintercept = m2.cutpoint, linetype = "dashed",color = "skyblue") +
     geom_vline(xintercept = 1.5, linetype = "dashed", color = "skyblue") +

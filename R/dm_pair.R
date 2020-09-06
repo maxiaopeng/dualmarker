@@ -26,7 +26,7 @@ dm_pair <- function(data, marker1, marker2,
                     m1.num.cut = "median", m1.cat.pos = NULL, m1.cat.neg = NULL,
                     m2.num.cut = "median", m2.cat.pos = NULL, m2.cat.neg = NULL,
                     plot.only = F){
-  g.sm <- g.scatter <- g.4quad.response <- g.roc <- g.km <- g.4quad.surv <- NULL
+  g.sm <- g.scatter <- g.4quad.response <- g.roc <- g.surv.plot <- g.4quad.surv <- NULL
   stats.4quad.response <- stats.4quad.surv <- stats.logit <- stats.cox <- NULL
 
   if(!is.null(response)){
@@ -93,11 +93,10 @@ dm_pair <- function(data, marker1, marker2,
 
   if(!is.null(time)){
     # survival
-    g.km <- dm_KMplot(data = data,
-                      time = time,
-                      event = event,
-                      marker1 = marker1,
-                      marker2 = marker2,
+    g.surv.plot <- dm_surv_plot(data = data,
+                      time = time,event = event,
+                      response =response, response.pos = response.pos, response.neg = response.neg,
+                      marker1 = marker1, marker2 = marker2,
                       m1.num.cut = m1.num.cut, m1.cat.pos = m1.cat.pos, m1.cat.neg = m1.cat.neg,
                       m2.num.cut = m2.num.cut, m2.cat.pos = m2.cat.pos, m2.cat.neg = m2.cat.neg)
     if(!plot.only){
@@ -125,15 +124,14 @@ dm_pair <- function(data, marker1, marker2,
                scatter.chart = g.scatter,
                response.4quad = g.4quad.response,
                roc = g.roc,
-               KMplot = g.km,
+               survplot = g.surv.plot,
                surv.4quad = g.4quad.surv)
+  stats <- NA
   if(!plot.only){
     stats <- list(response.4quad = stats.4quad.response,
                   logit = stats.logit,
                   surv.4quad = stats.4quad.surv,
                   cox =  stats.cox)
-  }else{
-    stats <- NA
   }
   list(plot = plot, stats = stats)
 }

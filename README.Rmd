@@ -22,10 +22,10 @@ The goal of dualmarker is to analysis dual marker for response and survival usin
 
 ## Installation
 
-You can install the released version of dualmarker from [github](https://github.com/) with: devtools::install("maxiaopeng/dualmarker")
+You can install the released version of dualmarker from github with: devtools::install_github("maxiaopeng/dualmarker")
 
 ```{r, include=F}
-#library(dualmarker)
+library(dualmarker)
 library(stringr)
 library(dplyr)
 ```
@@ -86,6 +86,7 @@ stats-4:  summary of cox(not available here)
 Here we demonstrated the visualization of CXCL13 expression and ARID1A mutation status
 ```{r fig.width=6, fig.height=5, warning=F}
 res.pair <- dm_pair(data = clin_bmk_IMvigor210, 
+               response = "binaryResponse", response.pos = "CR/PR", response.neg = "SD/PD",
                time = "os", event = "censOS",
                marker1 = "mut_ARID1A", marker2 = "gep_CXCL13", 
                m1.cat.pos = "YES", m1.cat.neg = "NO")
@@ -96,10 +97,14 @@ plot2: scatter chart( not available here)
 plot3: Four-quadrant response rate( not available here)
 plot4: ROC curve( not available here)
 plot5: KMplot
-```{r,  fig.width=5, fig.height=4}
-res.pair$plot$KMplot$marker1
-res.pair$plot$KMplot$marker2
-res.pair$plot$KMplot$dualmarker
+```{r,  fig.width=6, fig.height=5}
+res.pair$plot$survplot$km.m1m2
+res.pair$plot$survplot$scatter.m1m2
+```
+```{r,  fig.width=5, fig.height=5}
+res.pair$plot$survplot$km.dualmarker
+res.pair$plot$survplot$km.dualmarker.facet
+res.pair$plot$survplot$scatter.dualmarker
 ```
 
 

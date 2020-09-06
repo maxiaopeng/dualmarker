@@ -24,29 +24,6 @@ test_that("dm_pair works", {
   }
 })
 
-#
-# test_that("TMB+gene19 by roc",{
-#   # 2. cut by roc
-#   res <- dm_pair(
-#     data = clin_bmk_IMvigor210,
-#     response = "binaryResponse",
-#     response.pos="CR/PR",
-#     response.neg="SD/PD",
-#     marker1 = "TMB",
-#     marker2 = "gepscore_TGFb.19gene",
-#     num.cut = "roc",
-#     time = "os",
-#     event = "censOS")
-#
-#   expect_length(res, 2)
-#   if(F){
-#     (ofile <- tempfile(pattern = "", fileext = ".pdf"))
-#     pdf(ofile)
-#     purrr::walk(res$plot, print)
-#     dev.off()
-#   }
-# })
-
 ##################
 ## mut_ARID1A + gep_CXCL13 signature
 ##################

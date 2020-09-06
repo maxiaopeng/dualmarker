@@ -41,11 +41,11 @@ dm_survival_4quad_chart <- function(data, time, event, marker1, marker2,
     theme_void()+
     theme(legend.position = "none")
   # KMplot of four quradrant
-  g.km <- dm_KMplot(data =data, time =time, event = event,
+  g.km <- .dm_KMplot(data =data, time =time, event = event,
             marker1 = marker1, marker2 = marker2,
             m1.num.cut = m1.num.cut, m1.cat.pos = m1.cat.pos, m1.cat.neg = m1.cat.neg,
             m2.num.cut = m2.num.cut, m2.cat.pos = m2.cat.pos, m2.cat.neg = m2.cat.neg,
-            km.pval = F, km.risk.table=F) %>%
+            km.pval = T, km.risk.table=F) %>%
     .$dualmarker %>% .$plot
   # interaction-chart
   tmp <- res$stats
@@ -59,7 +59,7 @@ dm_survival_4quad_chart <- function(data, time, event, marker1, marker2,
     theme_bw()+
     theme(legend.position = "none")+
     scale_fill_manual(values = color.quadrant.1)
-  g.interact.2 <- res$stats %>%
+  g.interact.2 <- tmp %>%
     ggplot(aes(x = .m2, y = median, group = .m1))+
 #    geom_line(aes(color = .m1, linetype= .m1))+
     geom_line(color="skyblue", linetype="dashed")+

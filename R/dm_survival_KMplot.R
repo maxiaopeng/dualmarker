@@ -144,21 +144,26 @@
                                        response=NULL, response.pos = NULL, response.neg = NULL,
                                        m1.num.cut = "median", m1.cat.pos =NULL, m1.cat.neg = NULL,
                                        m2.num.cut = "median", m2.cat.pos =NULL, m2.cat.neg = NULL){
+  .assert_colname(data, c(time, event, marker1, marker2, response))
   .geom_type <- function(datatype)  if(datatype == "num") geom_point() else geom_jitter()
   m1.datatype <- datatype_num_cat(data[[marker1]])
   m2.datatype <- datatype_num_cat(data[[marker2]])
   data %<>%
     mutate(status = ifelse( !!sym(event) == 0, "censor",
                             ifelse( !!sym(event) == 1, "event", NA)))
+  if(!is.null(response)){
+    data$.response <- binarize_cat(data[[response]], pos = response.pos, neg = response.neg) %>%
+      factor(levels = c("pos","neg"))
+  }
   # marker1
-  scatter.m1 <- ggplot(data, aes_string(x = marker1, y = time,
-                                        #alpha = "status",
-                                        color = response)) +
+  params.m1 <- list(x = marker1, y = time)
+  if(!is.null(response)) params.m1$color <- ".response"
+  scatter.m1 <- ggplot(data, do.call(aes_string, params.m1)) +
     .geom_type(m1.datatype)
   # marker2
-  scatter.m2 <- ggplot(data, aes_string(x = marker2, y = time,
-                                        #alpha = "status",
-                                        color = response)) +
+  params.m2 <- list(x = marker2, y = time)
+  if(!is.null(response)) params.m2$color <- ".response"
+  scatter.m2 <- ggplot(data, do.call(aes_string, params.m2)) +
     .geom_type(m2.datatype)
 
   # dualmarker

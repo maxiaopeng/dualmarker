@@ -12,9 +12,8 @@ survival using logistic regression and cox model
 
 ## Installation
 
-You can install the released version of dualmarker from
-[github](https://github.com/) with:
-devtools::install(“maxiaopeng/dualmarker”)
+You can install the released version of dualmarker from github with:
+devtools::install\_github(“maxiaopeng/dualmarker”)
 
 ## dataset
 
@@ -136,9 +135,18 @@ mutation status
 
 ``` r
 res.pair <- dm_pair(data = clin_bmk_IMvigor210, 
+               response = "binaryResponse", response.pos = "CR/PR", response.neg = "SD/PD",
                time = "os", event = "censOS",
                marker1 = "mut_ARID1A", marker2 = "gep_CXCL13", 
                m1.cat.pos = "YES", m1.cat.neg = "NO")
+#> Setting levels: control = 0, case = 1
+#> Setting direction: controls < cases
+#> Setting levels: control = 0, case = 1
+#> Setting direction: controls < cases
+#> Setting levels: control = 0, case = 1
+#> Setting direction: controls < cases
+#> Setting levels: control = 0, case = 1
+#> Setting direction: controls < cases
 ```
 
 plot1: single markers(not available here) plot2: scatter chart( not
@@ -146,22 +154,34 @@ available here) plot3: Four-quadrant response rate( not available here)
 plot4: ROC curve( not available here) plot5: KMplot
 
 ``` r
-res.pair$plot$KMplot$marker1
+res.pair$plot$survplot$km.m1m2
 ```
 
 <img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
 
 ``` r
-res.pair$plot$KMplot$marker2
+res.pair$plot$survplot$scatter.m1m2
 ```
 
 <img src="man/figures/README-unnamed-chunk-10-2.png" width="100%" />
 
 ``` r
-res.pair$plot$KMplot$dualmarker
+res.pair$plot$survplot$km.dualmarker
 ```
 
 <img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
+
+``` r
+res.pair$plot$survplot$km.dualmarker.facet
+```
+
+<img src="man/figures/README-unnamed-chunk-11-2.png" width="100%" />
+
+``` r
+res.pair$plot$survplot$scatter.dualmarker
+```
+
+<img src="man/figures/README-unnamed-chunk-11-3.png" width="100%" />
 
 plot6: four-quadrant show of survival
 
@@ -382,23 +402,33 @@ res.pair$plot
 <img src="man/figures/README-unnamed-chunk-22-4.png" width="100%" />
 
     #> 
-    #> $KMplot
-    #> $KMplot$marker1
+    #> $survplot
+    #> $survplot$km.m1m2
 
 <img src="man/figures/README-unnamed-chunk-22-5.png" width="100%" />
 
     #> 
-    #> $KMplot$marker2
+    #> $survplot$scatter.m1m2
 
 <img src="man/figures/README-unnamed-chunk-22-6.png" width="100%" />
 
     #> 
-    #> $KMplot$dualmarker
+    #> $survplot$km.dualmarker
 
 <img src="man/figures/README-unnamed-chunk-22-7.png" width="100%" />
+
+    #> 
+    #> $survplot$km.dualmarker.facet
+
+<img src="man/figures/README-unnamed-chunk-22-8.png" width="100%" />
+
+    #> 
+    #> $survplot$scatter.dualmarker
+
+<img src="man/figures/README-unnamed-chunk-22-9.png" width="100%" />
 
     #> 
     #> 
     #> $surv.4quad
 
-<img src="man/figures/README-unnamed-chunk-22-8.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-22-10.png" width="100%" />
