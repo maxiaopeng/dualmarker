@@ -18,7 +18,9 @@
                             marker2,
                             label_m1 = marker1,
                             label_m2 = marker2,
-                            na.rm = T) {
+                            na.rm = T,
+                            km.pval=T,
+                            km.risk.table = T, ...) {
   label.max.len <- 40
   assert_that(class(data[[marker1]]) == "factor",
               nlevels(data[[marker1]]) == 2,
@@ -39,7 +41,8 @@
       time = time,
       event = event
     )
-  km.m1 <- .survplot(survfit = survfit.m1, data = data)
+  km.m1 <- .survplot(survfit = survfit.m1, data = data,
+                     km.pval = km.pval, km.risk.table = km.risk.table, ...)
 
   # marker2
   label_m2 <- str_sub(label_m2, end = label.max.len)
@@ -47,14 +50,8 @@
               msg = "label_m1 should NOT equal to label_m2")
   data[[label_m2]] <-
     factor(data[[marker2]], levels = rev(levels(data[[marker2]])))
-  survfit.m2 <-
-    .survfit(
-      data = data,
-      var = label_m2,
-      time = time,
-      event = event
-    )
-  km.m2 <- .survplot(survfit = survfit.m2, data = data)
+  survfit.m2 <- .survfit( data = data, var = label_m2, time = time,event = event)
+  km.m2 <- .survplot(survfit = survfit.m2, data = data, km.pval = km.pval, km.risk.table = km.risk.table, ...)
 
   # dual marker
   if (na.rm) {
@@ -79,9 +76,8 @@
       event = event
     )
   km.md <-
-    .survplot(survfit = survfit.md,
-              data = data,
-              palette = as.character(tmp$color))
+    .survplot(survfit = survfit.md, data = data, palette = as.character(tmp$color),
+              km.pval = km.pval, km.risk.table = km.risk.table, ...)
   list(marker1 = km.m1,
        marker2 = km.m2,
        dualmarker = km.md)
@@ -95,9 +91,6 @@
 ##' @param event survival event
 ##' @param marker1 marker1
 ##' @param marker2 marker2
-##' @param response response response
-##' @param response.pos positive response response
-##' @param response.neg negative response response
 ##' @param m1.datatype datatype of marker1
 ##' @param m1.label.pos label for positive response of marker1
 ##' @param m1.label.neg label for negative response of marker1
@@ -111,11 +104,8 @@
 ##' @param m1.num.cut cut method for m1
 ##' @param m2.num.cut cut method for m2
 ##' @param na.rm remove NA
-dm_KMplot <- function(data,
-                      time,
-                      event,
-                      marker1,
-                      marker2,
+dm_KMplot <- function(data, time, event,
+                      marker1, marker2,
                       response = NULL,
                       response.pos = NULL,
                       response.neg = NULL,
@@ -131,7 +121,9 @@ dm_KMplot <- function(data,
                       m2.cat.neg = NULL,
                       m2.label.pos = NULL,
                       m2.label.neg = NULL,
-                      na.rm = T) {
+                      na.rm = T,
+                      km.pval= T,
+                      km.risk.table=T, ...) {
   .assert_colname(data, c(time, event, marker1, marker2))
   # marker1
   res <-
@@ -153,7 +145,7 @@ dm_KMplot <- function(data,
     data = data, time = time, event = event,
     marker1 = ".m1", marker2 = ".m2",
     label_m1 = marker1, label_m2 = marker2,
-    na.rm = na.rm
+    na.rm = na.rm, km.pval = km.pval, km.risk.table = km.risk.table, ...
   )
   #arrange_ggsurvplots(x = g.list, ncol=2, nrow = 2, print = T,
   #                    risk.table.height = 0.4)

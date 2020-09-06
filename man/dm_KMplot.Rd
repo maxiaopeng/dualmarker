@@ -25,7 +25,10 @@ dm_KMplot(
   m2.cat.neg = NULL,
   m2.label.pos = NULL,
   m2.label.neg = NULL,
-  na.rm = T
+  na.rm = T,
+  km.pval = T,
+  km.risk.table = T,
+  ...
 )
 }
 \arguments{
@@ -38,12 +41,6 @@ dm_KMplot(
 \item{marker1}{marker1}
 
 \item{marker2}{marker2}
-
-\item{response}{response response}
-
-\item{response.pos}{positive response response}
-
-\item{response.neg}{negative response response}
 
 \item{m1.datatype}{datatype of marker1}
 

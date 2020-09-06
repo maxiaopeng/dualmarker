@@ -287,11 +287,11 @@ auc_stats <- function(data, response,
 }
 
 # survplot using survminer
-.survplot <- function(survfit, data, ...) {
+.survplot <- function(survfit, data, km.pval=T, km.risk.table=T, ...) {
   survminer::ggsurvplot(survfit,
                         data = data,
-                        pval = T,
-                        risk.table = T,
+                        pval = km.pval,
+                        risk.table = km.risk.table,
                         ...)
 }
 

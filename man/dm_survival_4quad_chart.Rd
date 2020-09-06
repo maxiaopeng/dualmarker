@@ -10,9 +10,6 @@ dm_survival_4quad_chart(
   event,
   marker1,
   marker2,
-  response = NULL,
-  response.pos = NULL,
-  response.neg = NULL,
   m1.datatype = "auto",
   m1.num.cut = "median",
   m1.cat.pos = NULL,
@@ -33,12 +30,6 @@ dm_survival_4quad_chart(
 \item{marker1}{marker1}
 
 \item{marker2}{marker2}
-
-\item{response}{response variable}
-
-\item{response.pos}{positive response, e.g. "CD", "PR"}
-
-\item{response.neg}{negative response, e.g. "SD", "PD"}
 
 \item{m1.datatype}{data type of marker1}
 

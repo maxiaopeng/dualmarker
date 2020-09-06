@@ -11,9 +11,6 @@
 #' @param m1.cat.neg  negative value(s) if marker1 is categorical
 #' @param m2.datatype data type of marker1
 #' @param m2.cat.pos positive value(s) if marker2 is categorical
-#' @param response response variable
-#' @param response.pos positive response, e.g. "CD", "PR"
-#' @param response.neg negative response, e.g. "SD", "PD"
 #' @param m1.num.cut cut method/value for numeric marker1
 #' @param m2.num.cut cut method/value for numeric marker2
 #' @param m2.cat.neg negative value(s) if marker2 is categorical
@@ -21,7 +18,6 @@
 #' @return panel of plot
 #' @export
 dm_survival_4quad_chart <- function(data, time, event, marker1, marker2,
-                                    response = NULL, response.pos = NULL, response.neg = NULL,
                                     m1.datatype ="auto", m1.num.cut="median",  m1.cat.pos = NULL, m1.cat.neg =NULL,
                                     m2.datatype = "auto", m2.num.cut="median", m2.cat.pos = NULL, m2.cat.neg = NULL){
   res <- dm_survival_4quad(data = data, time = time, event= event,
@@ -44,8 +40,17 @@ dm_survival_4quad_chart <- function(data, time, event, marker1, marker2,
     labs(x="",y="")+
     theme_void()+
     theme(legend.position = "none")
+  # KMplot of four quradrant
+  g.km <- dm_KMplot(data =data, time =time, event = event,
+            marker1 = marker1, marker2 = marker2,
+            m1.num.cut = m1.num.cut, m1.cat.pos = m1.cat.pos, m1.cat.neg = m1.cat.neg,
+            m2.num.cut = m2.num.cut, m2.cat.pos = m2.cat.pos, m2.cat.neg = m2.cat.neg,
+            km.pval = F, km.risk.table=F, legend="none") %>%
+    .$dualmarker %>% .$plot
   # interaction-chart
-  g.interact.1 <- res$stats %>%
+  tmp <- res$stats
+  tmp$median[is.na(tmp$median)] <- Inf
+  g.interact.1 <- tmp %>%
     ggplot(aes(x = .m1, y = median, group = .m2))+
     #geom_line(aes(color = .m2, linetype= .m2))+
     geom_line(color="skyblue", linetype="dashed")+
@@ -66,7 +71,7 @@ dm_survival_4quad_chart <- function(data, time, event, marker1, marker2,
 
   g.interact <- cowplot::plot_grid(g.interact.1, g.interact.2, align = "b", nrow=1 )
 
-  cowplot::plot_grid(g.area.prop, g.matrix, g.interact, align = "b", nrow=2 )
+  cowplot::plot_grid(g.area.prop, g.matrix, g.km, g.interact, align = "b", nrow=2 )
 }
 
 

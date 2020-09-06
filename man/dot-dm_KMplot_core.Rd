@@ -12,7 +12,10 @@
   marker2,
   label_m1 = marker1,
   label_m2 = marker2,
-  na.rm = T
+  na.rm = T,
+  km.pval = T,
+  km.risk.table = T,
+  ...
 )
 }
 \arguments{
