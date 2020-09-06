@@ -11,14 +11,17 @@
 #' @param response.pos positive response value(s)
 #' @param response.neg negative response value(s)
 .dm_scatterplot <- function(data, marker1, marker2,
-                            response,response.pos, response.neg = NULL,
-                            m1.cutpoint, m2.cutpoint ) {
+                            response, response.pos, response.neg = NULL,
+                            m1.cutpoint, m2.cutpoint,
+                            size = NULL, alpha = NULL, shape = NULL) {
   # check input
-  .assert_colname(data, c(marker1, marker2, response))
-  data %<>% tidyr::drop_na(!!sym(marker1), !!sym(marker2), !!sym(response))
-  data$.response <- binarize_cat(
-    x = data[[response]], pos = response.pos, neg = response.neg) %>%
-    factor(levels = c("pos", "neg"))
+  .assert_colname(data, c(marker1, marker2, response, size, alpha, shape))
+  data %<>% tidyr::drop_na(!!sym(marker1), !!sym(marker2))
+  if(!is.null(response)){
+    data$.response <- binarize_cat(
+      x = data[[response]], pos = response.pos, neg = response.neg) %>%
+      factor(levels = c("pos", "neg"))
+  }
   data %<>% mutate(
     region = case_when(
       marker1 >= m1.cutpoint & marker2 >= m2.cutpoint ~ "R1",
@@ -28,8 +31,13 @@
       TRUE ~ "others")
     ) %>% dplyr::filter(region %in% c("R1", "R2", "R3", "R4"))
   # plot
-  ggplot(data = data,
-         aes_string(x = marker1, y = marker2, color = ".response")) +
+  params <- list(x = marker1, y = marker2)
+  if(!is.null(response)) params$color = ".response"
+  if(!is.null(size)) params$size = size
+  if(!is.null(alpha)) params$alpha = alpha
+  if(!is.null(shape)) params$shape = shape
+  ggplot(data = data, do.call(aes_string, params))+
+    #ggpubr::stat_cor() +
     annotate( "rect", xmin = m1.cutpoint, xmax = Inf, ymin = m2.cutpoint, ymax = Inf, fill = color.quadrant.1[1], alpha = 0.05) +
     annotate( "rect", xmin = -Inf,xmax = m1.cutpoint, ymin = m2.cutpoint, ymax = Inf, fill = color.quadrant.1[2], alpha = 0.05) +
     annotate( "rect", xmin = -Inf, xmax = m1.cutpoint, ymin = -Inf, ymax = m2.cutpoint, fill = color.quadrant.1[3], alpha = 0.05) +
@@ -58,12 +66,15 @@
                           marker1, marker2,
                           response, response.pos, response.neg = NULL,
                           m1.cat.pos, m1.cat.neg = NULL,
-                          m2.cutpoint) {
-  .assert_colname(data, c(marker1, marker2, response))
+                          m2.cutpoint,
+                          shape = NULL, size =NULL, alpha = NULL) {
+  .assert_colname(data, c(marker1, marker2, response, shape, size, alpha))
   # prepare data
-  data$.response <- binarize_cat(x = data[[response]], pos = response.pos,
-               neg = response.neg, label.pos = "pos", label.neg = "neg") %>%
-    factor(., levels = c("pos", "neg"))
+  if(!is.null(response)){
+    data$.response <- binarize_cat(x = data[[response]], pos = response.pos,
+                                   neg = response.neg, label.pos = "pos", label.neg = "neg") %>%
+      factor(., levels = c("pos", "neg"))
+  }
   data$.m1 <- binarize_cat(x = data[[marker1]], pos = m1.cat.pos,
                            neg = m1.cat.neg, label.pos = "pos", label.neg = "neg")
   data %<>% tidyr::drop_na(.response, .m1, !!sym(marker2))
@@ -77,7 +88,12 @@
       TRUE ~ "others"
     )) %>% dplyr::filter(region %in% c("R1", "R2", "R3", "R4"))
   # plot
-  ggplot(data, aes_string(x = ".m1", y = marker2)) +
+  params <- list(x = marker1, y = marker2)
+  if(!is.null(response)) params$color = ".response"
+  if(!is.null(size)) params$size = size
+  if(!is.null(alpha)) params$alpha = alpha
+  if(!is.null(shape)) params$shape = shape
+  ggplot(data = data, do.call(aes_string, params))+
     geom_blank() +
     annotate( "rect", xmin = 1.5, xmax = Inf, ymin = m2.cutpoint, ymax = Inf, fill = color.quadrant.1[1],alpha = 0.1) +
     annotate( "rect", xmin = -Inf, xmax = 1.5, ymin = m2.cutpoint, ymax = Inf, fill = color.quadrant.1[2], alpha = 0.1) +
@@ -114,12 +130,15 @@
                        response.pos,
                        response.neg = NULL,
                        m1.cat.pos, m1.cat.neg = NULL,
-                       m2.cat.pos, m2.cat.neg = NULL) {
-  .assert_colname(data, c(marker1, marker2, response))
+                       m2.cat.pos, m2.cat.neg = NULL,
+                       size = NULL, shape = NULL, alpha = NULL) {
+  .assert_colname(data, c(marker1, marker2, response, size, shape, alpha))
   # prepare data
-  data$.response <- binarize_cat(x = data[[response]], pos = response.pos,
-                                 neg = response.neg, label.pos = "pos", label.neg = "neg") %>%
-    factor(., levels = c("pos", "neg"))
+  if(!is.null(response)){
+    data$.response <- binarize_cat(x = data[[response]], pos = response.pos,
+                                   neg = response.neg, label.pos = "pos", label.neg = "neg") %>%
+      factor(., levels = c("pos", "neg"))
+  }
   data$.m1 <- binarize_cat(x = data[[marker1]], pos = m1.cat.pos,
                            neg = m1.cat.neg, label.pos = "pos", label.neg = "neg")
   data$.m2 <- binarize_cat(x = data[[marker2]], pos = m2.cat.pos,
@@ -136,7 +155,12 @@
     )) %>% dplyr::filter(region %in% c("R1", "R2", "R3", "R4"))
 
   # plot
-  ggplot(data, aes(x = .m1, y = .m2)) +
+  params <- list(x = ".m1", y = ".m2")
+  if(!is.null(response)) params$color = ".response"
+  if(!is.null(size)) params$size = size
+  if(!is.null(alpha)) params$alpha = alpha
+  if(!is.null(shape)) params$shape = shape
+  ggplot(data = data, do.call(aes_string, params))+
     geom_blank() +
     annotate( "rect", xmin = 1.5, xmax = Inf, ymin = 1.5, ymax = Inf, fill = color.quadrant.1[1], alpha = 0.1) +
     annotate( "rect", xmin = -Inf, xmax = 1.5, ymin = 1.5, ymax = Inf, fill = color.quadrant.1[2], alpha = 0.1) +
@@ -172,7 +196,9 @@
 dm_scatter_chart <- function(  data, response,response.pos,response.neg = NULL,
                                marker1, marker2,
                                m1.num.cut = "median", m1.cat.pos = NULL,  m1.cat.neg = NULL,
-                               m2.num.cut = "median", m2.cat.pos = NULL, m2.cat.neg = NULL) {
+                               m2.num.cut = "median", m2.cat.pos = NULL, m2.cat.neg = NULL,
+                               size = NULL, alpha = NULL, shape = NULL) {
+    .assert_colname(data, c(response, marker1, marker2, size, alpha, shape))
     m1.datatype <- datatype_num_cat(data[[marker1]])
     m2.datatype <- datatype_num_cat(data[[marker2]])
     if (m2.datatype == "num") {
@@ -187,7 +213,8 @@ dm_scatter_chart <- function(  data, response,response.pos,response.neg = NULL,
           m1.cutpoint = m1.cutpoint,
           m2.cutpoint = m2.cutpoint,
           response.pos = response.pos,
-          response.neg = response.neg
+          response.neg = response.neg,
+          size = size, alpha = alpha, shape = shape
         )
       } else{
         assert_that(!is.null(m1.cat.pos), msg = "m1.cat.pos should not be NULL")
@@ -200,7 +227,8 @@ dm_scatter_chart <- function(  data, response,response.pos,response.neg = NULL,
           response.neg = response.neg,
           m1.cat.pos = m1.cat.pos,
           m1.cat.neg = m1.cat.neg,
-          m2.cutpoint = m2.cutpoint
+          m2.cutpoint = m2.cutpoint,
+          size = size, alpha = alpha, shape = shape
         )
       }
     } else if (m1.datatype == "num") {
@@ -215,7 +243,8 @@ dm_scatter_chart <- function(  data, response,response.pos,response.neg = NULL,
         m1.cat.neg = m2.cat.neg,
         m2.cutpoint = m1.cutpoint,
         response.pos = response.pos,
-        response.neg = response.neg
+        response.neg = response.neg,
+        size = size, alpha = alpha, shape = shape
       ) + coord_flip()
     } else{
       assert_that(!is.null(m1.cat.pos) && !is.null(m2.cat.pos),
@@ -230,7 +259,8 @@ dm_scatter_chart <- function(  data, response,response.pos,response.neg = NULL,
         m2.cat.pos = m2.cat.pos,
         m2.cat.neg = m2.cat.neg,
         response.pos = response.pos ,
-        response.neg = response.neg
+        response.neg = response.neg,
+        size = size, alpha = alpha, shape = shape
       )
     }
   }

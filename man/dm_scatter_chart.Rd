@@ -16,7 +16,10 @@ dm_scatter_chart(
   m1.cat.neg = NULL,
   m2.num.cut = "median",
   m2.cat.pos = NULL,
-  m2.cat.neg = NULL
+  m2.cat.neg = NULL,
+  size = NULL,
+  alpha = NULL,
+  shape = NULL
 )
 }
 \arguments{

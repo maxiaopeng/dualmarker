@@ -10,8 +10,8 @@
   event,
   marker1,
   marker2,
-  label_m1 = marker1,
-  label_m2 = marker2,
+  label.m1 = marker1,
+  label.m2 = marker2,
   na.rm = T,
   km.pval = T,
   km.risk.table = T,
@@ -29,9 +29,9 @@
 
 \item{marker2}{categorical variables with 2 levels}
 
-\item{label_m1}{label for marker1}
+\item{label.m1}{label for marker1}
 
-\item{label_m2}{label for marker2}
+\item{label.m2}{label for marker2}
 
 \item{na.rm}{remove NA}
 }

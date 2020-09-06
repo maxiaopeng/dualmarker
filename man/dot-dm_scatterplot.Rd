@@ -12,7 +12,10 @@
   response.pos,
   response.neg = NULL,
   m1.cutpoint,
-  m2.cutpoint
+  m2.cutpoint,
+  size = NULL,
+  alpha = NULL,
+  shape = NULL
 )
 }
 \arguments{

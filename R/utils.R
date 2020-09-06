@@ -51,6 +51,7 @@
 #' @importFrom pROC auc roc
 #' @importFrom pROC ggroc
 #' @importFrom ggpubr stat_compare_means
+#' @importFrom ggpubr ggarrange
 #' @importFrom glue glue
 #' @importFrom ggrepel geom_text_repel
 .load_library <- function(){}
@@ -287,12 +288,19 @@ auc_stats <- function(data, response,
 }
 
 # survplot using survminer
-.survplot <- function(survfit, data, km.pval=T, km.risk.table=T, ...) {
-  survminer::ggsurvplot(survfit,
+.survplot <- function(survfit, data, km.pval=T, km.risk.table=T, tables.height=0.3, ...) {
+  g <- survminer::ggsurvplot(survfit,
                         data = data,
                         pval = km.pval,
                         risk.table = km.risk.table,
+                        legend = "none",
+                        tables.height = tables.height,
                         ...)
+  if(!is.null(g$table)){
+    cowplot::plot_grid(g$plot, g$table, nrow=2, rel_heights = c(1, tables.height), align="hv")
+  }else{
+    g
+  }
 }
 
 #' label quadrant

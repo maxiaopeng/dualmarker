@@ -45,7 +45,7 @@ dm_survival_4quad_chart <- function(data, time, event, marker1, marker2,
             marker1 = marker1, marker2 = marker2,
             m1.num.cut = m1.num.cut, m1.cat.pos = m1.cat.pos, m1.cat.neg = m1.cat.neg,
             m2.num.cut = m2.num.cut, m2.cat.pos = m2.cat.pos, m2.cat.neg = m2.cat.neg,
-            km.pval = F, km.risk.table=F, legend="none") %>%
+            km.pval = F, km.risk.table=F) %>%
     .$dualmarker %>% .$plot
   # interaction-chart
   tmp <- res$stats

@@ -14,7 +14,10 @@
   m1.cat.pos,
   m1.cat.neg = NULL,
   m2.cat.pos,
-  m2.cat.neg = NULL
+  m2.cat.neg = NULL,
+  size = NULL,
+  shape = NULL,
+  alpha = NULL
 )
 }
 \arguments{

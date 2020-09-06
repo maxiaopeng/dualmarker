@@ -25,7 +25,7 @@ The goal of dualmarker is to analysis dual marker for response and survival usin
 You can install the released version of dualmarker from [github](https://github.com/) with: devtools::install("maxiaopeng/dualmarker")
 
 ```{r, include=F}
-library(dualmarker)
+#library(dualmarker)
 library(stringr)
 library(dplyr)
 ```
@@ -45,7 +45,7 @@ res.pair <- dm_pair(data = clin_bmk_IMvigor210, response = "binaryResponse",
 ```
 
 plot1: single-markers
-```{r, fig.width=5, fig.height=3}
+```{r, fig.width=5, fig.height=4}
 res.pair$plot$single.marker
 ```
 
@@ -96,13 +96,12 @@ plot2: scatter chart( not available here)
 plot3: Four-quadrant response rate( not available here)
 plot4: ROC curve( not available here)
 plot5: KMplot
-```{r,  fig.width=5, fig.height=5}
+```{r,  fig.width=5, fig.height=4}
 res.pair$plot$KMplot$marker1
 res.pair$plot$KMplot$marker2
-```
-```{r, fig.width=5, fig.height=6}
 res.pair$plot$KMplot$dualmarker
 ```
+
 
 plot6: four-quadrant show of survival
 ```{r, fig.width=6, fig.height=5}
