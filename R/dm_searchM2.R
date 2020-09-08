@@ -152,7 +152,7 @@ dm_searchM2_topPlot <- function(res_searchM2, top.n = 30, pval_threh = 0.01){
     geom_hline(yintercept = c(-log10(c(0.05, 0.01)),log10(c(0.05, 0.01))),
                linetype="dashed", color="skyblue")+
     theme_bw()+
-    labs(y = "worse response <- signed log10-pValue -> better response",
+    labs(y = "signed log10-pValue",
          x = "marker2", title = "Marker2's effect in dualmarker model")+
     coord_flip()
   # interaction terms

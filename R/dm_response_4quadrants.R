@@ -120,7 +120,7 @@
   # test
   #test.4quad <- .quadrant_test_response(x =pos.n, n = total.n)
   list(pos.n= pos.n, total.n = total.n,
-       stats.4quad = stats.4quad)
+       stats = stats.4quad)
        #test.4quad =test.4quad)
 }
 

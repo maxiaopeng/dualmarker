@@ -15,11 +15,12 @@ test_that("dm_pair works", {
     m1.num.cut = "median", m2.num.cut = "median",
     time = "os",
     event = "censOS")
-  expect_length(res, 2)
+  expect_length(res, 4)
   if(F){
     (ofile <- tempfile(pattern = "", fileext = ".pdf"))
     pdf(ofile)
-    purrr::walk(res$plot, print)
+    purrr::walk(res$response.plot, print)
+    purrr::walk(res$survival.plot, print)
     dev.off()
   }
 })
@@ -31,9 +32,9 @@ test_that("mut_ARID1A + gep_CXCL13", {
   # 1. cut by median
   res <- dm_pair(
     data = clin_bmk_IMvigor210,
-    response = "binaryResponse",
-    response.pos="CR/PR",
-    response.neg="SD/PD",
+    #response = "binaryResponse",
+    #response.pos="CR/PR",
+    #response.neg="SD/PD",
     time = "os",
     event = "censOS",
     marker1 = "mut_ARID1A",
@@ -41,11 +42,12 @@ test_that("mut_ARID1A + gep_CXCL13", {
     m1.cat.pos = "YES",
     m1.cat.neg = "NO",
     m2.num.cut = "median")
-  expect_length(res, 2)
+  expect_length(res, 4)
   if(F){
     (ofile <- tempfile(pattern = "", fileext = ".pdf"))
     pdf(ofile)
-    purrr::walk(res$plot, print)
+    purrr::walk(res$response.plot, print)
+    purrr::walk(res$survival.plot, print)
     dev.off()
   }
 })
@@ -68,11 +70,12 @@ test_that("mut_ARD1A + IC.level", {
     time = "os",
     event = "censOS")
 
-  expect_length(res, 2)
+  expect_length(res, 4)
   if(F){
     (ofile <- tempfile(pattern = "", fileext = ".pdf"))
     pdf(ofile)
-    purrr::walk(res$plot, print)
+    purrr::walk(res$response.plot, print)
+    purrr::walk(res$survival.plot, print)
     dev.off()
   }
 })

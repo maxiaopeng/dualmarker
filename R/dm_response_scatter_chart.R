@@ -193,7 +193,7 @@
 #' @param m2.num.cut cut method/value(s) if marker2 is numeric
 #' @param m2.cat.pos positive value(s) if marker2 is categorical
 #' @param m2.cat.neg negative value(s) if marker2 is categorical
-dm_scatter_chart <- function(  data, response,response.pos,response.neg = NULL,
+dm_response_scatter_chart <- function(  data, response,response.pos,response.neg = NULL,
                                marker1, marker2,
                                m1.num.cut = "median", m1.cat.pos = NULL,  m1.cat.neg = NULL,
                                m2.num.cut = "median", m2.cat.pos = NULL, m2.cat.neg = NULL,

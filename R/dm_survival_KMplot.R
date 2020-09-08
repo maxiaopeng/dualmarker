@@ -30,7 +30,7 @@
       time = time, event = event)
   km.m1 <- .survplot(survfit = survfit.m1, data = data,
                      km.pval = km.pval, km.risk.table = km.risk.table,
-                     tables.height = 0.35,
+                     tables.height = 0.45,
                      ...)
 
   # marker2
@@ -41,7 +41,7 @@
   survfit.m2 <- .survfit( data = data, var = label.m2, time = time,event = event)
   km.m2 <- .survplot(survfit = survfit.m2, data = data,
                      km.pval = km.pval, km.risk.table = km.risk.table,
-                     tables.height = 0.35,
+                     tables.height = 0.45,
                      ...)
 
   # dual marker: 4 curve
@@ -58,7 +58,7 @@
   km.md <- .survplot(survfit = survfit.md,
                      data = data, palette = pal,
                      km.pval = km.pval, km.risk.table = km.risk.table,
-                     tables.height = 0.4, ...)
+                     tables.height = 0.5, ...)
   # dual marker: 2 curves
   survfit.md.facet <- .survfit(data = data, var = ".group", time = time,event = event)
   g.facet1 <- survminer::ggsurvplot(survfit.md.facet, data =data, facet.by = marker1, pval=T, palette = pal) +
@@ -167,7 +167,7 @@
     .geom_type(m2.datatype)
 
   # dualmarker
-  scatter.md <- dm_scatter_chart(data= data,
+  scatter.md <- dm_response_scatter_chart(data= data,
                                  response = response,response.pos = response.pos, response.neg = response.neg,
                                  size=time,
                                  #alpha = "status",

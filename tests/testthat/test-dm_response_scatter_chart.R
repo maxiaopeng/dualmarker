@@ -1,7 +1,7 @@
 test_that("scatter plot", {
   # scatter plot using iris
   data <- iris %>% filter(Species %in% c("setosa", "versicolor"))
-  g1 <- dm_scatter_chart(
+  g1 <- dm_response_scatter_chart(
       data = data,
       marker1 = "Sepal.Length",
       marker2 = "Sepal.Width",
@@ -15,7 +15,7 @@ test_that("scatter plot", {
   expect_is(g1, "ggplot")
 
   # test response = NULL
-  g1.2 <- dm_scatter_chart(
+  g1.2 <- dm_response_scatter_chart(
     data = data,
     marker1 = "Sepal.Length",
     marker2 = "Sepal.Width",
@@ -29,7 +29,7 @@ test_that("scatter plot", {
   expect_is(g1.2, "ggplot")
 
   # strip plot
-  g2 <- dm_scatter_chart(
+  g2 <- dm_response_scatter_chart(
       data = clin_bmk_IMvigor210,
       marker1 = "mut_ARID1A",
       marker2 = "gep_CXCL13",
@@ -44,7 +44,7 @@ test_that("scatter plot", {
   expect_is(g2, "ggplot")
   # strip plot
   g3 <-
-    dm_scatter_chart(
+    dm_response_scatter_chart(
       data = clin_bmk_IMvigor210,
       marker1 = "gep_CXCL13",
       marker2 = "mut_ARID1A",
@@ -59,7 +59,7 @@ test_that("scatter plot", {
   expect_is(g3, "ggplot")
 
   # dm_jitter
-  g4 <- dm_scatter_chart(
+  g4 <- dm_response_scatter_chart(
     data = clin_bmk_IMvigor210,
     marker1 = "mut_ARID1A",
     marker2 = "IC.Level",
