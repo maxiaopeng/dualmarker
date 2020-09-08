@@ -7,21 +7,59 @@
 
 <!-- badges: end -->
 
-The goal of dualmarker is to analysis dual marker for response and
-survival using logistic regression and cox model
-
-## Installation
-
-You can install the released version of dualmarker from github with:
-devtools::install\_github(“maxiaopeng/dualmarker”)
-
-## overall
-
-*Dualmaker* is designed to facilitate the data mining of dual
+*dualmarker* is designed to facilitate the data mining of dual
 biomarkers. It provides intuitive visualizations and extensive
 assessment of two marker combinations using logistic regression model
 for binary response outcome and Cox models for survival analysis.
-\[man/figures/dualmarker\_overview.png\]
+![dualmarker\_overview](man/figures/dualmarker_overview.png)
+
+## Installation
+
+  - Install the latest developmental version from
+    [GitHub](https://github.com/kassambara/rstatix) as follow:
+
+<!-- end list -->
+
+``` r
+if(!require(devtools)) install.packages("devtools")
+devtools::install_github("maxiaopeng/dualmarker")
+```
+
+## key functions
+
+### dm\_pair
+
+*dm\_pair* return the list of ‘response’ and ‘survival’, which contains
+plot in ‘plot’ and statistics in ‘stats’, shown in the following
+structure:
+
+  - response.plot
+      - boxplot
+      - scatter.chart
+      - four.quadrant
+      - roc
+  - response.stats
+      - logit
+      - four.quadrant
+          - param
+          - stats
+  - survival.plot
+      - km.m1m2
+      - scatter.m1m2
+      - km.dualmarker
+      - km.dualmarker.facet
+      - scatter.dualmarker
+      - four.quadrant
+  - survival.stats
+      - cox
+      - four.quadrant
+          - param
+          - stats
+
+the overall plot:
+![dualmarker\_plot](man/figures/dualmarker_pair_plot.png)
+
+### *dm\_searchM2\_logit*/*dm\_searchM2\_cox*
 
 ## dataset
 
@@ -53,35 +91,6 @@ res.pair <- dm_pair(data = clin_bmk_IMvigor210,
                     marker1 = "TMB", marker2 = "gepscore_TGFb.19gene")
 ```
 
-*dm\_pair* return the list of ‘response’ and ‘survival’, which contains
-plot in ‘plot’ and statistics in ‘stats’, shown in the following
-structure:
-
-  - response.plot
-      - boxplot
-      - scatter.chart
-      - four.quadrant
-      - roc
-  - response.stats
-      - logit
-      - four.quadrant
-          - param
-          - stats
-  - survival.plot
-      - km.m1m2
-      - scatter.m1m2
-      - km.dualmarker
-      - km.dualmarker.facet
-      - scatter.dualmarker
-      - four.quadrant
-  - survival.stats
-      - cox
-      - four.quadrant
-          - param
-          - stats
-
-the overall plot: \[man/figures/dualmarker\_pair\_plot.png\]
-
   - plot1: single marker for response correlation between single marker
     and response is shown in boxplot, and pvalue of wilcoxon test
     between positive and negative response is added to the plot.
@@ -92,7 +101,7 @@ the overall plot: \[man/figures/dualmarker\_pair\_plot.png\]
 res.pair$response.plot$boxplot
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+![](man/figures/README-unnamed-chunk-4-1.png)<!-- -->
 
   - plot2: Scatter-chart for response The correlation between marker1,
     maker2 and response is shown in scatter-chart. If marker1 or marker2
@@ -105,7 +114,7 @@ res.pair$response.plot$boxplot
 res.pair$response.plot$scatter.chart
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
+![](man/figures/README-unnamed-chunk-5-1.png)<!-- -->
 
   - plot3: Four-quadrant plot of response Samples are split into four
     groups/quadrants, according to cutoff for continuous markers,
@@ -123,7 +132,7 @@ res.pair$response.plot$scatter.chart
 res.pair$response.plot$four.quadrant
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
+![](man/figures/README-unnamed-chunk-6-1.png)<!-- -->
 
   - plot4: ROC curve The single and dual marker prediction of response
     is also shown on ROC curve. Logistics regression model is applied w/
@@ -136,7 +145,7 @@ res.pair$response.plot$four.quadrant
 res.pair$response.plot$roc
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+![](man/figures/README-unnamed-chunk-7-1.png)<!-- -->
 
   - plot5: survival plot not available here, see in next example
 
@@ -252,56 +261,65 @@ showed the same result.
 
 ``` r
 res.pair <- dm_pair(data = clin_bmk_IMvigor210, 
-               response = "binaryResponse", response.pos = "CR/PR", response.neg = "SD/PD",
+               # survival info
                time = "os", event = "censOS",
                marker1 = "mut_ARID1A", marker2 = "gep_CXCL13", 
-               m1.cat.pos = "YES", m1.cat.neg = "NO")
+               m1.cat.pos = "YES", m1.cat.neg = "NO",
+               m2.num.cut = "median")
 ```
 
-plot1: single markers for response, not shown here plot2: scatter chart
-for response, not shown here plot3: Four-quadrant response rate, not
-shown here plot4: ROC curve, not shown here plot5: single marker for
-survival
+  - plot-1: single markers for response Not available here
+
+  - plot-2: scatter chart for response Not available here
+
+  - plot-3: Four-quadrant response rate, not shown here Not available
+    here
+
+  - plot-4: ROC curve, not shown here Not available here
+
+  - plot-5: single marker for survival
+
+<!-- end list -->
 
 ``` r
 res.pair$survival.plot$km.m1m2
 ```
 
-<img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
+![](man/figures/README-unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
 res.pair$survival.plot$scatter.m1m2
 ```
 
-<img src="man/figures/README-unnamed-chunk-10-2.png" width="100%" />
+![](man/figures/README-unnamed-chunk-11-2.png)<!-- -->
 
-plot6: dual marker for survival
+plot-6: dual marker for survival
 
 ``` r
 res.pair$survival.plot$km.dualmarker
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
+![](man/figures/README-unnamed-chunk-12-1.png)<!-- -->
 
 ``` r
 res.pair$survival.plot$km.dualmarker.facet
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-2.png" width="100%" />
+![](man/figures/README-unnamed-chunk-12-2.png)<!-- -->
 
 ``` r
 res.pair$survival.plot$scatter.dualmarker
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-3.png" width="100%" />
+![](man/figures/README-unnamed-chunk-12-3.png)<!-- -->
 
-plot7: four-quadrant show of survival
+plot-7: four-quadrant show of survival
 
 ``` r
 res.pair$survival.plot$four.quadrant
 ```
 
-<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
+![](man/figures/README-unnamed-chunk-13-1.png)<!-- -->
 
   - stats-1: four quadrant response not shown here
 
@@ -329,7 +347,7 @@ stats.4q$stats
 #> 4 R4        pos   low        24     14  10.5       4.90     NA
 ```
 
-stats-4: summary of cox
+stats-4: stats of cox
 
 ``` r
 dplyr::glimpse(res.pair$survival.stats$cox)
@@ -378,7 +396,7 @@ find the candidate marker2 in gene expression to combine with ARID1A
 mutation
 
 ``` r
-m2.candidates <- str_subset(colnames(clin_bmk_IMvigor210),"gep_") 
+m2.candidates <- stringr::str_subset(colnames(clin_bmk_IMvigor210),"gep_") 
 res.m2.cox <- dm_searchM2_cox(
   data = clin_bmk_IMvigor210, 
    # survival
@@ -400,44 +418,53 @@ Plot the searchM2 result, the top20 most significant marker2 is shown
 plot.m2.cox <- dm_searchM2_topPlot(res.m2.cox, top.n = 20)
 ```
 
-plot1, marker2 effect ‘m2\_effect’ is dot-chart, showing the top
-significant marker2s, whose introduction to dual-maker model(w/ or w/o
-interaction) significantly increase the prediction of survival.
-Likelihood ratio test(LRT) is carried out to compare dual-marker model
-and marker1 solo model, the signed log10-pValue is shown on x-axis, and
-‘sign’ indicates the effect direction of marker2 to survival.
+  - plot-1, marker2 effect. ‘m2\_effect’ is dot-chart, showing the top
+    significant marker2s, whose introduction to dual-maker model(w/ or
+    w/o interaction) significantly increase the prediction of survival.
+    Likelihood ratio test(LRT) is carried out to compare dual-marker
+    model and marker1 solo model, the signed log10-pValue is shown on
+    x-axis, and ‘sign’ indicates the effect direction of marker2 to
+    survival.
+
+<!-- end list -->
 
 ``` r
 plot.m2.cox$m2_effect
 ```
 
-<img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
+![](man/figures/README-unnamed-chunk-18-1.png)<!-- -->
 
-plot2: marker2’s interaction ‘interaction’ is dot-chart, showing the top
-significant marker2s, which has statistical interaction with given
-marker1. Signed log10-pValue is shown like ‘m2\_effect’
+  - plot-2, marker2’s interaction. ‘interaction’ is dot-chart, showing
+    the top significant marker2s, which has statistical interaction with
+    given marker1. Signed log10-pValue is shown like ‘m2\_effect’
+
+<!-- end list -->
 
 ``` r
 plot.m2.cox$interact
 ```
 
-<img src="man/figures/README-unnamed-chunk-18-1.png" width="100%" />
+![](man/figures/README-unnamed-chunk-19-1.png)<!-- -->
 
-plot3: m1 and m2 effect ‘m1\_m2\_effect’ is scatter-plot, showing the
-log10-pValue of model comparison, i.e. dual-vs-marker1 and
-dual-vs-marker2. Dual model that superior to both marker1 and marker2 is
-preferred, located top-right on the figure.
+  - plot-3: m1 and m2 effect ‘m1\_m2\_effect’ is scatter-plot, showing
+    the log10-pValue of model comparison, i.e. dual-vs-marker1 and
+    dual-vs-marker2. Dual model that superior to both marker1 and
+    marker2 is preferred, located top-right on the figure.
+
+<!-- end list -->
 
 ``` r
 plot.m2.cox$m1_m2_effect
 ```
 
-<img src="man/figures/README-unnamed-chunk-19-1.png" width="100%" />
+![](man/figures/README-unnamed-chunk-20-1.png)<!-- -->
 
-stats1: cox result
+  - stats-1: cox result
+
+<!-- end list -->
 
 ``` r
-glimpse(res.m2.cox)
+dplyr::glimpse(res.m2.cox)
 #> Rows: 1,268
 #> Columns: 35
 #> $ time                   <chr> "os", "os", "os", "os", "os", "os", "os", "os"…
@@ -477,66 +504,9 @@ glimpse(res.m2.cox)
 #> $ pval.m2.vs.mdi         <dbl> 0.01844880, 0.10824010, 0.05327299, 0.07316198…
 ```
 
-## Example 4
+## Related articles
 
-``` r
-res.pair <- dm_pair(data = clin_bmk_IMvigor210, 
-               time = "os", event = "censOS",
-               response = "binaryResponse", response.pos = "CR/PR", response.neg = "SD/PD",
-               marker1 = "mut_ARID1A", marker2 = "gep_HMGB1", 
-               m1.cat.pos = "YES", m1.cat.neg = "NO", plot.only = T)
-```
-
-``` r
-res.pair$response.plot
-#> $boxplot
-```
-
-<img src="man/figures/README-unnamed-chunk-22-1.png" width="100%" />
-
-    #> 
-    #> $scatter.chart
-
-<img src="man/figures/README-unnamed-chunk-22-2.png" width="100%" />
-
-    #> 
-    #> $four.quadrant
-
-<img src="man/figures/README-unnamed-chunk-22-3.png" width="100%" />
-
-    #> 
-    #> $roc
-
-<img src="man/figures/README-unnamed-chunk-22-4.png" width="100%" />
-
-``` r
-res.pair$survival.plot
-#> $km.m1m2
-```
-
-<img src="man/figures/README-unnamed-chunk-22-5.png" width="100%" />
-
-    #> 
-    #> $scatter.m1m2
-
-<img src="man/figures/README-unnamed-chunk-22-6.png" width="100%" />
-
-    #> 
-    #> $km.dualmarker
-
-<img src="man/figures/README-unnamed-chunk-22-7.png" width="100%" />
-
-    #> 
-    #> $km.dualmarker.facet
-
-<img src="man/figures/README-unnamed-chunk-22-8.png" width="100%" />
-
-    #> 
-    #> $scatter.dualmarker
-
-<img src="man/figures/README-unnamed-chunk-22-9.png" width="100%" />
-
-    #> 
-    #> $four.quadrant
-
-<img src="man/figures/README-unnamed-chunk-22-10.png" width="100%" />
+  - [Nature.2018
+    Feb 22;554(7693):544-548](https://pubmed.ncbi.nlm.nih.gov/29443960/)
+  - [Sci Transl Med. 2020
+    Jun 17;12(548):eabc4220](https://pubmed.ncbi.nlm.nih.gov/32554706/)

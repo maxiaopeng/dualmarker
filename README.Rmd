@@ -8,45 +8,31 @@ output: github_document
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
+  warning = FALSE,
+  message = FALSE,
+  fig.path = "man/figures/README-"
+  #out.width = "100%"
 )
 ```
 
 # dualmarker
-
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of dualmarker is to analysis dual marker for response and survival using logistic regression and cox model
+*dualmarker* is designed to facilitate the data mining of dual biomarkers. It provides intuitive visualizations and extensive assessment of two marker combinations using logistic regression model for binary response outcome and Cox models for survival analysis. ![dualmarker_overview](man/figures/dualmarker_overview.png)
 
 ## Installation
 
-You can install the released version of dualmarker from github with: devtools::install_github("maxiaopeng/dualmarker")
+- Install the latest developmental version from [GitHub](https://github.com/kassambara/rstatix) as follow: 
 
-```{r, include=F}
-library(dualmarker)
-library(stringr)
-library(dplyr)
+```{r, eval = FALSE}
+if(!require(devtools)) install.packages("devtools")
+devtools::install_github("maxiaopeng/dualmarker")
 ```
 
-## overall
-*Dualmaker* is designed to facilitate the data mining of dual biomarkers. It provides intuitive visualizations and extensive assessment of two marker combinations using logistic regression model for binary response outcome and Cox models for survival analysis. ![man/figures/dualmarker_overview.png]
+## key functions
 
-## dataset
-We demonstrate the data using [Imvigor210](http://research-pub.gene.com/IMvigor210CoreBiologies) biomarker data. The demographic info, clinical efficacy and biomarker data is stored in **clin_bmk_IMvigor210** dataframe, with gene expression containing 'gep_' prefix, gene signature score containing 'gepscore_' prefix and mutation containing 'mut_' prefix. The gene expression profiling(GEP) data is pre-processed according to the IMvigor210CoreBiologies package. Gene signature score is calculated for *hallmark* genesets from MsigDBv7.0 as well as signatures from the IMvigor210CoreBiologies package. 
-
-## Example1
-Here we demonstrate the combination of TMB and TGF-beta gene signature for response analysis using *dm_pair* function. This pair of biomarker is studied in [Nature.2018 Feb 22;554(7693):544-548](https://pubmed.ncbi.nlm.nih.gov/29443960/).
-The *response* should be dichotomous by setting *response.pos* and *response.neg* values.
-```{r example, fig.width=6, fig.height=5, warning=F, message=F}
-## basic example code
-res.pair <- dm_pair(data = clin_bmk_IMvigor210, 
-                    response = "binaryResponse",  
-                    response.pos = "CR/PR", response.neg = "SD/PD", 
-                    marker1 = "TMB", marker2 = "gepscore_TGFb.19gene")
-```
-
+### dm_pair
 *dm_pair* return the list of 'response' and 'survival', which contains plot in 'plot' and statistics in 'stats', shown in the following structure:
 
 + response.plot
@@ -73,7 +59,31 @@ res.pair <- dm_pair(data = clin_bmk_IMvigor210,
       - stats
 
 the overall plot:
-![man/figures/dualmarker_pair_plot.png]
+![dualmarker_plot](man/figures/dualmarker_pair_plot.png)
+
+### *dm_searchM2_logit*
+### *dm_searchM2_cox*
+
+## dataset
+We demonstrate the data using [Imvigor210](http://research-pub.gene.com/IMvigor210CoreBiologies) biomarker data. The demographic info, clinical efficacy and biomarker data is stored in **clin_bmk_IMvigor210** dataframe, with gene expression containing 'gep_' prefix, gene signature score containing 'gepscore_' prefix and mutation containing 'mut_' prefix. The gene expression profiling(GEP) data is pre-processed according to the IMvigor210CoreBiologies package. Gene signature score is calculated for *hallmark* genesets from MsigDBv7.0 as well as signatures from the IMvigor210CoreBiologies package. 
+
+
+```{r, include=F}
+library(dualmarker)
+library(stringr)
+library(dplyr)
+```
+
+## Example1
+Here we demonstrate the combination of TMB and TGF-beta gene signature for response analysis using *dm_pair* function. This pair of biomarker is studied in [Nature.2018 Feb 22;554(7693):544-548](https://pubmed.ncbi.nlm.nih.gov/29443960/).
+The *response* should be dichotomous by setting *response.pos* and *response.neg* values.
+```{r example, fig.width=6, fig.height=5}
+## basic example code
+res.pair <- dm_pair(data = clin_bmk_IMvigor210, 
+                    response = "binaryResponse",  
+                    response.pos = "CR/PR", response.neg = "SD/PD", 
+                    marker1 = "TMB", marker2 = "gepscore_TGFb.19gene")
+```
 
 * plot1: single marker for response
 correlation between single marker and response is shown in boxplot, and pvalue of wilcoxon test between positive and negative response is added to the plot.
@@ -143,25 +153,33 @@ not available here, see next example
 
 ## Example2
 Here we demonstrated the visualization of CXCL13 expression and ARID1A mutation status, this biomarker pair is studied by [Sci Transl Med. 2020 Jun 17;12(548):eabc4220](https://pubmed.ncbi.nlm.nih.gov/32554706/), we showed the same result.
-```{r fig.width=6, fig.height=5, warning=F, message=F}
+```{r fig.width=6, fig.height=5}
 res.pair <- dm_pair(data = clin_bmk_IMvigor210, 
-               response = "binaryResponse", response.pos = "CR/PR", response.neg = "SD/PD",
+               # survival info
                time = "os", event = "censOS",
                marker1 = "mut_ARID1A", marker2 = "gep_CXCL13", 
-               m1.cat.pos = "YES", m1.cat.neg = "NO")
+               m1.cat.pos = "YES", m1.cat.neg = "NO",
+               m2.num.cut = "median")
 ```
 
-plot1: single markers for response, not shown here
-plot2: scatter chart for response, not shown here
-plot3: Four-quadrant response rate, not shown here
-plot4: ROC curve, not shown here
-plot5: single marker for survival
+* plot-1: single markers for response
+Not available here
+* plot-2: scatter chart for response
+Not available here
+
+* plot-3: Four-quadrant response rate, not shown here
+Not available here
+
+* plot-4: ROC curve, not shown here
+Not available here
+
+* plot-5: single marker for survival
 ```{r,  fig.width=8, fig.height=4}
 res.pair$survival.plot$km.m1m2
 res.pair$survival.plot$scatter.m1m2
 ```
 
-plot6: dual marker for survival
+plot-6: dual marker for survival
 ```{r,  fig.width=5, fig.height=4.5}
 res.pair$survival.plot$km.dualmarker
 res.pair$survival.plot$km.dualmarker.facet
@@ -169,7 +187,7 @@ res.pair$survival.plot$scatter.dualmarker
 ```
 
 
-plot7: four-quadrant show of survival
+plot-7: four-quadrant show of survival
 ```{r, fig.width=6, fig.height=4.5}
 res.pair$survival.plot$four.quadrant
 ```
@@ -181,14 +199,13 @@ not shown here
 not shown here
 
 * stats-3: four quadrant stats of survival
-
 ```{r}
 stats.4q <- res.pair$survival.stats$four.quadrant
 stats.4q$param
 stats.4q$stats
 ```
 
-stats-4:  summary of cox
+stats-4:  stats of cox
 ```{r}
 dplyr::glimpse(res.pair$survival.stats$cox)
 ```
@@ -196,7 +213,7 @@ dplyr::glimpse(res.pair$survival.stats$cox)
 ## Example3
 find the candidate marker2 in gene expression to combine with ARID1A mutation
 ```{r}
-m2.candidates <- str_subset(colnames(clin_bmk_IMvigor210),"gep_") 
+m2.candidates <- stringr::str_subset(colnames(clin_bmk_IMvigor210),"gep_") 
 res.m2.cox <- dm_searchM2_cox(
   data = clin_bmk_IMvigor210, 
    # survival
@@ -217,40 +234,32 @@ Plot the searchM2 result, the top20 most significant marker2 is shown
 plot.m2.cox <- dm_searchM2_topPlot(res.m2.cox, top.n = 20)
 ```
 
-plot1, marker2 effect
+* plot-1, marker2 effect.
 'm2_effect' is dot-chart, showing the top significant marker2s, whose introduction to dual-maker model(w/ or w/o interaction) significantly increase the prediction of survival. Likelihood ratio test(LRT) is carried out to compare dual-marker model and marker1 solo model, the signed log10-pValue is shown on x-axis, and 'sign' indicates the effect direction of marker2 to survival.
 ```{r, fig.width=5, fig.height=4}
 plot.m2.cox$m2_effect
 ```
 
-plot2: marker2's interaction
+* plot-2, marker2's interaction. 
 'interaction' is dot-chart, showing the top significant marker2s, which has statistical interaction with given marker1. Signed log10-pValue is shown like 'm2_effect'
 ```{r, fig.width=4, fig.height=4}
 plot.m2.cox$interact
 ```
 
-plot3: m1 and m2 effect
+* plot-3: m1 and m2 effect
 'm1_m2_effect' is scatter-plot, showing the log10-pValue of model comparison, i.e. dual-vs-marker1 and dual-vs-marker2. Dual model that superior to both marker1 and marker2 is preferred, located top-right on the figure.
 ```{r,fig.height=4, fig.width=4}
 plot.m2.cox$m1_m2_effect
 ```
 
-stats1: cox result
+* stats-1: cox result
 ```{r}
-glimpse(res.m2.cox)
+dplyr::glimpse(res.m2.cox)
 ```
 
-## Example 4
-```{r fig.width=6, fig.height=5, warning=F, message=F}
-res.pair <- dm_pair(data = clin_bmk_IMvigor210, 
-               time = "os", event = "censOS",
-               response = "binaryResponse", response.pos = "CR/PR", response.neg = "SD/PD",
-               marker1 = "mut_ARID1A", marker2 = "gep_HMGB1", 
-               m1.cat.pos = "YES", m1.cat.neg = "NO", plot.only = T)
-```
 
-```{r, fig.height=5, fig.width=5}
-res.pair$response.plot
-res.pair$survival.plot
-```
+## Related articles
+
+- [Nature.2018 Feb 22;554(7693):544-548](https://pubmed.ncbi.nlm.nih.gov/29443960/)
+- [Sci Transl Med. 2020 Jun 17;12(548):eabc4220](https://pubmed.ncbi.nlm.nih.gov/32554706/)
 
