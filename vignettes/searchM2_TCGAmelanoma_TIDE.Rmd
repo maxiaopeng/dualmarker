@@ -15,10 +15,11 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-#library(dualmarker)
+library(dualmarker)
 library(dplyr)
 library(magrittr)
 library(readr)
+library(tibble)
 ```
 
 
@@ -38,36 +39,56 @@ colnames(gepscore)[-1] %<>% paste0("gepscore.", .)
 clin.bmk <- plyr::join_all(list(clin, gep, gepscore), by = ".id")
 ```
 
+## Example of dm_pair
+```{r example, fig.width=6, fig.height=5, warning=F, message=F}
+## basic example code
+res.pair <- dm_pair(
+   data = clin.bmk %>% filter(OS %in% c(0,1)),
+   # survival
+   time = "OS.time", event = "OS",
+   marker1 = "gepscore.CTL", m1.num.cut = "median",
+  # marker2 = "gepscore.PIPIO_NK"
+  # marker2 = "gepscore.CD4.RegulatoryTcells.R.IO"
+  # marker2 = "gep.AXL", m2.num.cut = "median"
+  #marker2 = "gep.NT5E", m2.num.cut = "mean+sd"
+  marker2 = "gep.TNFRSF14", m2.num.cut = "median"
+)
+res.pair$survival.plot
+```
+
+
 # SearchM2 signature
 ```{r}
 m2.candidates <- colnames(gepscore)[-1]
 res <- dm_searchM2_cox(data = clin.bmk %>% dplyr::filter(OS %in% c(0,1)), 
                        time = "OS.time", event="OS", 
-                marker1 = "gepscore.CTL", m1.binarize = F, 
+                marker1 = "gepscore.CTL", m1.binarize = T, m1.num.cut = "median", 
                 m2.candidates = m2.candidates, m2.binarize = T, m2.num.cut = "mean+sd")
-
+# 
 dm_searchM2_topPlot(res)
 ```
 
-# SearchM2 genes
+# SearchM2 genes, continous variable
 ```{r}
 m2.candidates <- colnames(gep)[-1]
 res <- dm_searchM2_cox(
   data = clin.bmk %>% dplyr::filter(OS %in% c(0,1)), 
-  time = "OS.time", 
-  event="OS", 
-  marker1 = "gepscore.CTL", m1.binarize = F, 
-  m2.candidates = m2.candidates, m2.binarize = T, m2.num.cut = "mean+sd")
+  time = "OS.time", event="OS", 
+  marker1 = "gepscore.CTL", m1.binarize = F,
+  m2.candidates = m2.candidates, m2.binarize = F)
 
 dm_searchM2_topPlot(res)
 ```
 
-```{r, fig.height=7}
-res <- clin.bmk %>% 
-  dplyr::filter(OS %in% c(0,1)) %>% 
-  dm_pair(data = ., time = "OS.time", event= "OS", 
-          marker1 = "gepscore.CTL", m1.num.cut = "median",
-          marker2 = "gep.NT5E", m2.num.cut = "mean+sd")
-res$plot
+# SearchM2 genes, variable
+```{r}
+m2.candidates <- colnames(gep)[-1]
+res <- dm_searchM2_cox(
+  data = clin.bmk %>% dplyr::filter(OS %in% c(0,1)), 
+  time = "OS.time", event="OS", 
+  marker1 = "gepscore.CTL", m1.binarize = T, m1.num.cut = "median",
+  m2.candidates = m2.candidates, m2.binarize = T, m2.num.cut = "mean+sd")
+
+dm_searchM2_topPlot(res)
 ```
 

@@ -173,7 +173,7 @@
                                  #alpha = "status",
                                  marker1 = marker1, marker2= marker2,
                                  m1.num.cut = m1.num.cut, m1.cat.pos = m1.cat.pos,  m1.cat.neg = m1.cat.neg,
-                                 m2.num.cut = m1.num.cut, m2.cat.pos = m2.cat.pos, m2.cat.neg = m2.cat.neg)
+                                 m2.num.cut = m2.num.cut, m2.cat.pos = m2.cat.pos, m2.cat.neg = m2.cat.neg)
   # return
   list( marker1 = scatter.m1,
         marker2 = scatter.m2,

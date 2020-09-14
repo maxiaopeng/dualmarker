@@ -33,35 +33,34 @@ gep.all <- left_join(d1, d2, by = ".id")
 ```
 
 ```{r, fig.width=6, fig.height=6}
-dm_pair(data = gep.all, response = "BOR3", response.pos = "1_R", response.neg = "2_NR", 
-              time = "OS_month", event= "OS_event", marker1 = "CD8A", marker2 = "HLA.A") %>%
-  .$plot
+res <- dm_pair(data = gep.all, 
+        response = "BOR3", response.pos = "1_R", response.neg = "2_NR", 
+        time = "PFS_month", event= "PFS_event",
+        marker1 = "BOR3", m1.cat.pos = "1_R", m1.cat.neg = "2_NR",
+        #marker2 = "PIPIO_EMT_WNT"
+        #marker2 = "NS_IFNG_biology"
+        #marker2 = "NLRC5"
+        marker2 = "PVR"
+        )
+res$survival.plot
 ```
 
-
-```{r, fig.height=6 fig.width=6}
-  dm_pair(data = gep.all, response = "BOR3", response.pos = "1_R", response.neg = "2_NR", 
-              time = "PFS_month", event= "PFS_event", marker1 = "CTL", marker2 = "PIPIO_Macrophage") %>%
-  .$plot
-
-  dm_pair(data = gep.all, response = "BOR3", response.pos = "1_R", response.neg = "2_NR", 
-              time = "PFS_month", event= "PFS_event", marker1 = "CTL", marker2 = "PIPIO_EMT_WNT") %>%
-  .$plot
-```
-
-
+## PFS ~ CTL + gepscore 
 ```{r}
 d <- as.data.frame(es.gepscore)
 marker1 <- "CTL"
 m2.candidates <- setdiff(rownames(es.gepscore), marker1)
-res.cox <- dm_searchM2_cox(data = d, time = "PFS_month", event="PFS_event", 
-                marker1 = marker1, m2.candidates = m2.candidates, 
-                m1.binarize = F, m2.binarize = F)
+res.cox <- dm_searchM2_cox(
+  data = d, 
+  time = "PFS_month", event="PFS_event", 
+  marker1 = marker1, m1.binarize = F,
+  m2.candidates = m2.candidates, m2.binarize = F
+  )
 dm_searchM2_topPlot(res.cox)
 
 ```
 
-
+## response ~ CTL + gepscore 
 ```{r}
 marker1 <- "CTL"
 m2.candidates <- setdiff(rownames(es.gepscore), marker1)
@@ -70,15 +69,30 @@ res <- dm_searchM2_logit(data = gep.all, response = "BOR3", response.pos = "1_R"
 dm_searchM2_topPlot(res)
 ```
 
-```{r}
-d1 <- as.data.frame(es.gep) %>% rownames_to_column(".id")
-d2 <- t(exprs(es.gepscore)) %>% as.data.frame %>% rownames_to_column(".id")
-d <- left_join(d1, d2, by = ".id")
-marker1 <- "PIPIO_MDSC"
-m2.candidates <- rownames(es.gep)
-res.logit <- dm_searchM2_logit(data = d, response = "BOR3", response.pos = "1_R", response.neg =  "2_NR",
-                marker1 = marker1, m2.candidates = m2.candidates)
-dm_searchM2_topPlot(res.logit)
 
+## PFS ~ response + gepscore 
+```{r}
+d <- as.data.frame(es.gepscore)
+m2.candidates <- rownames(es.gepscore)
+res.cox <- dm_searchM2_cox(
+  data = d, 
+  time = "PFS_month", event="PFS_event", 
+  marker1 = "BOR3", m1.binarize = T, m1.cat.pos = "1_R", m1.cat.neg = "2_NR",
+  m2.candidates = m2.candidates, m2.binarize = F
+  )
+dm_searchM2_topPlot(res.cox)
 ```
 
+
+## PFS ~ response + gep
+```{r}
+d <- as.data.frame(es.gep)
+m2.candidates <- rownames(es.gep)
+res.cox <- dm_searchM2_cox(
+  data = d, 
+  time = "PFS_month", event="PFS_event", 
+  marker1 = "BOR3", m1.binarize = T, m1.cat.pos = "1_R", m1.cat.neg = "2_NR",
+  m2.candidates = m2.candidates, m2.binarize = F
+  )
+dm_searchM2_topPlot(res.cox)
+```

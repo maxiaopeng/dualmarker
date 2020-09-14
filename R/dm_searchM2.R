@@ -22,7 +22,7 @@
 #' @export
 dm_searchM2_logit <- function(data, response, response.pos, response.neg=NULL,
                         marker1, m2.candidates, confound.factor=NULL,
-                        m1.binarize = F, m2.binarize = F,
+                        m1.binarize, m2.binarize,
                         m1.num.cut = "median", m1.cat.pos = NULL, m1.cat.neg = NULL,
                         m2.num.cut = "median", m2.cat.pos = NULL, m2.cat.neg = NULL,
                         na.rm=T, auc=F){
@@ -73,7 +73,7 @@ dm_searchM2_logit <- function(data, response, response.pos, response.neg=NULL,
 dm_searchM2_cox <- function(data, time, event,
                             marker1, m2.candidates,
                             confound.factor = NULL,
-                            m1.binarize=F, m2.binarize=F,
+                            m1.binarize, m2.binarize,
                             m1.num.cut = "median", m1.cat.pos=NULL, m1.cat.neg=NULL,
                             m2.num.cut = "median", m2.cat.pos=NULL, m2.cat.neg=NULL,
                             na.rm=T){

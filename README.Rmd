@@ -58,7 +58,7 @@ devtools::install_github("maxiaopeng/dualmarker")
       - param
       - stats
 
-the overall plot:
+the overview plot:
 ![dualmarker_plot](man/figures/dualmarker_pair_plot.png)
 
 ### *dm_searchM2_logit*
@@ -157,8 +157,9 @@ Here we demonstrated the visualization of CXCL13 expression and ARID1A mutation 
 res.pair <- dm_pair(data = clin_bmk_IMvigor210, 
                # survival info
                time = "os", event = "censOS",
-               marker1 = "mut_ARID1A", marker2 = "gep_CXCL13", 
+               marker1 = "mut_ARID1A",  
                m1.cat.pos = "YES", m1.cat.neg = "NO",
+               marker2 = "gep_HMGB1",
                m2.num.cut = "median")
 ```
 
