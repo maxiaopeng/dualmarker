@@ -1,7 +1,7 @@
 
-#' plot and statistics of dual marker pair
+#' Plot and statistics of dual marker pair
 #'
-#' the plot and statistics of dual markers, including the response and survival analysis
+#' Plot and statistics of dual markers, including the response and survival analysis
 #'
 #' @param data data frame
 #' @param response response variable
@@ -9,16 +9,16 @@
 #' @param response.neg negative value(s) of response, default NULL, all other values except 'response.pos'
 #' @param time survival time
 #' @param event survival event
-#' @param marker1 marker1
-#' @param marker2 marker2
+#' @param marker1 marker1 variable
+#' @param marker2 marker2 variable
 #' @param m1.num.cut cut method/values for numeric marker1
 #' @param m2.num.cut cut method/values for numeric marker2
-#' @param m1.cat.pos positive value for categorical marker1
-#' @param m1.cat.neg negative value for categorical marker1
-#' @param m2.cat.pos positive value for categorical marker2
-#' @param m2.cat.neg negative value for categorical marker2
-#' @param plot.only no 'stats', default TRUE
-#' @return list of 'plot' and 'stats'.
+#' @param m1.cat.pos positive value(s) if marker1 is categorical
+#' @param m1.cat.neg negative value(s) if marker1 is categorical
+#' @param m2.cat.pos positive value(s) if marker2 is categorical
+#' @param m2.cat.neg negative value(s) if marker2 is categorical
+#' @param plot.only plot only, no 'response.stats' or 'survival.stats', default FALSE
+#' @return list of 'response.plot', 'response.stats', 'survival.plot' and 'survival.stats'
 #' @export
 dm_pair <- function(data, marker1, marker2,
                     response=NULL, response.pos=NULL, response.neg=NULL,
