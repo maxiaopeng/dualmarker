@@ -4,7 +4,7 @@
 \alias{dm_response_4quad_chart}
 \title{Quadrant response chart}
 \usage{
-dm_response_4quad_chart(x, n)
+dm_response_4quad_chart(x, n, title = "")
 }
 \arguments{
 \item{x}{positive number in 1st,2nd,3rd and 4th quadrant}

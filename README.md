@@ -19,8 +19,8 @@ identification and prioritization of marker2 among all candidate markers
 in combination with known marker1 to predict response and survival
 through *dm\_searchM2\_cox* and *dm\_searchM2\_logit* function. Both
 modules are applicable for both categorical and continuous biomarkers.
-Continuous or numeric variables can be converted to dichotomous variable
-by median or other arbitrary cutoffs or remain unchanged.
+Both markers are applicable for both survival and response analyses and
+compatible with both continuous and categorical variables.
 ![dualmarker\_overview](man/figures/dualmarker_overview.png)
 
 ## Installation
@@ -324,13 +324,16 @@ showed the same result here.
 ``` r
 res.pair <- dm_pair(
    data = clin_bmk_IMvigor210, 
+   # response
+   response = "binaryResponse", 
+   response.pos = "CR/PR", response.neg = "SD/PD",
    # survival info
    time = "os", event = "censOS",
    # marker1
    marker1 = "mut_ARID1A",  
    m1.cat.pos = "YES", m1.cat.neg = "NO",
    # marker2
-   marker2 = "gep_HMGB1",
+   marker2 = "gep_CXCL13",
    m2.num.cut = "median"
    )
 ```
@@ -447,16 +450,16 @@ stats.4q$param
 #> # A tibble: 1 x 10
 #>   time  event marker1 marker2 cutpoint.m1 m1.cat.pos m1.cat.neg cutpoint.m2
 #>   <chr> <chr> <chr>   <chr>   <lgl>       <chr>      <chr>            <dbl>
-#> 1 os    cens… mut_AR… gep_HM… NA          YES        NO             -0.0492
+#> 1 os    cens… mut_AR… gep_CX… NA          YES        NO               0.124
 #> # … with 2 more variables: m2.cat.pos <chr>, m2.cat.neg <chr>
 stats.4q$stats
 #> # A tibble: 4 x 8
 #>   .quadrant .m1   .m2   records events median `0.95LCL` `0.95UCL`
 #>   <fct>     <fct> <fct>   <dbl>  <dbl>  <dbl>     <dbl>     <dbl>
-#> 1 R1        pos   high       28     11  NA         9.23     NA   
-#> 2 R2        neg   high      114     82   6.01      3.98      8.08
-#> 3 R3        neg   low        88     53  14.1       9.76     17.1 
-#> 4 R4        pos   low        34     21  10.5       6.24     17.8
+#> 1 R1        pos   high       38     18  17.8       9.23     NA   
+#> 2 R2        neg   high       91     53  10.5       6.74     NA   
+#> 3 R3        neg   low       111     82   7.89      5.52      9.86
+#> 4 R4        pos   low        24     14  10.5       4.90     NA
 ```
 
   - stats-4: \[survival analysis\] Cox regression result  
@@ -494,7 +497,7 @@ dplyr::glimpse(res.pair$survival.stats$cox)
 #> $ time                   <chr> "os"
 #> $ even                   <chr> "censOS"
 #> $ m1                     <chr> "mut_ARID1A"
-#> $ m2                     <chr> "gep_HMGB1"
+#> $ m2                     <chr> "gep_CXCL13"
 #> $ confound.factor        <chr> ""
 #> $ cutpoint_m1            <lgl> NA
 #> $ cutpoint_m2            <lgl> NA
@@ -504,28 +507,28 @@ dplyr::glimpse(res.pair$survival.stats$cox)
 #> $ m2.cat.neg             <chr> ""
 #> $ m1_.m1_estimate        <dbl> -0.3931839
 #> $ m1_.m1_p.value         <dbl> 0.04572493
-#> $ m2_.m2_estimate        <dbl> 0.09758031
-#> $ m2_.m2_p.value         <dbl> 0.2044897
-#> $ md_.m1_estimate        <dbl> -0.4200662
-#> $ md_.m1_p.value         <dbl> 0.03383256
-#> $ md_.m2_estimate        <dbl> 0.1166283
-#> $ md_.m2_p.value         <dbl> 0.140206
-#> $ mdi_.m1_estimate       <dbl> -0.3768558
-#> $ mdi_.m1_p.value        <dbl> 0.06180889
-#> $ mdi_.m2_estimate       <dbl> 0.2834102
-#> $ mdi_.m2_p.value        <dbl> 0.002907483
-#> $ `mdi_.m1:.m2_estimate` <dbl> -0.6362649
-#> $ `mdi_.m1:.m2_p.value`  <dbl> 0.001073529
+#> $ m2_.m2_estimate        <dbl> -0.2869317
+#> $ m2_.m2_p.value         <dbl> 0.0001590714
+#> $ md_.m1_estimate        <dbl> -0.3134224
+#> $ md_.m1_p.value         <dbl> 0.1149989
+#> $ md_.m2_estimate        <dbl> -0.2676217
+#> $ md_.m2_p.value         <dbl> 0.0004277342
+#> $ mdi_.m1_estimate       <dbl> -0.3045374
+#> $ mdi_.m1_p.value        <dbl> 0.1233496
+#> $ mdi_.m2_estimate       <dbl> -0.2463571
+#> $ mdi_.m2_p.value        <dbl> 0.002164497
+#> $ `mdi_.m1:.m2_estimate` <dbl> -0.1938994
+#> $ `mdi_.m1:.m2_p.value`  <dbl> 0.4121259
 #> $ m1_AIC                 <dbl> 1695.692
-#> $ m2_AIC                 <dbl> 1698.41
-#> $ md_AIC                 <dbl> 1695.525
-#> $ mdi_AIC                <dbl> 1686.244
+#> $ m2_AIC                 <dbl> 1686.086
+#> $ md_AIC                 <dbl> 1685.451
+#> $ mdi_AIC                <dbl> 1686.794
 #> $ pval.m1.vs.null        <dbl> 0.03779216
-#> $ pval.m2.vs.null        <dbl> 0.2064915
-#> $ pval.m1.vs.md          <dbl> 0.1410022
-#> $ pval.m2.vs.md          <dbl> 0.02708344
-#> $ pval.m1.vs.mdi         <dbl> 0.001202181
-#> $ pval.m2.vs.mdi         <dbl> 0.0003087848
+#> $ pval.m2.vs.null        <dbl> 0.0001907733
+#> $ pval.m1.vs.md          <dbl> 0.0004674887
+#> $ pval.m2.vs.md          <dbl> 0.1044939
+#> $ pval.m1.vs.mdi         <dbl> 0.001582535
+#> $ pval.m2.vs.mdi         <dbl> 0.1928236
 ```
 
 ## Example3: search GEP candidates marker2 to combine with mut\_ARID1A for survival analysis

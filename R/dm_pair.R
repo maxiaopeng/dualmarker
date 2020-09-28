@@ -1,7 +1,7 @@
 
 #' Plot and statistics of dual marker pair
 #'
-#' Plot and statistics of dual markers, including the response and survival analysis
+#' Plot and statistics of dual markers that reveal the association between two markers, response and survival
 #'
 #' @param data data frame
 #' @param response response variable
@@ -11,14 +11,77 @@
 #' @param event survival event
 #' @param marker1 marker1 variable
 #' @param marker2 marker2 variable
-#' @param m1.num.cut cut method/values for numeric marker1
-#' @param m2.num.cut cut method/values for numeric marker2
+#' @param m1.num.cut cut method or value for numeric marker1, default "median"
+#' @param m2.num.cut cut method or value for numeric marker2, default "median"
 #' @param m1.cat.pos positive value(s) if marker1 is categorical
 #' @param m1.cat.neg negative value(s) if marker1 is categorical
 #' @param m2.cat.pos positive value(s) if marker2 is categorical
 #' @param m2.cat.neg negative value(s) if marker2 is categorical
 #' @param plot.only plot only, no 'response.stats' or 'survival.stats', default FALSE
 #' @return list of 'response.plot', 'response.stats', 'survival.plot' and 'survival.stats'
+#' @examples
+#'
+#'  ### example1: two biomarkers of continuous variables
+#'  res.pair <- dm_pair(
+#'   data = clin_bmk_IMvigor210,
+#'   response = "binaryResponse",
+#'   response.pos = "CR/PR", response.neg = "SD/PD",
+#'   marker1 = "TMB",
+#'   m1.num.cut = "median",
+#'   marker2 = "gepscore_TGFb.19gene",
+#'   m2.num.cut = "median")
+#'  res.pair$response.plot
+#'  res.pair$response.stats
+
+#'  ### example2: two biomarkers of continuous variables(custom cutoff)
+#'  m1.cutoff <- quantile(clin_bmk_IMvigor210$TMB, 2/3, na.rm=T)
+#'  m2.cutoff <- quantile(clin_bmk_IMvigor210$gepscore_TGFb.19gene, 1/3, na.rm=T)
+#'  res.pair <- dm_pair(
+#'   data = clin_bmk_IMvigor210,
+#'   response = "binaryResponse",
+#'   response.pos = "CR/PR", response.neg = "SD/PD",
+#'   marker1 = "TMB",
+#'   m1.num.cut = m1.cutoff,
+#'   marker2 = "gepscore_TGFb.19gene",
+#'   m2.num.cut = m2.cutoff)
+#'  res.pair$response.plot
+#'  res.pair$response.stats
+#'  res.pair$survival.plot
+#'  res.pair$survival.stats
+#'
+#'  ### example3: continuous variable + categorical variable
+#'  res.pair <- dm_pair(
+#'     data = clin_bmk_IMvigor210,
+#'     # survival info
+#'     time = "os", event = "censOS",
+#'     # marker1
+#'     marker1 = "mut_ARID1A",
+#'     m1.cat.pos = "YES", m1.cat.neg = "NO",
+#'     # marker2
+#'     marker2 = "gep_CXCL13",
+#'     m2.num.cut = "median")
+#'  res.pair$survival.plot
+#'  res.pair$survival.stats
+#'
+#'  ### example4: two biomarkers of categorical variable
+#'  res.pair <- dm_pair(
+#'     data = clin_bmk_IMvigor210,
+#'     # response info
+#'     response = "binaryResponse",
+#'     response.pos = "CR/PR", response.neg = "SD/PD",
+#'     # survival info
+#'     time = "os", event = "censOS",
+#'     # marker1
+#'     marker1 = "mut_ARID1A",
+#'     m1.cat.pos = "YES", m1.cat.neg = "NO",
+#'     # marker2
+#'     marker2 = "Immune.phenotype",
+#'     m2.cat.pos = "inflamed", m2.cat.neg = c("desert", "excluded"))
+#'  res.pair$response.plot
+#'  res.pair$response.stats
+#'  res.pair$survival.plot
+#'  res.pair$survival.stats
+#'
 #' @export
 dm_pair <- function(data, marker1, marker2,
                     response=NULL, response.pos=NULL, response.neg=NULL,
@@ -64,7 +127,8 @@ dm_pair <- function(data, marker1, marker2,
 
     # four quadrant plot
     g.response.4quad <- dm_response_4quad_chart(x = stats.response.4quad$pos.n,
-                                                n = stats.response.4quad$total.n)
+                                                n = stats.response.4quad$total.n,
+                                                title = paste0("marker1(x-axis):", marker1, "  marker2(y-axis): ", marker2))
 
     ### logistic regression model
     if(!plot.only){
@@ -90,9 +154,8 @@ dm_pair <- function(data, marker1, marker2,
                          logit.reg = T,
                          logit.reg.int = T)
   }
-
+  # survival
   if(!is.null(time)){
-    # survival
     g.survplot <- dm_surv_plot(data = data,
                       time = time,event = event,
                       response =response, response.pos = response.pos, response.neg = response.neg,

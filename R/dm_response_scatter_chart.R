@@ -205,7 +205,7 @@ dm_response_scatter_chart <- function(  data, response,response.pos,response.neg
       m2.cutpoint <- cutpoint(x = data[[marker2]], method = m2.num.cut)
       if (m1.datatype == "num") {
         m1.cutpoint <- cutpoint( x = data[[marker1]],  method = m1.num.cut )
-        .dm_scatterplot(
+        g <- .dm_scatterplot(
           data = data,
           marker1 = marker1,
           marker2 = marker2,
@@ -218,7 +218,7 @@ dm_response_scatter_chart <- function(  data, response,response.pos,response.neg
         )
       } else{
         assert_that(!is.null(m1.cat.pos), msg = "m1.cat.pos should not be NULL")
-        .dm_stripplot(
+        g <- .dm_stripplot(
           data = data,
           marker1 = marker1,
           marker2 = marker2,
@@ -234,7 +234,7 @@ dm_response_scatter_chart <- function(  data, response,response.pos,response.neg
     } else if (m1.datatype == "num") {
       m1.cutpoint <- cutpoint( x = data[[marker1]],method = m1.num.cut )
       assert_that(!is.null(m2.cat.pos), msg = "m2.cat.pos should not be NULL")
-      .dm_stripplot(
+      g <- .dm_stripplot(
         data = data,
         marker1 = marker2,
         marker2 = marker1,
@@ -249,7 +249,7 @@ dm_response_scatter_chart <- function(  data, response,response.pos,response.neg
     } else{
       assert_that(!is.null(m1.cat.pos) && !is.null(m2.cat.pos),
                   msg = "m1.cat.pos, m2.cat.pos should NOT be NULL")
-      .dm_jitter(
+      g <- .dm_jitter(
         data = data,
         marker1 = marker1,
         marker2 = marker2,
@@ -263,4 +263,5 @@ dm_response_scatter_chart <- function(  data, response,response.pos,response.neg
         size = size, alpha = alpha, shape = shape
       )
     }
+    g + labs(subtitle = paste0("marker1(x-axis): ", marker1, "  marker2(y-axis):", marker2))
   }

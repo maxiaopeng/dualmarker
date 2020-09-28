@@ -1,13 +1,18 @@
 Package: dualmarker
 Type: Package
-Title: Dual marker analysis for response and survival
+Title: Dual marker analysis for response and survival data
 Version: 0.1.0
 Author: xiaopeng.ma
 Maintainer: The package maintainer <xiaopeng.ma@beigene.coms>
-Description: A package for dual marker analysis, for response outcome and survival result, 
-  using logistic regression, Cox regression model as well as four-quadrant statistics.
-  It contains two major modules, one for statistics and visulization of specific biomarker 
-  pair, and another one to find another marker2 to combine with marker1
+Description: A package for dual marker analysis of response and survival data. dualmarker is designed to 
+  facilitate the data mining of dual biomarkers. It provides intuitive visualizations and extensive assessment 
+  of two marker combinations using logistic regression model for binary response outcome and Cox models for
+  survival analysis. It performs dual marker analysis via two distinct modules, one for evaluation of specific
+  biomarker pair through dm_pair function, it comprehensively reveals the correlation among two markers, response
+  and survival using over 14 sub-plots. Another module is de novo identification and prioritization of marker2
+  among all candidate markers in combination with known marker1 to predict response and survival through 
+  dm_searchM2_cox and dm_searchM2_logit function. Both modules areapplicable for both survival and response analyses 
+  and compatible with both continuous and categorical variables. 
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

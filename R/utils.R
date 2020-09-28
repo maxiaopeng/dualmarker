@@ -54,6 +54,10 @@
 #' @importFrom ggpubr ggarrange
 #' @importFrom glue glue
 #' @importFrom ggrepel geom_text_repel
+#' @importFrom cowplot plot_grid
+#' @importFrom cowplot ggdraw
+#' @importFrom cowplot draw_label
+#'
 .load_library <- function(){}
 
 #' get datatype "num" or "cat"

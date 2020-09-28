@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-*dualmarker* is designed to facilitate the data mining of dual biomarkers. It provides intuitive visualizations and extensive assessment of two marker combinations using logistic regression model for binary response outcome and Cox models for survival analysis. It performs dual marker analysis via two distinct modules, one for evaluation of specific biomarker pair through *dm_pair* function, it comprehensively reveals the correlation among two markers, response and survival using over 14 sub-plots. Another  module is de novo identification and prioritization of marker2 among all candidate markers in combination with known marker1 to predict response and survival through *dm_searchM2_cox* and *dm_searchM2_logit* function. Both modules are applicable for both categorical and continuous biomarkers. Continuous or numeric variables can be converted to dichotomous variable by median or other arbitrary cutoffs or remain unchanged. ![dualmarker_overview](man/figures/dualmarker_overview.png)
+*dualmarker* is designed to facilitate the data mining of dual biomarkers. It provides intuitive visualizations and extensive assessment of two marker combinations using logistic regression model for binary response outcome and Cox models for survival analysis. It performs dual marker analysis via two distinct modules, one for evaluation of specific biomarker pair through *dm_pair* function, it comprehensively reveals the correlation among two markers, response and survival using over 14 sub-plots. Another  module is de novo identification and prioritization of marker2 among all candidate markers in combination with known marker1 to predict response and survival through *dm_searchM2_cox* and *dm_searchM2_logit* function. Both modules are applicable for both categorical and continuous biomarkers. Both markers are applicable for both survival and response analyses and compatible with both continuous and categorical variables. ![dualmarker_overview](man/figures/dualmarker_overview.png)
 
 ## Installation
 
@@ -174,13 +174,16 @@ Here we demonstrated the visualization of CXCL13 expression and ARID1A mutation 
 ```{r fig.width=6, fig.height=5}
 res.pair <- dm_pair(
    data = clin_bmk_IMvigor210, 
+   # response
+   response = "binaryResponse", 
+   response.pos = "CR/PR", response.neg = "SD/PD",
    # survival info
    time = "os", event = "censOS",
    # marker1
    marker1 = "mut_ARID1A",  
    m1.cat.pos = "YES", m1.cat.neg = "NO",
    # marker2
-   marker2 = "gep_HMGB1",
+   marker2 = "gep_CXCL13",
    m2.num.cut = "median"
    )
 ```

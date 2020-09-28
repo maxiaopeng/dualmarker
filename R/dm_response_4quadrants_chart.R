@@ -147,7 +147,7 @@
 #' @param x positive number in 1st,2nd,3rd and 4th quadrant
 #' @param n total number in 1st,2nd,3rd and 4th quadrant
 #' @return Panel of 4 ggplot plots
-dm_response_4quad_chart <- function(x,n){
+dm_response_4quad_chart <- function(x,n, title = ""){
   assert_that(all(x >= 0), length(x)==4, is(x, "numeric"),
               msg = "positive number in each quadrant should be integer, with length 4")
   assert_that(all(n >= 0), length(n)==4, is(n, "numeric"),
@@ -158,6 +158,10 @@ dm_response_4quad_chart <- function(x,n){
   p2 <- .quadrant_matrix_chart(x = x, n = n)
   p3 <- .quadrant_donut_chart(x = x, n = n)
   p4 <- .quadrant_interact_chart(x = x, n = n)
-  cowplot::plot_grid(p1,p2,p3,p4, align = "hv", axis = "l", ncol = 2)
-  #gridExtra::arrangeGrob(p1, p2, p3,p4, nrow=2)
+  g.plot <- cowplot::plot_grid(p1,p2,p3,p4, align = "hv", axis = "l",
+                               ncol = 2, scale = c(0.9, .9, .9, 0.9), labels = "AUTO")
+  g.title <- cowplot::ggdraw() + cowplot::draw_label(title, fontface = 'bold', x = 0, hjust = 0) +
+    theme(plot.margin = margin(0, 0, 0, 20))
+  cowplot::plot_grid(g.title, g.plot,ncol = 1, rel_heights = c(0.05, 1)
+  )
 }
