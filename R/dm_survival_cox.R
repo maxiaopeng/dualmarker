@@ -4,7 +4,6 @@
 #' @param cox.model cox model
 #'
 #' @return a list of 'coef','glance' and 'cox.zph'
-#' @export
 .summary_cox <- function(cox.model){
   assert_that(is(cox.model, "coxph"), msg = "cox.model is not coxph object")
 

@@ -123,7 +123,6 @@
 #' @param m2.cat.neg negative value(s) if marker2 is categorical
 #' @param na.rm remove NA, default TRUE
 #' @return summary of dual marker logistic regression
-#' @export
 dm_logit <- function(data, response, response.pos, response.neg=NULL,
                      marker1, marker2,confound.factor=NULL,
                      m1.binarize, m2.binarize,

@@ -126,8 +126,6 @@
 #' @param m2.num.cut cut method/value(s) if marker2 is numeric
 #' @param m2.cat.pos positive values for marker2 if it is categorical
 #' @param m2.cat.neg negative values for marker2 if it is categorical
-#'
-#' @export
 dm_survival_4quad <- function(data, time, event,
                               marker1, marker2,
                               m1.datatype = "auto",

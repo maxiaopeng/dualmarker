@@ -85,7 +85,6 @@ datatype_num_cat <- function(x) {
 #' @param response.neg used if method='roc', negative response label, if NULL, use all other samples except response.pos
 #' @param auc_best_method 'youden' or 'closest.topleft', used if method='roc'
 #' @return cutpoint
-#' @export
 cutpoint <- function(x, method = "median") {
   assert_that(all(class(x) %in% c("numeric", "integer")),
               msg = "x should be numeric")
@@ -123,7 +122,6 @@ cutpoint <- function(x, method = "median") {
 #' @param label.pos label for 'positive' group, default 'high'
 #' @param label.neg label for 'negative' group, default 'low'
 #' @return binary value
-#' @export
 binarize_num <- function(x,
                          cutpoint,
                          return.binary = F,
@@ -231,7 +229,6 @@ binarize_data <- function(x, datatype = "auto",
 #'
 #' @param data dataframe
 #' @param response response variable
-#' @export
 auc_stats <- function(data, response,
            case, control = NULL, predictor,
            best_method = "youden") {

@@ -15,8 +15,6 @@
 #' @param m2.cat.neg if m2 is categorical variable, the negative values
 #' @param logit.reg add logistic regression curve, no interaction, default TRUE
 #' @param logit.reg.int add logistic regression(with interaction) curve, default FALSE
-
-#'
 #' @return ROC curve, ggplot object
 dm_roc_curve <- function(data,
                    response,

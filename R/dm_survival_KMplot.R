@@ -201,7 +201,6 @@
 #' @param km.pval show pval for KM-plot
 #' @param km.risk.table show risk.table for KM-plot
 #' @param ... other parameter for ggsurvplot
-#' @export
 dm_surv_plot <- function(data, time, event,
                          marker1, marker2,
                          # response if any

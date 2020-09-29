@@ -14,7 +14,6 @@
 #' @param auc statistic AUC, default FALSE
 #'
 #' @return dataframe
-#' @export
 sm_searchM_logit <- function(data, response, response.pos, response.neg=NULL,
                             candidates, confound.factor=NULL,
                             binarize = F,
@@ -55,8 +54,6 @@ sm_searchM_logit <- function(data, response, response.pos, response.neg=NULL,
 #' @param cat.pos positive value(s)
 #' @param cat.neg negative value(s)
 #' @param confound.factor confounding factors
-#'
-#' @export
 sm_searchM_cox <- function(data, time, event,
                             candidates,
                             confound.factor = NULL,
@@ -89,7 +86,6 @@ sm_searchM_cox <- function(data, time, event,
 #'
 #' @param res.searchM result of sm_searchM
 #' @param top.n label top-n
-#' @export
 sm_searchM_topPlot <- function(res.searchM, top.n=20){
   # plot
   res.searchM %>%
