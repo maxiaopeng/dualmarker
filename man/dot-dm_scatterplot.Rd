@@ -15,7 +15,13 @@
   m2.cutpoint,
   size = NULL,
   alpha = NULL,
-  shape = NULL
+  shape = NULL,
+  label.m1 = marker1,
+  label.m2 = marker2,
+  label.response.pos = "pos",
+  label.response.neg = "neg",
+  palette = "default",
+  na.rm.response = T
 )
 }
 \arguments{

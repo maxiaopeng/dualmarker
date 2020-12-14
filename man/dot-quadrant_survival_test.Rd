@@ -4,7 +4,7 @@
 \alias{.quadrant_survival_test}
 \title{quadrant survival test}
 \usage{
-.quadrant_survival_test(data, time, event, marker1, marker2, na.rm = T)
+.quadrant_survival_test(data, time, event, marker1, marker2)
 }
 \arguments{
 \item{data}{dataframe}
@@ -16,8 +16,6 @@
 \item{marker1}{marker1}
 
 \item{marker2}{marker2}
-
-\item{na.rm}{remove NA}
 }
 \description{
 log-rank test to compare each quadrants

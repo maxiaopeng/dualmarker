@@ -4,7 +4,11 @@
 \alias{.quadrant_prop_chart}
 \title{Four quadrant proportional area chart}
 \usage{
-.quadrant_prop_chart(x, test_method = "fisher.test")
+.quadrant_prop_chart(
+  x,
+  test_method = "fisher.test",
+  palette.4quadrant = "default"
+)
 }
 \arguments{
 \item{x}{vector of 4 numbers, for sample numbers of 1st, 2nd, 3rd and 4th quadrant}

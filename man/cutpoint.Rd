@@ -9,7 +9,7 @@ cutpoint(x, method = "median")
 \arguments{
 \item{x}{vector}
 
-\item{method}{median(default), roc, mean, mean+sd, mean-sd, upper-tertile, lower-tertile}
+\item{method}{median(default), mean, mean+sd, mean-sd, upper-tertile, lower-tertile}
 
 \item{response}{used if method='roc'}
 

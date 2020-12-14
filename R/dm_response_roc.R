@@ -27,7 +27,8 @@ dm_roc_curve <- function(data,
                    m2.cat.pos = NULL,
                    m2.cat.neg = NULL,
                    logit.reg = TRUE,
-                   logit.reg.int = FALSE) {
+                   logit.reg.int = FALSE,
+                   palette = "default") {
   data$.response <- binarize_cat(
     x = data[[response]],
     pos = response.pos,
@@ -57,8 +58,8 @@ dm_roc_curve <- function(data,
                    neg = m2.cat.neg,
                    return.binary = T)
   }
-  roc.m1 <- pROC::roc(data$.response, data[[marker1]])
-  roc.m2 <- pROC::roc(data$.response, data[[marker2]])
+  roc.m1 <- pROC::roc(data$.response, data[[marker1]], quiet = TRUE)
+  roc.m2 <- pROC::roc(data$.response, data[[marker2]], quiet = TRUE)
   roc.list <- list(roc.m1, roc.m2) %>%
     setNames(c(str_sub(marker1, end = 40),
                str_sub(marker2, end = 40)))
@@ -68,17 +69,14 @@ dm_roc_curve <- function(data,
   anno <- c(anno.m1, anno.m2)
   # logistic regression
   if (logit.reg) {
-    d <-
-      data %>% tidyr::drop_na(.response,!!sym(marker1),!!sym(marker2))
-    fml.md <-
-      paste0(".response ~ ", marker1, "+", marker2) %>% as.formula()
-    logit.md <-
-      stats::glm(
-        formula = fml.md,
-        data = d,
+    d <-  data %>% tidyr::drop_na(.response,!!sym(marker1),!!sym(marker2))
+    fml.md <- paste0(".response ~ ", marker1, "+", marker2) %>%
+      as.formula()
+    logit.md <- stats::glm(
+        formula = fml.md, data = d,
         family = binomial(link = "logit")
       )
-    roc.md <- pROC::roc(d$.response, fitted(logit.md))
+    roc.md <- pROC::roc(d$.response, fitted(logit.md), quiet = TRUE)
     roc.list$dualmarker <- roc.md
     anno.md <- paste0("dual-marker\n", .summary.auc.ci(roc.md))
     anno <- c(anno, anno.md)
@@ -90,7 +88,7 @@ dm_roc_curve <- function(data,
         data = d,
         family = binomial(link = "logit")
       )
-      roc.mdi <- pROC::roc(d$.response, fitted(logit.mdi))
+      roc.mdi <- pROC::roc(d$.response, fitted(logit.mdi), quiet = TRUE)
       roc.list$dualmarker_int <- roc.mdi
       anno.mdi <- paste0("dual-marker(interaction)\n",
                             .summary.auc.ci(roc.mdi))
@@ -100,19 +98,19 @@ dm_roc_curve <- function(data,
 
   # plot
   g <- pROC::ggroc(roc.list, aes = c("color")) + theme_bw()
-  g <- g + geom_segment(aes(
-    x = 1,
-    xend = 0,
-    y = 0,
-    yend = 1
-  ),
-  color = "grey",
-  linetype = "dashed")
+  g <- g + geom_segment(
+    aes( x = 1, xend = 0, y = 0,yend = 1 ),
+    color = "grey",
+    linetype = "dashed")
 
   # label AUC
-  #g <- g +  annotate("text", x = .25, y = .25,
-  #                    label = paste(anno.m1, anno.m2, sep = "\n"))
-  g +
-    scale_color_discrete(name = "", labels = anno) +
-    theme(legend.position = c(.75, .25))
+  k <- 2
+  if(logit.reg) k <- k + 1
+  if(logit.reg.int) k <- k + 1
+
+  g <- g +
+    theme(legend.position = c(.75, .25)) +
+    scale_color_manual(name = "", labels = anno,
+                       values = ggpubr::get_palette(palette = palette, k=k))
+  g
 }

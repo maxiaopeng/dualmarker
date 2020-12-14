@@ -29,6 +29,7 @@
 #' @importFrom purrr map_dfr
 #' @importFrom purrr map_df
 #' @importFrom purrr map2_df
+#' @importFrom forcats fct_explicit_na
 #' @importFrom broom tidy
 #' @importFrom rlang sym
 #' @importFrom rlang !!
@@ -45,6 +46,8 @@
 #' @importFrom stringr str_sub
 #' @importFrom stringr str_subset
 #' @importFrom survminer ggsurvplot
+#' @importFrom survminer surv_fit
+#' @importFrom survminer ggsurvplot_facet
 #' @importFrom survminer surv_cutpoint
 #' @importFrom survminer surv_pvalue
 #' @importFrom pROC coords
@@ -52,11 +55,14 @@
 #' @importFrom pROC ggroc
 #' @importFrom ggpubr stat_compare_means
 #' @importFrom ggpubr ggarrange
+#' @importFrom ggpubr ggpar
+#' @importFrom ggpubr get_palette
 #' @importFrom glue glue
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom cowplot plot_grid
 #' @importFrom cowplot ggdraw
 #' @importFrom cowplot draw_label
+#' @importFrom CPE phcpe
 #'
 .load_library <- function(){}
 
@@ -79,7 +85,7 @@ datatype_num_cat <- function(x) {
 #'
 #' get cutpoint
 #' @param x vector
-#' @param method median(default), roc, mean, mean+sd, mean-sd, upper-tertile, lower-tertile
+#' @param method median(default), mean, mean+sd, mean-sd, upper-tertile, lower-tertile
 #' @param response used if method='roc'
 #' @param response.pos used if method='roc', positive response label
 #' @param response.neg used if method='roc', negative response label, if NULL, use all other samples except response.pos
@@ -155,10 +161,12 @@ binarize_cat <- function(x,
                          pos,
                          neg = NULL,
                          return.binary = F,
-                         label.pos = "pos",
-                         label.neg = "neg") {
+                         label.pos = NULL,
+                         label.neg = NULL) {
   assert_that(all(class(x) %in% c("factor", "character")), msg = "x should be factor/character")
   assert_that(!all(is.na(x)), msg = " all x is NA, can't be cutted")
+  if(is.null(label.pos)) label.pos <- "pos"
+  if(is.null(label.neg)) label.neg <- "neg"
   if ("factor" %in% class(x)) {
     x <- as.character(x)
   }
@@ -247,7 +255,8 @@ auc_stats <- function(data, response,
     res.roc <- pROC::roc(
       data$.response, data[[predictor]],
       levels = c("control", "case"),
-      ci = T, auc = T,plot = F)
+      ci = T, auc = T,plot = F,
+      quiet = TRUE)
     res.coords <- pROC::coords(
       res.roc,"best",
       ret = c( "threshold", "specificity","sensitivity",
@@ -272,6 +281,12 @@ auc_stats <- function(data, response,
     )
   }
 
+cindex_stats <- function(coxph.fit, method = "CPE", CPE.SE=F, CPE.out.ties = F){
+  CPE::phcpe(coxph.fit,
+             CPE.SE=CPE.SE,
+             out.ties = CPE.out.ties) %>% as_tibble
+}
+
 
 # survfit from data.frame
 .survfit <- function(data, var, time, event) {
@@ -289,13 +304,14 @@ auc_stats <- function(data, response,
 }
 
 # survplot using survminer
-.survplot <- function(survfit, data, km.pval=T, km.risk.table=T, tables.height=0.3, ...) {
+.survplot <- function(survfit, data, km.pval=T, km.risk.table=T, tables.height=0.3, palette="default", ...) {
   g <- survminer::ggsurvplot(survfit,
                         data = data,
                         pval = km.pval,
                         risk.table = km.risk.table,
                         legend = "none",
                         tables.height = tables.height,
+                        palette = palette,
                         ...)
   if(!is.null(g$table)){
     cowplot::plot_grid(g$plot, g$table, nrow=2, rel_heights = c(1, tables.height), align="hv")
@@ -370,4 +386,46 @@ auc_stats <- function(data, response,
                        values_from = ".value", names_sep = sep)
 }
 
+surv_pvalue_facet <- function(data, formula, facet.by,
+                              pval.coord = NULL,
+                              pval.method.coord = NULL)
+{
+  grouped.d <- survminer::surv_group_by(data, grouping.vars = facet.by)
+  sf <- survminer::surv_fit(formula, grouped.d$data)
+  grouped.d <- grouped.d %>% tibble::add_column(fit = sf)
+  pvalue <- survminer::surv_pvalue(grouped.d$fit, grouped.d$data,
+                                   pval.coord = pval.coord,
+                                   pval.method.coord = pval.method.coord) %>%
+    dplyr::bind_rows() %>%
+    tibble::as_tibble()
+  pvals.df <- grouped.d %>%
+    dplyr::select_at(facet.by) %>%
+    dplyr::bind_cols(pvalue) %>% ungroup()
+  pvals.df
+}
 
+
+add_alpha <- function(col, alpha=1){
+  if(missing(col)) stop("Please provide a vector of colors")
+  apply(
+    sapply(col, col2rgb)/255, 2, function(x){
+      rgb(x[1], x[2], x[3], alpha = alpha)
+    })
+}
+
+get_4colors <- function(palette="default", alpha=1){
+  if( is.null(palette) || palette == "default"){
+    out <- c("#E64B35FF","#4DBBD5FF","#3C5488FF","#00A087FF")
+  }else{
+    out <- ggpubr::get_palette( palette = palette, k = 4)
+  }
+  out <- add_alpha(out, alpha)
+  names(out) <- c("R1","R2","R3","R4")
+  out
+}
+
+adjust_pvalue <- function(data, p.col, output.col, method = "BH"){
+  data %>% tibble::add_column(
+    !!sym(output.col) := p.adjust(.[[p.col]], method = method),
+    .after = p.col)
+}

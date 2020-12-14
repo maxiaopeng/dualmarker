@@ -11,12 +11,20 @@
   response,
   response.pos,
   response.neg = NULL,
+  label.response.pos = "pos",
+  label.response.neg = "neg",
   m1.cat.pos,
   m1.cat.neg = NULL,
+  label.m1 = marker1,
+  label.m2 = marker2,
+  label.m1.pos = NULL,
+  label.m1.neg = NULL,
   m2.cutpoint,
   shape = NULL,
   size = NULL,
-  alpha = NULL
+  alpha = NULL,
+  palette = "default",
+  na.rm.response = T
 )
 }
 \arguments{

@@ -6,8 +6,9 @@
 \title{clinical and bimarker data of Imvigor210}
 \format{A data frame with 348 observations on the following 17965 variables:
 \describe{
-  \item{price}{price, in US dollars}
-  \item{carat}{weight of the diamond, in carats}
+  \item{gep_}{gene expressions}
+  \item{gepscore_}{gene signature score}
+  \item{mut_}{gene mutation}
   ...
 }}
 \source{
@@ -17,6 +18,6 @@
 clin_bmk_IMvigor210
 }
 \description{
-A dataset containing the clinical and gene expression variabels
+A dataset containing the clinical and gene expression variables
 }
 \keyword{datasets}

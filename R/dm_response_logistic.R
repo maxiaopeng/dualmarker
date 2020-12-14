@@ -4,7 +4,7 @@
 #'
 #' @param logit.model logistic regression model
 #' @return list of 'coef' and 'summary'
-.summary_logit <- function(logit.model, auc=F){
+.summary_logit <- function(logit.model, auc=T){
   # 1. coef
   coef <- broom::tidy(logit.model)
   glance <- broom::glance(logit.model)
@@ -56,19 +56,17 @@
 #' @param response factor, 2 level, 'neg' and 'pos'
 #' @param marker1 marker1
 #' @param marker2 marker2
-.dm_logit_core <- function(data, response, marker1, marker2, confound.factor=NULL, na.rm=T, auc=F){
+.dm_logit_core <- function(data, response, marker1, marker2, covariates=NULL, auc=T){
   .assert_colname(data, c(response, marker1, marker2))
   assert_that(all(levels(data[[response]]) == c("neg","pos")),
               msg = "response level should be ['neg','pos']")
   data <- data %>% dplyr::rename(.response = !!sym(response),
                                  .m1 = !!sym(marker1),
                                  .m2 = !!sym(marker2))
-  if(na.rm){
-    data %<>% tidyr::drop_na(.response, .m1, .m2)
-  }
+  data %<>% tidyr::drop_na(.response, .m1, .m2)
   str.cf <- ""
-  if(!is.null(confound.factor)){
-    str.cf <- paste0("+",paste(confound.factor, collapse = "+"))
+  if(!is.null(covariates)){
+    str.cf <- paste0("+",paste(covariates, collapse = "+"))
   }
   fml.m0 <- paste0(".response ~ 1", str.cf)
   fml.m1 <- paste0(".response ~ .m1", str.cf)
@@ -81,8 +79,8 @@
   logit.md <- stats::glm(formula = as.formula(fml.md), data = data, family = binomial(link="logit"))
   logit.mdi <- stats::glm(formula = as.formula(fml.mdi), data = data, family = binomial(link="logit"))
   # summary of model
-  summ <- list(m1 = logit.m1, m2 =logit.m2,
-               md =logit.md, mdi = logit.mdi) %>%
+  summ <- list(SM1 = logit.m1, SM2 =logit.m2,
+               DM =logit.md, DMI = logit.mdi) %>%
     map(.f = .summary_logit, auc=auc)
 
   # model
@@ -96,12 +94,12 @@
   pval.m2.vs.md <- anova(logit.m2, logit.md, test ="Chisq")$`Pr(>Chi)`[2]
   pval.m1.vs.mdi <- anova(logit.m1, logit.mdi, test ="Chisq")$`Pr(>Chi)`[2]
   pval.m2.vs.mdi <- anova(logit.m2, logit.mdi, test ="Chisq")$`Pr(>Chi)`[2]
-  cmp.model <- tibble(pval.m1.vs.null = pval.m1.vs.null,
-                     pval.m2.vs.null= pval.m2.vs.null,
-                     pval.m1.vs.md = pval.m1.vs.md,
-                     pval.m2.vs.md = pval.m2.vs.md,
-                     pval.m1.vs.mdi = pval.m1.vs.mdi,
-                     pval.m2.vs.mdi = pval.m2.vs.mdi)
+  cmp.model <- tibble(pval_SM1_vs_NULL = pval.m1.vs.null,
+                     pval_SM2_vs_NULL = pval.m2.vs.null,
+                     pval_SM1_vs_DM = pval.m1.vs.md,
+                     pval_SM2_vs_DM = pval.m2.vs.md,
+                     pval_SM1_vs_DMI = pval.m1.vs.mdi,
+                     pval_SM2_vs_DMI = pval.m2.vs.mdi)
   list(coef = summ.coef, glance = summ.glance, auc = summ.auc, cmp.model = cmp.model)
 }
 
@@ -121,14 +119,13 @@
 #' @param m2.num.cut cut method/value(s) if marker2 is numeric
 #' @param m2.cat.pos positive value(s) if marker2 is categorical
 #' @param m2.cat.neg negative value(s) if marker2 is categorical
-#' @param na.rm remove NA, default TRUE
 #' @return summary of dual marker logistic regression
 dm_logit <- function(data, response, response.pos, response.neg=NULL,
-                     marker1, marker2,confound.factor=NULL,
+                     marker1, marker2, covariates=NULL,
                      m1.binarize, m2.binarize,
                      m1.num.cut = "median", m1.cat.pos = NULL, m1.cat.neg = NULL,
                      m2.num.cut = "median", m2.cat.pos = NULL, m2.cat.neg = NULL,
-                     na.rm=T, auc=F){
+                     auc=T){
   .assert_colname(data, c(marker1, marker2, response))
   # prep .response, .m1, .m2
   data$.response <- binarize_cat(x = data[[response]],
@@ -157,9 +154,8 @@ dm_logit <- function(data, response, response.pos, response.neg=NULL,
   out.logit <- .dm_logit_core(data = data,
                      response = ".response",
                      marker1 = ".m1", marker2 = ".m2",
-                     confound.factor= confound.factor,
-                     auc = auc,
-                     na.rm = na.rm)
+                     covariates= covariates,
+                     auc = auc)
   # extract key logit info
   out.logit.coef <- out.logit$coef %>%
     dplyr::filter(! term %in% "(Intercept)") %>%
@@ -180,28 +176,21 @@ dm_logit <- function(data, response, response.pos, response.neg=NULL,
 
   # basic info
   out.basic <- tibble(response = response,
-                      response.pos = toString(response.pos),
-                      response.neg = toString(response.neg),
-                      m1=marker1, m2 =marker2,
-                      confound.factor = toString(confound.factor),
-                      cutpoint.m1 = cutpoint.m1,
-                      cutpoint.m2 = cutpoint.m2,
-                      m1.cat.pos = toString(m1.cat.pos),
-                      m1.cat.neg = toString(m1.cat.neg),
-                      m2.cat.pos = toString(m2.cat.pos),
-                      m2.cat.neg = toString(m2.cat.neg))
+                      response_pos = toString(response.pos),
+                      response_neg = toString(response.neg),
+                      m1=marker1,
+                      m2 =marker2,
+                      covariates = toString(covariates),
+                      cutpoint_m1 = cutpoint.m1,
+                      cutpoint_m2 = cutpoint.m2,
+                      m1_cat_pos = toString(m1.cat.pos),
+                      m1_cat_neg = toString(m1.cat.neg),
+                      m2_cat_pos = toString(m2.cat.pos),
+                      m2_cat_neg = toString(m2.cat.neg))
   # merge basic and key logit info
-  bind_cols(out.basic, out.logit.key)
+  out <- bind_cols(out.basic, out.logit.key)
+  colnames(out) %<>% str_replace_all("\\.m","m")
+  out
 }
 
-# dm_logit_plot <- function(dm.summ, type = "deviance.diff"){
-#   # explain variablesF
-#   d <- dm.summ %>% dplyr::select(contains(type)) %>%
-#     dplyr::select(-contains("pval")) %>%
-#     tidyr::gather()
-#   d %>%
-#     ggplot(aes(x=key,y = value))+
-#     geom_bar(stat = "identity")+
-#     scale_x_discrete(labels = c(dm.summ$m1,dm.summ$m2, "Dual","Dual_int"))+
-#     labs(y = type, x= "")
-# }
+

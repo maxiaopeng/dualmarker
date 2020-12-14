@@ -20,3 +20,12 @@ test_that("dm survival cox regression", {
                  m2.binarize = F)
   expect_is(res3, "data.frame")
 })
+
+
+test_that("comparing cox model", {
+  coxph.fit1 <- coxph(formula = Surv(os, censOS) ~ mut_ARID1A + gep_CXCL13, data = clin_bmk_IMvigor210)
+  coxph.fit2 <- coxph(formula = Surv(os, censOS) ~ mut_ARID1A * gep_HMGB1, data = clin_bmk_IMvigor210)
+
+  anova(coxph.fit1, coxph.fit2)
+
+})

@@ -4,7 +4,7 @@
 \alias{.sm_cox_core}
 \title{dm_cox_core}
 \usage{
-.sm_cox_core(data, time, event, marker, confound.factor = NULL, na.rm = T)
+.sm_cox_core(data, time, event, marker, covariates = NULL)
 }
 \arguments{
 \item{data}{dataframe}
@@ -15,9 +15,7 @@
 
 \item{marker}{marker}
 
-\item{confound.factor}{confound.factor}
-
-\item{na.rm}{remove NA}
+\item{covariates}{covariates}
 }
 \value{
 stats

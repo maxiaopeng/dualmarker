@@ -4,7 +4,7 @@
 \alias{.quadrant_matrix_chart}
 \title{Quadrant Matrix Chart}
 \usage{
-.quadrant_matrix_chart(x, n)
+.quadrant_matrix_chart(x, n, palette.4quadrant = "default")
 }
 \arguments{
 \item{x}{positive counts in 1st, 2nd, 3rd and 4th quadrant}

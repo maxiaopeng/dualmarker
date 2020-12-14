@@ -9,12 +9,11 @@ sm_cox(
   time,
   event,
   marker,
-  confound.factor = NULL,
+  covariates = NULL,
   binarize = F,
   num.cut = "none",
   cat.pos = NULL,
-  cat.neg = NULL,
-  na.rm = T
+  cat.neg = NULL
 )
 }
 \arguments{
@@ -26,7 +25,7 @@ sm_cox(
 
 \item{marker}{marker}
 
-\item{confound.factor}{confounding factors}
+\item{covariates}{confounding factors}
 
 \item{binarize}{binarize}
 
@@ -35,8 +34,6 @@ sm_cox(
 \item{cat.pos}{positive value(s) if marker is categorical}
 
 \item{cat.neg}{negative value(s) if marker is categorical}
-
-\item{na.rm}{remove NA}
 }
 \value{
 summary of cox model

@@ -12,12 +12,20 @@ dm_survival_4quad_chart(
   marker2,
   m1.datatype = "auto",
   m1.num.cut = "median",
+  label.m1 = marker1,
   m1.cat.pos = NULL,
   m1.cat.neg = NULL,
+  label.m1.pos = NULL,
+  label.m1.neg = NULL,
+  label.m2 = marker2,
   m2.datatype = "auto",
   m2.num.cut = "median",
+  label.m2.pos = NULL,
+  label.m2.neg = NULL,
   m2.cat.pos = NULL,
-  m2.cat.neg = NULL
+  m2.cat.neg = NULL,
+  palette.4quadrant = "default",
+  title = ""
 )
 }
 \arguments{

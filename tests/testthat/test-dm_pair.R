@@ -12,7 +12,8 @@ test_that("dm_pair works", {
     response.neg="SD/PD",
     marker1 = "TMB",
     marker2 = "gepscore_TGFb.19gene",
-    m1.num.cut = "median", m2.num.cut = "median",
+    m1.num.cut = "median",
+    m2.num.cut = "median",
     time = "os",
     event = "censOS")
   expect_length(res, 4)
@@ -70,6 +71,51 @@ test_that("mut_ARD1A + IC.level", {
     time = "os",
     event = "censOS")
 
+  expect_length(res, 4)
+  if(F){
+    (ofile <- tempfile(pattern = "", fileext = ".pdf"))
+    pdf(ofile)
+    purrr::walk(res$response.plot, print)
+    purrr::walk(res$survival.plot, print)
+    dev.off()
+  }
+})
+
+#######################
+### mut_ARID1A + mut_TP53
+######################
+test_that("mut_ARID1A + mut_TP53", {
+  res <- dm_pair(
+    data = clin_bmk_IMvigor210,
+    # response
+    response = "binaryResponse",
+    response.pos = "CR/PR",
+    response.neg = "SD/PD",
+    label.response.pos = "R",
+    label.response.neg = "NR",
+    # survival info
+    time = "os",
+    event = "censOS",
+    # marker1
+    marker1 = "mut_ARID1A",
+    m1.cat.pos = "YES",
+    m1.cat.neg = "NO",
+    label.m1 = "ARID1A-mut",
+    label.m1.pos = "MUT",
+    label.m1.neg = "WT",
+    # marker2
+    marker2 = "mut_TP53",
+    m2.cat.pos =  "YES",
+    m2.cat.neg = "NO",
+    label.m2.pos = "MUT",
+    label.m2.neg = "WT",
+    label.m2 = "TP53-mut",
+    # palette
+    palette.other =  "lancet",
+    palette.4quadrant = "lancet",
+    # na.rm
+    na.rm.response = F
+  )
   expect_length(res, 4)
   if(F){
     (ofile <- tempfile(pattern = "", fileext = ".pdf"))

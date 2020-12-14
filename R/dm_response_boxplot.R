@@ -2,10 +2,10 @@
 ## boxplot
 #############
 .sm_boxplot <- function(data, response, marker, title = "", ...){
-  ggplot(data, aes_string( x = response, y = marker, fill = response))+
-    geom_boxplot(outlier.shape = "")+
-    geom_jitter(width = 0.2)+
-    stat_compare_means(...)+
+  ggplot(data, aes_string( x = response, y = marker, color = response))+
+    geom_boxplot(outlier.shape = "", na.rm=T)+
+    geom_jitter(width = 0.2, alpha = 0.5, na.rm=T)+
+    stat_compare_means(na.rm=T, ...)+
     theme_bw()+
     labs(title = title)
 }
@@ -52,46 +52,109 @@
 #' @param m2.cat.neg negative value(s) for marker2 if marker2 is categorical, e.g. "WT"
 #'
 #' @return panel of two ggplot object
-dm_response_boxplot <- function(data, response, response.pos, response.neg=NULL,
-                       marker1, marker2,
-                       m1.datatype = "auto", m1.cat.pos = NULL, m1.cat.neg =NULL,
-                       m2.datatype = "auto", m2.cat.pos = NULL, m2.cat.neg =NULL){
+dm_response_boxplot <- function(data,
+                                response,
+                                response.pos,
+                                response.neg=NULL,
+                                marker1,
+                                marker2,
+                                m1.datatype = "auto",
+                                m1.cat.pos = NULL,
+                                m1.cat.neg =NULL,
+                                m2.datatype = "auto",
+                                m2.cat.pos = NULL,
+                                m2.cat.neg =NULL,
+                                label.m1 = marker1,
+                                label.m2 = marker2,
+                                palette = "default",
+                                label.response.pos = "pos",
+                                label.response.neg = "neg",
+                                label.m1.pos = "pos",
+                                label.m1.neg = "neg",
+                                label.m2.pos = "pos",
+                                label.m2.neg = "neg",
+                                na.rm.response=T,
+                                na.rm.marker = T){
+  assertthat::assert_that(m1.datatype %in% c("auto","num","cat"),
+                          msg = "m1.datatype should be ['auto','num','cat']")
+  assertthat::assert_that(m2.datatype %in% c("auto","num","cat"),
+                          msg = "m2.datatype should be ['auto','num','cat']")
   if(m1.datatype == "auto"){
-    m1.datatype <- datatype_num_cat(data[[marker1]])}
+    m1.datatype <- datatype_num_cat(data[[marker1]])
+    }
   if(m2.datatype == "auto"){
-    m2.datatype <- datatype_num_cat(data[[marker2]])}
-  data$.response <- binarize_cat(as.character(data[[response]]),
-                                pos = response.pos,
-                                neg = response.neg) %>%
-    factor(levels = c("pos","neg"))
-  data %<>% drop_na(.response)
+    m2.datatype <- datatype_num_cat(data[[marker2]])
+    }
+  data$.response <- binarize_cat(
+    x = as.character(data[[response]]),
+    pos = response.pos,
+    neg = response.neg,
+    label.pos = label.response.pos,
+    label.neg = label.response.neg) %>%
+    factor(levels = c(label.response.pos,label.response.neg))
+  if(na.rm.response){
+    data %<>% tidyr::drop_na(.response)
+  }else{
+    data$.response %<>% forcats::fct_explicit_na(na_level = "NA")
+  }
+
   if(m1.datatype == "num"){
-    g1 <- .sm_boxplot(data = data, response = ".response",
-                      marker = marker1, title = paste0("Marker1:", marker1))+
-      theme(legend.position = "none")
+    g1 <- .sm_boxplot(data = data,
+                      response = ".response",
+                      marker = marker1,
+                      title = paste0("Marker1: ", label.m1))+
+      theme(legend.position = "none") +
+      labs(y = label.m1) +
+      theme (plot.title = element_text (face = "bold"))
   }else{
     data$.m1 <- binarize_cat( x = as.character(data[[marker1]]),
-                              pos = m1.cat.pos, neg = m1.cat.neg) %>%
-      factor(levels = c("pos","neg"))
-    g1 <- .sm_barplot(data = data, response = ".response", marker = ".m1",
-                      title = paste0("Marker1:", marker1))+
-      theme(legend.position = "none")
+                              pos = m1.cat.pos, neg = m1.cat.neg,
+                              label.pos = label.m1.pos,
+                              label.neg = label.m1.neg) %>%
+      factor(levels = c(label.m1.pos, label.m1.neg))
+    if(!na.rm.marker){
+      data$.m1 %<>% forcats::fct_explicit_na(na_level = "NA")
+    }
+    g1 <- .sm_barplot(data = data %>% dplyr::filter(!is.na(.m1)),
+                      response = ".response",
+                      marker = ".m1",
+                      title = paste0("Marker1: ", label.m1))+
+      theme(legend.position = "none")+
+      labs(x = label.m1) +
+      theme (plot.title = element_text (face = "bold"))
   }
   if(m2.datatype == "num"){
-    g2 <- .sm_boxplot(data = data, response = ".response", marker = marker2,
-                      title = paste0("Marker2:", marker2))+
-      theme(legend.position = "none")
+    #print(label.m2)
+    g2 <- .sm_boxplot(data = data,
+                      response = ".response", marker = marker2,
+                      title = paste0("Marker2: ", label.m2))+
+      theme(legend.position = "none") +
+      labs(y = label.m2) +
+      theme (plot.title = element_text (face = "bold"))
+
   }else{
     data$.m2 <- binarize_cat( x = as.character(data[[marker2]]),
-                              pos = m2.cat.pos, neg = m2.cat.neg) %>%
-      factor(levels = c("pos","neg"))
-    g2 <- .sm_barplot(data = data, response = ".response", marker = ".m2",
-                      title = paste0("Marker2:", marker2))+
-      theme(legend.position = "none")
+                              pos = m2.cat.pos, neg = m2.cat.neg,
+                              label.pos = label.m2.pos,
+                              label.neg = label.m2.neg) %>%
+      factor(levels = c(label.m2.pos,label.m2.neg))
+    if(!na.rm.marker){
+      data$.m2 %<>% forcats::fct_explicit_na(na_level = "NA")
+    }
+    g2 <- .sm_barplot(data = data %>% dplyr::filter(!is.na(.m2)),
+                      response = ".response",
+                      marker = ".m2",
+                      title = paste0("Marker2: ", label.m2))+
+      theme(legend.position = "none") +
+      labs(x = label.m2) +
+      theme (plot.title = element_text (face = "bold"))
   }
-  cowplot::plot_grid(g1,g2, align = "h", axis = "l", ncol = 2
-                     #labels= list(paste0("marker1:", marker1), paste0("marker2:", marker2))
-                     )
+  ggpubr::ggarrange(
+    ggpubr::ggpar(g1, palette = palette),
+    ggpubr::ggpar(g2, palette = palette),
+    align = "hv",
+    ncol = 2,
+    legend = "right", common.legend = T)
 }
 
 

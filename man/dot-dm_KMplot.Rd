@@ -13,16 +13,20 @@
   m1.num.cut = "median",
   m1.cat.pos = NULL,
   m1.cat.neg = NULL,
-  m1.label.pos = NULL,
-  m1.label.neg = NULL,
+  label.m1 = marker1,
+  label.m1.pos = NULL,
+  label.m1.neg = NULL,
   m2.num.cut = "median",
   m2.cat.pos = NULL,
   m2.cat.neg = NULL,
-  m2.label.pos = NULL,
-  m2.label.neg = NULL,
-  na.rm = T,
+  label.m2 = marker2,
+  label.m2.pos = NULL,
+  label.m2.neg = NULL,
   km.pval = T,
   km.risk.table = T,
+  palette = "default",
+  palette.4quadrant = "default",
+  na.rm.marker = T,
   ...
 )
 }
@@ -43,25 +47,23 @@
 
 \item{m1.cat.neg}{negative value(s) of marker1 if marker1 is categorical}
 
-\item{m1.label.pos}{label for positive response of marker1}
-
-\item{m1.label.neg}{label for negative response of marker1}
-
 \item{m2.num.cut}{cut method for m2}
 
 \item{m2.cat.pos}{positive value(s) of marker2 if marker2 is categorical}
 
 \item{m2.cat.neg}{positive value(s) of marker2 if marker2 is categorical}
 
+\item{m1.datatype}{datatype of marker1}
+
+\item{m1.label.pos}{label for positive response of marker1}
+
+\item{m1.label.neg}{label for negative response of marker1}
+
+\item{m2.datatype}{datatype of marker2}
+
 \item{m2.label.pos}{label for positive response of marker2}
 
 \item{m2.label.neg}{label for positive response of marker2}
-
-\item{na.rm}{remove NA}
-
-\item{m1.datatype}{datatype of marker1}
-
-\item{m2.datatype}{datatype of marker2}
 }
 \description{
 KM plot for dual marker

@@ -4,23 +4,20 @@
 #' @param data data frame
 #' @param response response variable
 #' @param marker  marker
-#' @param confound.factor confound.factor
-#' @param na.rm remove NA
+#' @param covariates covariates
 #'
 #' @return summary of logit model
 #'
-.sm_logit_core <- function(data, response, marker, confound.factor=NULL, na.rm=T, auc=F){
+.sm_logit_core <- function(data, response, marker, covariates=NULL, auc=F){
   .assert_colname(data, c(response, marker))
   assert_that(all(levels(data[[response]]) == c("neg","pos")),
               msg = "response level should be ['neg','pos']")
   data <- data %>% dplyr::rename(.response = !!sym(response),
                                  .m = !!sym(marker))
-  if(na.rm){
-    data %<>% tidyr::drop_na(.response, .m)
-  }
+  data %<>% tidyr::drop_na(.response, .m)
   str.cf <- ""
-  if(!is.null(confound.factor)){
-    str.cf <- paste0("+",paste(confound.factor, collapse = "+"))
+  if(!is.null(covariates)){
+    str.cf <- paste0("+",paste(covariates, collapse = "+"))
   }
   fml.m <- paste0(".response ~ .m", str.cf)
   logit.m <- stats::glm(formula = as.formula(fml.m),
@@ -35,20 +32,19 @@
 #' @param response.pos positive values for response
 #' @param response.neg negative values for response
 #' @param marker marker
-#' @param confound.factor confonding factor
+#' @param covariates confonding factor
 #' @param binarize binarize for marker, default FALSE
 #' @param num.cut  cut method/value for numeric marker
 #' @param cat.pos positive values for marker if marker is categorical
 #' @param cat.neg negative values for marker if marker is categorical
-#' @param na.rm remove NA
 #'
 #' @return
 sm_logit <- function(data, response, response.pos, response.neg=NULL,
-                              marker, confound.factor=NULL,
+                              marker, covariates=NULL,
                               binarize = F,
                               num.cut = "none",
                               cat.pos = NULL, cat.neg = NULL,
-                              na.rm=T, auc=F){
+                              auc=F){
   .assert_colname(data, c(response, marker))
   # prep .response, .m1, .m2
   data$.response <- binarize_cat(x = data[[response]],
@@ -68,8 +64,8 @@ sm_logit <- function(data, response, response.pos, response.neg=NULL,
   out.logit <- .sm_logit_core(data = data,
                               response = ".response",
                               marker = ".m",
-                              confound.factor= confound.factor,
-                              na.rm = na.rm, auc=auc)
+                              covariates= covariates,
+                              auc=auc)
   # extract key logit info
   out.logit.coef <- out.logit$coef %>%
     dplyr::filter( term %in% ".m") %>%
@@ -86,13 +82,13 @@ sm_logit <- function(data, response, response.pos, response.neg=NULL,
 
   # basic info
   out.basic <- tibble(response = response,
-                      response.pos = toString(response.pos),
-                      response.neg = toString(response.neg),
+                      response_pos = toString(response.pos),
+                      response_neg = toString(response.neg),
                       marker=marker,
-                      confound.factor = toString(confound.factor),
+                      covariates = toString(covariates),
                       cutpoint = cutpoint,
-                      cat.pos = toString(cat.pos),
-                      cat.neg = toString(cat.neg))
+                      cat_pos = toString(cat.pos),
+                      cat_neg = toString(cat.neg))
   # merge basic and key logit info
   bind_cols(out.basic, out.logit.key)
 }

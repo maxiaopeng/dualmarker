@@ -4,7 +4,17 @@
 \alias{.quadrant_interact_chart}
 \title{Quadrant Interaction Chart}
 \usage{
-.quadrant_interact_chart(x, n)
+.quadrant_interact_chart(
+  x,
+  n,
+  label.m1.pos = "pos",
+  label.m1.neg = "neg",
+  label.m2.pos = "pos",
+  label.m2.neg = "neg",
+  label.m1 = "Marker1",
+  label.m2 = "Marker2",
+  palette.4quadrant = "default"
+)
 }
 \arguments{
 \item{x}{positive counts in 1st, 2nd, 3rd and 4th quadrant}

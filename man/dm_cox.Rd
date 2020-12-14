@@ -10,16 +10,16 @@ dm_cox(
   event,
   marker1,
   marker2,
-  confound.factor = NULL,
-  m1.binarize,
-  m2.binarize,
+  covariates = NULL,
+  m1.binarize = F,
+  m2.binarize = F,
   m1.num.cut = "median",
   m1.cat.pos = NULL,
   m1.cat.neg = NULL,
   m2.num.cut = "median",
   m2.cat.pos = NULL,
   m2.cat.neg = NULL,
-  na.rm = T
+  cindex = T
 )
 }
 \arguments{
@@ -33,7 +33,7 @@ dm_cox(
 
 \item{marker2}{marker2}
 
-\item{confound.factor}{coufounding factors}
+\item{covariates}{covariates}
 
 \item{m1.binarize}{binarize m1, default FALSE}
 
@@ -50,8 +50,6 @@ dm_cox(
 \item{m2.cat.pos}{positive value(s) of marker2 if it is categorical}
 
 \item{m2.cat.neg}{negative value(s) of marker2 if it is categorical}
-
-\item{na.rm}{remove NA}
 }
 \value{
 summary of cox model

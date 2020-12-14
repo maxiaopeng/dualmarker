@@ -4,14 +4,17 @@
 \alias{dm_searchM2_topPlot}
 \title{plot search M2 result}
 \usage{
-dm_searchM2_topPlot(res_searchM2, top.n = 30, pval_threh = 0.01)
+dm_searchM2_topPlot(
+  res.searchM2,
+  top.n = 30,
+  show.padj = F,
+  line.sig = c(0.01, 0.05)
+)
 }
 \arguments{
-\item{res_searchM2}{result of search M2}
+\item{res.searchM2}{result of search M2}
 
-\item{pval_threh}{pvalue threhold}
-
-\item{max_n}{max M2s to show}
+\item{top.n}{top-N}
 }
 \value{
 an ggplot object

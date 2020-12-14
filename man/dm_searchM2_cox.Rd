@@ -10,16 +10,16 @@ dm_searchM2_cox(
   event,
   marker1,
   m2.candidates,
-  confound.factor = NULL,
-  m1.binarize,
-  m2.binarize,
+  covariates = NULL,
+  m1.binarize = F,
+  m2.binarize = F,
   m1.num.cut = "median",
   m1.cat.pos = NULL,
   m1.cat.neg = NULL,
   m2.num.cut = "median",
   m2.cat.pos = NULL,
   m2.cat.neg = NULL,
-  na.rm = T
+  p.adjust.method = "BH"
 )
 }
 \arguments{
@@ -33,7 +33,7 @@ dm_searchM2_cox(
 
 \item{m2.candidates}{marker2 candidates}
 
-\item{confound.factor}{confounding factor}
+\item{covariates}{confounding factor}
 
 \item{m1.binarize}{binarize marker1, default FALSE}
 
@@ -50,8 +50,6 @@ dm_searchM2_cox(
 \item{m2.cat.pos}{positive value for categorical marker2}
 
 \item{m2.cat.neg}{negative value for categorical marker2}
-
-\item{na.rm}{remove na, default TRUE}
 }
 \description{
 search M2 to combine with M1 using Cox model

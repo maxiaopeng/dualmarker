@@ -4,7 +4,7 @@
 \alias{.dm_reponse_4quad_core}
 \title{four quadrant analysis for response(core)}
 \usage{
-.dm_reponse_4quad_core(data, response, marker1, marker2, na.rm = T)
+.dm_reponse_4quad_core(data, response, marker1, marker2)
 }
 \arguments{
 \item{data}{data frame}

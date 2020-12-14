@@ -4,7 +4,7 @@
 \alias{.summary_cox}
 \title{summary of cox model}
 \usage{
-.summary_cox(cox.model)
+.summary_cox(cox.model, cindex = T)
 }
 \arguments{
 \item{cox.model}{cox model}

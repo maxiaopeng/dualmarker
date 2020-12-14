@@ -16,7 +16,8 @@ dm_roc_curve(
   m2.cat.pos = NULL,
   m2.cat.neg = NULL,
   logit.reg = TRUE,
-  logit.reg.int = FALSE
+  logit.reg.int = FALSE,
+  palette = "default"
 )
 }
 \arguments{

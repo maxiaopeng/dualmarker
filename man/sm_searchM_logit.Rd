@@ -10,12 +10,11 @@ sm_searchM_logit(
   response.pos,
   response.neg = NULL,
   candidates,
-  confound.factor = NULL,
+  covariates = NULL,
   binarize = F,
   num.cut = "none",
   cat.pos = NULL,
   cat.neg = NULL,
-  na.rm = T,
   auc = F
 )
 }
@@ -30,7 +29,7 @@ sm_searchM_logit(
 
 \item{candidates}{candidate markers}
 
-\item{confound.factor}{confounding factors}
+\item{covariates}{confounding factors}
 
 \item{binarize}{to binarize marker, default FALSE}
 
@@ -39,8 +38,6 @@ sm_searchM_logit(
 \item{cat.pos}{positive values for marker if marker is categorical}
 
 \item{cat.neg}{negative values for marker if marker is categorical}
-
-\item{na.rm}{remove NA, default TRUE}
 
 \item{auc}{statistic AUC, default FALSE}
 }

@@ -4,7 +4,19 @@
 \alias{dm_response_4quad_chart}
 \title{Quadrant response chart}
 \usage{
-dm_response_4quad_chart(x, n, title = "")
+dm_response_4quad_chart(
+  x,
+  n,
+  title = "",
+  label.m1.pos = "pos",
+  label.m1.neg = "neg",
+  label.m2.pos = "pos",
+  label.m2.neg = "neg",
+  label.m1 = "Marker1",
+  label.m2 = "Marker2",
+  palette = "default",
+  palette.4quadrant = "default"
+)
 }
 \arguments{
 \item{x}{positive number in 1st,2nd,3rd and 4th quadrant}

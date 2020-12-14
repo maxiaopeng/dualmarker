@@ -10,15 +10,24 @@
   event,
   marker1,
   marker2,
+  label.m1 = marker1,
+  label.m2 = marker2,
   response = NULL,
   response.pos = NULL,
   response.neg = NULL,
+  label.response.pos = "pos",
+  label.response.neg = "neg",
   m1.num.cut = "median",
   m1.cat.pos = NULL,
   m1.cat.neg = NULL,
+  label.m1.pos = NULL,
+  label.m1.neg = NULL,
   m2.num.cut = "median",
   m2.cat.pos = NULL,
-  m2.cat.neg = NULL
+  m2.cat.neg = NULL,
+  label.m2.pos = NULL,
+  label.m2.neg = NULL,
+  palette = "default"
 )
 }
 \arguments{

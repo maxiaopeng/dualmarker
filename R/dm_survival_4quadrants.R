@@ -61,12 +61,9 @@
 #' @param event survival event
 #' @param marker1 marker1
 #' @param marker2 marker2
-#' @param na.rm remove NA
-.quadrant_survival_test <- function(data, time, event, marker1, marker2, na.rm=T){
+.quadrant_survival_test <- function(data, time, event, marker1, marker2){
   # prep data
-  if(na.rm){
-    data %<>% drop_na(!!sym(marker1), !!sym(marker2))
-  }
+  data %<>% drop_na(!!sym(marker1), !!sym(marker2))
   data$.quadrant <- .label_quadrant(data[[marker1]], data[[marker2]])
   pairs <- list("R1_vs_R4" = c("R1", "R4"),
                 "R2_vs_R3" = c("R2","R3"),
@@ -130,26 +127,32 @@ dm_survival_4quad <- function(data, time, event,
                               marker1, marker2,
                               m1.datatype = "auto",
                               m1.num.cut = "median", m1.cat.pos = NULL, m1.cat.neg = NULL,
+                              label.m1.pos = NULL, label.m1.neg= NULL,
                               m2.datatype = "auto",
-                              m2.num.cut = "median", m2.cat.pos = NULL, m2.cat.neg = NULL){
+                              m2.num.cut = "median", m2.cat.pos = NULL, m2.cat.neg = NULL,
+                              label.m2.pos = NULL, label.m2.neg= NULL){
   # prep .m1
   res <- binarize_data(x = data[[marker1]],
                        datatype = m1.datatype,
                        num.cut = m1.num.cut,
-                       cat.pos = m1.cat.pos, cat.neg = m1.cat.neg)
+                       cat.pos = m1.cat.pos, cat.neg = m1.cat.neg,
+                       label.pos = label.m1.pos,
+                       label.neg = label.m1.neg)
   data$.m1 <- res$data
   cutpoint.m1 <- res$cutpoint
   if(m1.datatype=="auto"){m1.datatype <- datatype_num_cat(data[[marker1]])}
   # prep .m2
   res <- binarize_data(x = data[[marker2]], datatype = m2.datatype,
                        num.cut = m2.num.cut,
-                       cat.pos = m2.cat.pos, cat.neg = m2.cat.neg)
+                       cat.pos = m2.cat.pos, cat.neg = m2.cat.neg,
+                       label.pos = label.m2.pos,
+                       label.neg = label.m2.neg)
   if(m2.datatype=="auto"){m2.datatype <- datatype_num_cat(data[[marker2]])}
   data$.m2 <- res$data
   cutpoint.m2 <- res$cutpoint
   # run 4quadrant analysis
   out <- .dm_survival_4quad_core(data = data, time = time,
-                                     event = event, marker1=".m1", marker2=".m2")
+                                event = event, marker1=".m1", marker2=".m2")
   #out$data <- data
   out$param <- tibble(
     time = time, event = event,

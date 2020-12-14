@@ -12,9 +12,12 @@
   marker2,
   label.m1 = marker1,
   label.m2 = marker2,
-  na.rm = T,
   km.pval = T,
   km.risk.table = T,
+  palette = "default",
+  palette.4quadrant = "default",
+  p.adjust.method = "bonferroni",
+  na.rm.marker = T,
   ...
 )
 }
@@ -32,8 +35,6 @@
 \item{label.m1}{label for marker1}
 
 \item{label.m2}{label for marker2}
-
-\item{na.rm}{remove NA}
 }
 \value{
 list of ggplot object, for marker1, marker2 and dualmarker

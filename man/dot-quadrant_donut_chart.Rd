@@ -4,7 +4,15 @@
 \alias{.quadrant_donut_chart}
 \title{Quadrant doughnut chart}
 \usage{
-.quadrant_donut_chart(x, n)
+.quadrant_donut_chart(
+  x,
+  n,
+  label.m1.pos = "pos",
+  label.m1.neg = "neg",
+  label.m2.pos = "pos",
+  label.m2.neg = "neg",
+  palette = "default"
+)
 }
 \arguments{
 \item{x}{positive counts in 1st, 2nd, 3rd and 4th quadrant}

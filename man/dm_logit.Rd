@@ -11,7 +11,7 @@ dm_logit(
   response.neg = NULL,
   marker1,
   marker2,
-  confound.factor = NULL,
+  covariates = NULL,
   m1.binarize,
   m2.binarize,
   m1.num.cut = "median",
@@ -20,7 +20,6 @@ dm_logit(
   m2.num.cut = "median",
   m2.cat.pos = NULL,
   m2.cat.neg = NULL,
-  na.rm = T,
   auc = F
 )
 }
@@ -48,8 +47,6 @@ dm_logit(
 \item{m2.cat.pos}{positive value(s) if marker2 is categorical}
 
 \item{m2.cat.neg}{negative value(s) if marker2 is categorical}
-
-\item{na.rm}{remove NA, default TRUE}
 }
 \value{
 summary of dual marker logistic regression

@@ -9,12 +9,11 @@ sm_searchM_cox(
   time,
   event,
   candidates,
-  confound.factor = NULL,
+  covariates = NULL,
   binarize = F,
   num.cut = "none",
   cat.pos = NULL,
-  cat.neg = NULL,
-  na.rm = T
+  cat.neg = NULL
 )
 }
 \arguments{
@@ -26,7 +25,7 @@ sm_searchM_cox(
 
 \item{candidates}{candidates markers}
 
-\item{confound.factor}{confounding factors}
+\item{covariates}{confounding factors}
 
 \item{binarize}{to binarize the data}
 
@@ -35,8 +34,6 @@ sm_searchM_cox(
 \item{cat.pos}{positive value(s)}
 
 \item{cat.neg}{negative value(s)}
-
-\item{na.rm}{remove na, default TRUE}
 }
 \description{
 search marker using Cox model

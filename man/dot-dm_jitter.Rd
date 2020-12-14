@@ -11,13 +11,23 @@
   response,
   response.pos,
   response.neg = NULL,
+  label.response.pos = "pos",
+  label.response.neg = "neg",
   m1.cat.pos,
   m1.cat.neg = NULL,
+  label.m1.pos = "pos",
+  label.m1.neg = "neg",
+  label.m1 = marker1,
   m2.cat.pos,
   m2.cat.neg = NULL,
+  label.m2.pos = "pos",
+  label.m2.neg = "neg",
+  label.m2 = marker2,
   size = NULL,
   shape = NULL,
-  alpha = NULL
+  alpha = NULL,
+  palette = "default",
+  na.rm.response = T
 )
 }
 \arguments{

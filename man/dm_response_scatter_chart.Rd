@@ -14,12 +14,22 @@ dm_response_scatter_chart(
   m1.num.cut = "median",
   m1.cat.pos = NULL,
   m1.cat.neg = NULL,
+  label.m1.pos = NULL,
+  label.m1.neg = NULL,
   m2.num.cut = "median",
   m2.cat.pos = NULL,
   m2.cat.neg = NULL,
+  label.m2.pos = NULL,
+  label.m2.neg = NULL,
+  label.m1 = marker1,
+  label.m2 = marker2,
+  palette = "default",
+  label.response.pos = "pos",
+  label.response.neg = "neg",
   size = NULL,
   alpha = NULL,
-  shape = NULL
+  shape = NULL,
+  na.rm.response = T
 )
 }
 \arguments{

@@ -10,8 +10,8 @@
   event,
   marker1,
   marker2,
-  confound.factor = NULL,
-  na.rm = T
+  covariates = NULL,
+  cindex = T
 )
 }
 \arguments{

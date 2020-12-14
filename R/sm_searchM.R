@@ -5,20 +5,19 @@
 #' @param response.pos positive values for response
 #' @param response.neg negative values for response
 #' @param candidates candidate markers
-#' @param confound.factor confounding factors
+#' @param covariates confounding factors
 #' @param binarize to binarize marker, default FALSE
 #' @param num.cut cut method/values for numeric variable
 #' @param cat.pos positive values for marker if marker is categorical
 #' @param cat.neg negative values for marker if marker is categorical
-#' @param na.rm remove NA, default TRUE
 #' @param auc statistic AUC, default FALSE
 #'
 #' @return dataframe
 sm_searchM_logit <- function(data, response, response.pos, response.neg=NULL,
-                            candidates, confound.factor=NULL,
+                            candidates, covariates=NULL,
                             binarize = F,
                             num.cut = "none", cat.pos = NULL, cat.neg = NULL,
-                            na.rm=T, auc=F){
+                            auc=F){
   .assert_colname(data, c(response))
   candidates <- base::intersect(candidates, colnames(data))
   assert_that(length(candidates)>0, msg = "target features don't exist")
@@ -31,10 +30,10 @@ sm_searchM_logit <- function(data, response, response.pos, response.neg=NULL,
               response.pos = response.pos,
               response.neg = response.neg,
               marker = .x,
-              confound.factor= confound.factor,
+              covariates= covariates,
               binarize = binarize,
               num.cut = num.cut, cat.pos = cat.pos, cat.neg = cat.neg,
-              na.rm=na.rm, auc=auc)
+               auc=auc)
     }, silent = T)
   }) %>% purrr::discard(.p = ~is(.x, "try-error"))
   assert_that(length(res)>0, msg = "fail to search_logit")
@@ -48,20 +47,18 @@ sm_searchM_logit <- function(data, response, response.pos, response.neg=NULL,
 #' @param time survival time
 #' @param event survival event
 #' @param num.cut cut method/value for numeric variable
-#' @param na.rm remove na, default TRUE
 #' @param candidates candidates markers
 #' @param binarize to binarize the data
 #' @param cat.pos positive value(s)
 #' @param cat.neg negative value(s)
-#' @param confound.factor confounding factors
+#' @param covariates confounding factors
 sm_searchM_cox <- function(data, time, event,
                             candidates,
-                            confound.factor = NULL,
+                            covariates = NULL,
                             binarize=F,
                             num.cut = "none",
-                            cat.pos=NULL, cat.neg=NULL,
-                            na.rm=T){
-  .assert_colname(data, c(time, event, confound.factor))
+                            cat.pos=NULL, cat.neg=NULL){
+  .assert_colname(data, c(time, event, covariates))
   candidates <- base::intersect(candidates, colnames(data))
   assert_that(length(candidates)>0, msg = "features don't exist")
   pb <- dplyr::progress_estimated(length(candidates))
@@ -72,10 +69,9 @@ sm_searchM_cox <- function(data, time, event,
              time = time,
              event = event,
              marker = .x,
-             confound.factor = confound.factor,
+             covariates = covariates,
              binarize = binarize,
-             num.cut = num.cut, cat.pos = cat.pos, cat.neg = cat.neg,
-             na.rm=na.rm)
+             num.cut = num.cut, cat.pos = cat.pos, cat.neg = cat.neg)
     }, silent = T)
   }) %>% purrr::discard(.p =  ~ is(.x, "try-error"))
   assert_that(length(res)>0, msg = "fail to sm_searchM_cox")
@@ -90,7 +86,7 @@ sm_searchM_topPlot <- function(res.searchM, top.n=20){
   # plot
   res.searchM %>%
     ggplot(aes(x = .m_estimate,y = -log10(.m_p.value)))+
-    geom_point() +
+    geom_point(na.rm=T) +
     ggrepel::geom_text_repel(
       aes(label = marker),
       data = res.searchM %>% dplyr::top_n(n=top.n, w = - .m_p.value)

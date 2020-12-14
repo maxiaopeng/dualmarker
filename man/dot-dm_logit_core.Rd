@@ -4,15 +4,7 @@
 \alias{.dm_logit_core}
 \title{dual marker analysis for logistic regression(core)}
 \usage{
-.dm_logit_core(
-  data,
-  response,
-  marker1,
-  marker2,
-  confound.factor = NULL,
-  na.rm = T,
-  auc = F
-)
+.dm_logit_core(data, response, marker1, marker2, covariates = NULL, auc = T)
 }
 \arguments{
 \item{data}{data frame}

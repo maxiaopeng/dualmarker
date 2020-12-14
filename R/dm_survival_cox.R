@@ -4,7 +4,7 @@
 #' @param cox.model cox model
 #'
 #' @return a list of 'coef','glance' and 'cox.zph'
-.summary_cox <- function(cox.model){
+.summary_cox <- function(cox.model, cindex=T){
   assert_that(is(cox.model, "coxph"), msg = "cox.model is not coxph object")
 
   # coef
@@ -23,7 +23,20 @@
   # others
   #cox.zph <- cox.zph(cox.model)$table
 
-  list(coef = coef, glance = glance)
+  # c-index
+  res.cindex <- NA
+  if(cindex){
+    errFlag <- F
+    res.cindex <- tryCatch({
+      cindex_stats(coxph.fit = cox.model) %>%
+        dplyr::select(CPE)
+    }, error = function(e) errFlag <<- T,
+    warning = function(w) errFlag <<- T
+    )
+    if(errFlag) res.cindex <- NA
+  }
+
+  list(coef = coef, glance = glance, cindex = res.cindex)
 }
 
 #' dm_cox_core
@@ -34,18 +47,16 @@
 #' @param marker1 marker1
 #' @param marker2 marker2
 #' @return stats
-.dm_cox_core <- function(data, time, event, marker1, marker2, confound.factor=NULL, na.rm=T){
-  if(na.rm){
-    data <- tidyr::drop_na(data, !!sym(time), !!sym(event),
+.dm_cox_core <- function(data, time, event, marker1, marker2, covariates=NULL,  cindex=T){
+  data <- tidyr::drop_na(data, !!sym(time), !!sym(event),
                            !!sym(marker1), !!sym(marker2))
-  }
   data %<>% dplyr::rename(.time = !!sym(time),
                            .event = !!sym(event),
                            .m1 = !!sym(marker1),
                            .m2 = !!sym(marker2))
   str.cf <- ""
-  if(!is.null(confound.factor)){
-    str.cf <- paste0("+",paste(confound.factor, collapse = "+"))
+  if(!is.null(covariates)){
+    str.cf <- paste0("+",paste(covariates, collapse = "+"))
   }
   surv <- paste0("Surv(.time, .event)")
   fml.m0 <- paste0( surv, " ~ 1", str.cf)
@@ -60,12 +71,14 @@
   cox.mdi <- coxph(formula =  as.formula(fml.mdi), data = data)
 
   # summary of model
-  summ <- list(m1 = cox.m1, m2 = cox.m2,
-               md = cox.md, mdi = cox.mdi) %>%
-    map(.f = .summary_cox)
+  summ <- list(SM1 = cox.m1, SM2 = cox.m2,
+               DM = cox.md, DMI = cox.mdi) %>%
+    map(.f = .summary_cox, cindex = cindex)
   # model
   summ.coef <- map(summ, "coef") %>% bind_rows(.id = "model")
   summ.glance <- map(summ, "glance") %>% bind_rows(.id = "model")
+  summ.cindex <- map(summ, "cindex") %>% bind_rows(.id = "model")
+
   #
   pval.m1.vs.null <- anova(cox.m1, cox.m0, test ="Chisq")$`P(>|Chi|)`[2]
   pval.m2.vs.null <- anova(cox.m2, cox.m0, test ="Chisq")$`P(>|Chi|)`[2]
@@ -73,13 +86,14 @@
   pval.m2.vs.md <- anova(cox.m2, cox.md, test ="Chisq")$`P(>|Chi|)`[2]
   pval.m1.vs.mdi <- anova(cox.m1, cox.mdi, test ="Chisq")$`P(>|Chi|)`[2]
   pval.m2.vs.mdi <- anova(cox.m2, cox.mdi, test ="Chisq")$`P(>|Chi|)`[2]
-  cmp.model <- tibble(pval.m1.vs.null = pval.m1.vs.null,
-                      pval.m2.vs.null = pval.m2.vs.null,
-                      pval.m1.vs.md = pval.m1.vs.md,
-                      pval.m2.vs.md = pval.m2.vs.md,
-                      pval.m1.vs.mdi = pval.m1.vs.mdi,
-                      pval.m2.vs.mdi = pval.m2.vs.mdi)
-  list(coef = summ.coef, glance = summ.glance, cmp.model = cmp.model)
+  cmp.model <- tibble(pval_SM1_vs_NULL = pval.m1.vs.null,
+                      pval_SM2_vs_NULL = pval.m2.vs.null,
+                      pval_SM1_vs_DM = pval.m1.vs.md,
+                      pval_SM2_vs_DM = pval.m2.vs.md,
+                      pval_SM1_vs_DMI = pval.m1.vs.mdi,
+                      pval_SM2_vs_DMI = pval.m2.vs.mdi)
+  list(coef = summ.coef, glance = summ.glance,
+       cindex = summ.cindex, cmp.model = cmp.model)
 }
 
 #' dual maker cox analysis
@@ -99,17 +113,23 @@
 #' @param m2.num.cut cut method/value(s) if marker2 is numeric
 #' @param m2.cat.pos positive value(s) of marker2 if it is categorical
 #' @param m2.cat.neg negative value(s) of marker2 if it is categorical
-#' @param na.rm remove NA
-#' @param confound.factor  coufounding factors
+#' @param covariates  covariates
 #'
 #' @return summary of cox model
 dm_cox <- function(data, time, event,
-                   marker1, marker2,confound.factor=NULL,
-                   m1.binarize, m2.binarize,
-                   m1.num.cut = "median", m1.cat.pos = NULL, m1.cat.neg = NULL,
-                   m2.num.cut = "median", m2.cat.pos = NULL, m2.cat.neg = NULL,
-                   na.rm=T){
-  .assert_colname(data, c(time, event, marker1, marker2, confound.factor))
+                   marker1, marker2,
+                   covariates=NULL,
+                   m1.binarize = F,
+                   m2.binarize = F,
+                   m1.num.cut = "median",
+                   m1.cat.pos = NULL,
+                   m1.cat.neg = NULL,
+                   m2.num.cut = "median",
+                   m2.cat.pos = NULL,
+                   m2.cat.neg = NULL,
+                   cindex = T)
+{
+  .assert_colname(data, c(time, event, marker1, marker2, covariates))
   if(m1.binarize){
     tmp <- binarize_data(x = data[[marker1]], return.binary = T,
                          cat.pos = m1.cat.pos, cat.neg = m1.cat.neg,
@@ -134,30 +154,38 @@ dm_cox <- function(data, time, event,
   # run cox regression
   out.cox <- .dm_cox_core(data = data,
                           time = time, event = event,
-                          confound.factor = confound.factor,
-                          marker1 = ".m1", marker2 = ".m2",
-                          na.rm = na.rm)
+                          covariates = covariates,
+                          marker1 = ".m1", marker2 = ".m2")
   # extract key cox info
   out.cox.coef <- out.cox$coef %>%
     .collapse_df(df = ., id_cols = c("model","term"),
                  var_cols = c("estimate","p.value"))
   out.cox.aic <- out.cox$glance %>%
     .collapse_df(df = ., id_cols = "model", var_cols = c("AIC"))
+  if(cindex){
+    out.cox.cindex <- out.cox$cindex %>%
+      .collapse_df(df = ., id_cols = "model", var_cols = c("CPE"))
+  }else{
+    out.cox.cindex <- NULL
+  }
+
   out.cox.cmp.model <- out.cox$cmp.model
 
-  out.cox.key <- bind_cols( out.cox.coef, out.cox.aic, out.cox.cmp.model)
+  out.cox.key <- bind_cols( out.cox.coef, out.cox.aic, out.cox.cindex, out.cox.cmp.model)
 
   # basic info
   out.basic <- tibble(time = time,
                       even = event,
                       m1=marker1, m2 =marker2,
-                      confound.factor = toString(confound.factor),
+                      covariates = toString(covariates),
                       cutpoint_m1 = cutpoint.m1,
                       cutpoint_m2 = cutpoint.m2,
-                      m1.cat.pos = toString(m1.cat.pos),
-                      m1.cat.neg = toString(m1.cat.neg),
-                      m2.cat.pos = toString(m2.cat.pos),
-                      m2.cat.neg = toString(m2.cat.neg))
-  bind_cols(out.basic, out.cox.key)
+                      m1_cat_pos = toString(m1.cat.pos),
+                      m1_cat_neg = toString(m1.cat.neg),
+                      m2_cat_pos = toString(m2.cat.pos),
+                      m2_cat_neg = toString(m2.cat.neg))
+  out <- bind_cols(out.basic, out.cox.key)
+  colnames(out) %<>% str_replace_all("\\.m","m")
+  out
 }
 

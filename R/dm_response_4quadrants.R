@@ -92,7 +92,7 @@
 #' @param response response variable, factor with level of 'neg' and 'pos'
 #' @param marker1 marker1 variable, factor with 2 levels and 1st level is negative
 #' @param marker2 marker2 variable, factor with 2 levels and 1st level is negative
-.dm_reponse_4quad_core <- function(data, response, marker1, marker2,na.rm=T){
+.dm_reponse_4quad_core <- function(data, response, marker1, marker2){
   # check input
   assert_that(class(data[[response]]) == "factor",
               nlevels(data[[response]]) == 2,
@@ -106,9 +106,7 @@
               nlevels(data[[marker2]]) == 2,
               msg = "marker2 should be factors with 2 levels")
   # prep data
-  if(na.rm){
     data %<>% drop_na(!!sym(response), !!sym(marker1), !!sym(marker2))
-  }
   data$.quadrant <- .label_quadrant(data[[marker1]], data[[marker2]])
   total.n <- data %>% dplyr::group_by(.quadrant, .drop=F) %>% dplyr::count() %>% pull(n)
   names(total.n) <- c("R1","R2","R3","R4")
@@ -140,13 +138,11 @@
 #' @param m2.num.cut cut method/value(s) if marker2 is numeric
 #' @param m2.cat.pos positive value(s) if marker2 is categorical variable
 #' @param m2.cat.neg negative value(s) if marker2 is categorical variable
-#' @param na.rm remove NA, default TRUE
 #' @return list of 'pos.n', 'total.n', 'stats', 'test', 'param'
 dm_response_4quad <- function(data, response, response.pos, response.neg=NULL,
                          marker1, marker2,
                          m1.num.cut = "median", m1.cat.pos = NULL, m1.cat.neg = NULL,
-                         m2.num.cut = "median", m2.cat.pos = NULL, m2.cat.neg = NULL,
-                         na.rm=T){
+                         m2.num.cut = "median", m2.cat.pos = NULL, m2.cat.neg = NULL){
   # prep .response
   data$.response <- binarize_cat(x = data[[response]],
                                 pos = response.pos, neg = response.neg)
@@ -165,7 +161,7 @@ dm_response_4quad <- function(data, response, response.pos, response.neg=NULL,
   cutpoint.m2 <- res$cutpoint
   # run 4quadrant analysis
   out <- .dm_reponse_4quad_core(data, response=".response",
-                             marker1=".m1", marker2=".m2",na.rm= na.rm)
+                             marker1=".m1", marker2=".m2")
   #out$data <- data
   out$param <- tibble(response = response,
                       response.pos = toString(response.pos),

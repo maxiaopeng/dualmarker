@@ -16,7 +16,18 @@ dm_response_boxplot(
   m1.cat.neg = NULL,
   m2.datatype = "auto",
   m2.cat.pos = NULL,
-  m2.cat.neg = NULL
+  m2.cat.neg = NULL,
+  label.m1 = marker1,
+  label.m2 = marker2,
+  palette = "default",
+  label.response.pos = "pos",
+  label.response.neg = "neg",
+  label.m1.pos = "pos",
+  label.m1.neg = "neg",
+  label.m2.pos = "pos",
+  label.m2.neg = "neg",
+  na.rm.response = T,
+  na.rm.marker = T
 )
 }
 \arguments{

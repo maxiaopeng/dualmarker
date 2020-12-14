@@ -9,8 +9,8 @@ binarize_cat(
   pos,
   neg = NULL,
   return.binary = F,
-  label.pos = "pos",
-  label.neg = "neg"
+  label.pos = NULL,
+  label.neg = NULL
 )
 }
 \arguments{

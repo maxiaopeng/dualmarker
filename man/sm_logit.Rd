@@ -10,12 +10,11 @@ sm_logit(
   response.pos,
   response.neg = NULL,
   marker,
-  confound.factor = NULL,
+  covariates = NULL,
   binarize = F,
   num.cut = "none",
   cat.pos = NULL,
   cat.neg = NULL,
-  na.rm = T,
   auc = F
 )
 }
@@ -30,7 +29,7 @@ sm_logit(
 
 \item{marker}{marker}
 
-\item{confound.factor}{confonding factor}
+\item{covariates}{confonding factor}
 
 \item{binarize}{binarize for marker, default FALSE}
 
@@ -39,8 +38,6 @@ sm_logit(
 \item{cat.pos}{positive values for marker if marker is categorical}
 
 \item{cat.neg}{negative values for marker if marker is categorical}
-
-\item{na.rm}{remove NA}
 }
 \value{
 

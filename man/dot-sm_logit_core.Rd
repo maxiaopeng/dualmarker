@@ -4,14 +4,7 @@
 \alias{.sm_logit_core}
 \title{single marker logit regression(core)}
 \usage{
-.sm_logit_core(
-  data,
-  response,
-  marker,
-  confound.factor = NULL,
-  na.rm = T,
-  auc = F
-)
+.sm_logit_core(data, response, marker, covariates = NULL, auc = F)
 }
 \arguments{
 \item{data}{data frame}
@@ -20,9 +13,7 @@
 
 \item{marker}{marker}
 
-\item{confound.factor}{confound.factor}
-
-\item{na.rm}{remove NA}
+\item{covariates}{covariates}
 }
 \value{
 summary of logit model

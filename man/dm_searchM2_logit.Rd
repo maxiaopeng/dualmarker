@@ -11,21 +11,21 @@ dm_searchM2_logit(
   response.neg = NULL,
   marker1,
   m2.candidates,
-  confound.factor = NULL,
-  m1.binarize,
-  m2.binarize,
+  covariates = NULL,
+  m1.binarize = F,
+  m2.binarize = F,
   m1.num.cut = "median",
   m1.cat.pos = NULL,
   m1.cat.neg = NULL,
   m2.num.cut = "median",
   m2.cat.pos = NULL,
   m2.cat.neg = NULL,
-  na.rm = T,
-  auc = F
+  auc = T,
+  p.adjust.method = "BH"
 )
 }
 \arguments{
-\item{data}{dataframe}
+\item{data}{data frame}
 
 \item{response}{response variable}
 
@@ -37,28 +37,37 @@ dm_searchM2_logit(
 
 \item{m2.candidates}{candidates marker2}
 
-\item{confound.factor}{confounding factor}
+\item{covariates}{confounding factor}
 
 \item{m1.binarize}{binarize marker1, default FALSE}
 
 \item{m2.binarize}{binarize marker2, default FALSE}
 
-\item{m1.num.cut}{cut method/values for numeric marker1}
+\item{m1.num.cut}{cut method/values for numeric marker1
+if m1.binarize is TRUE and marker1 is numeric}
 
-\item{m1.cat.pos}{positive value for categorical marker1}
+\item{m1.cat.pos}{positive value for categorical marker1
+if m1.binarize is TRUE and marker1 is categorical}
 
-\item{m1.cat.neg}{negative value for categorical marker1}
+\item{m1.cat.neg}{negative value for categorical marker1
+if m1.binarize is TRUE and marker1 is categorical}
 
-\item{m2.num.cut}{cut method/values for numeric marker2}
+\item{m2.num.cut}{cut method/values for numeric marker2
+if m1.binarize is TRUE and marker2 is numeric}
 
-\item{m2.cat.pos}{positive value for categorical marker2}
+\item{m2.cat.pos}{positive value for categorical marker2
+if m1.binarize is TRUE and marker2 is categorical}
 
-\item{m2.cat.neg}{negative value for categorical marker2}
-
-\item{na.rm}{remove NA, default TRUE}
+\item{m2.cat.neg}{negative value for categorical marker2
+if m1.binarize is TRUE and marker2 is categorical}
 
 \item{auc}{report AUC, default FALSE}
+
+\item{p.adjust.method}{see also p.adjust.methods}
 }
 \description{
 search marker2 to combine with marker1
+}
+\seealso{
+\code{\link[stats]{p.adjust}}
 }
