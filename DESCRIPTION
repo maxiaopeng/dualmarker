@@ -2,8 +2,10 @@ Package: dualmarker
 Type: Package
 Title: Dual marker analysis for response and survival data
 Version: 0.1.0
-Author: xiaopeng.ma
-Maintainer: The package maintainer <xiaopeng.ma@beigene.coms>
+Authors@R: c(
+         person("xiaopeng", "ma", email = "xiaopeng.ma@beigene.coms", role = c("aut", "cre"),
+         person("ruiqi", "huang", email = "ruiqi.huang@beigene.coms", role = c("aut")
+         )
 Description: *Dualmarker* is designed for data exploration and hypothesis generation for dual biomarkers. 
   It provides intuitive visualizations and extensive assessment of two marker combinations using logistic 
   regression model for binary outcome (response analysis) and Cox regression for time-to-event outcome 

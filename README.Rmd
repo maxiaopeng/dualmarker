@@ -439,8 +439,8 @@ res.combineM.logit <- dm_combineM_logit(
 dplyr::glimpse(res.combineM.logit)
 ```
 
-Top 2 dual-marker with the highest AUC, i.e. best performance of logistic regression. 
 Users can filter and get interesting dual-marker pairs using plenty of statistics and model performance metrics, for example, AUC for response analysis (logistic regression), concordant probability CPE for survival analysis (Cox regression), p-value of dual-vs-single model comparison and statistical interaction of two markers.
+Top 2 dual-marker with the highest AUC, i.e. best performance of logistic regression. 
 
 ```{r}
 res.combineM.logit %>% 
