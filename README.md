@@ -824,7 +824,7 @@ combinations of dual-markers. We demonstrate with only 4 biomarkers.
 
 ``` r
 m.candidates <- c("TMB", "gep_CD274","gep_CXCL13", "gepscore_TGFb.19gene", "mut_ARID1A")
-res.combineM.logit <- dm_combineM_logit(
+res.combM.logit <- dm_combM_logit(
    data = clin_bmk_IMvigor210, 
    response = "binaryResponse", 
    response.pos = "CR/PR",
@@ -839,7 +839,7 @@ res.combineM.logit <- dm_combineM_logit(
 <!-- end list -->
 
 ``` r
-dplyr::glimpse(res.combineM.logit)
+dplyr::glimpse(res.combM.logit)
 #> Rows: 10
 #> Columns: 61
 #> $ response                <chr> "binaryResponse", "binaryResponse", "binaryRe…
@@ -905,16 +905,15 @@ dplyr::glimpse(res.combineM.logit)
 #> $ `DMI_m1:m2YES_p.value`  <dbl> NA, NA, NA, 0.2625779, NA, NA, 0.9671296, NA,…
 ```
 
-Top 2 dual-marker with the highest AUC, i.e. best performance of
-logistic regression. Users can filter and get interesting dual-marker
-pairs using plenty of statistics and model performance metrics, for
-example, AUC for response analysis (logistic regression), concordant
-probability CPE for survival analysis (Cox regression), p-value of
-dual-vs-single model comparison and statistical interaction of two
-markers.
+Users can filter and get interesting dual-marker pairs using plenty of
+statistics and model performance metrics, for example, AUC for response
+analysis (logistic regression), concordant probability CPE for survival
+analysis (Cox regression), p-value of dual-vs-single model comparison
+and statistical interaction of two markers. Top 2 dual-marker with the
+highest AUC, i.e. best performance of logistic regression.
 
 ``` r
-res.combineM.logit %>% 
+res.combM.logit %>% 
    arrange(desc(DM_auc)) %>%
    dplyr::select(m1, m2, DM_auc) %>%
    head(2) %>% 
