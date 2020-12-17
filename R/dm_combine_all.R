@@ -19,7 +19,7 @@
 #' @param covariates confounding factor
 #' @param auc report AUC, default FALSE
 #' @export
-dm_combineM_logit <- function(data, response, response.pos, response.neg=NULL,
+dm_combM_logit <- function(data, response, response.pos, response.neg=NULL,
                         candidates, covariates=NULL,
                         m.binarize,
                         m.num.cut = "median", m.cat.pos = NULL, m.cat.neg = NULL,
@@ -90,7 +90,7 @@ dm_combineM_logit <- function(data, response, response.pos, response.neg=NULL,
 #' @param m.cat.neg negative value for categorical marker2
 #'
 #' @export
-dm_combineM_cox <- function(data, time, event,
+dm_combM_cox <- function(data, time, event,
                               candidates, covariates=NULL,
                               m.binarize,
                               m.num.cut = "median", m.cat.pos = NULL, m.cat.neg = NULL,

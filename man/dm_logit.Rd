@@ -20,7 +20,7 @@ dm_logit(
   m2.num.cut = "median",
   m2.cat.pos = NULL,
   m2.cat.neg = NULL,
-  auc = F
+  auc = T
 )
 }
 \arguments{

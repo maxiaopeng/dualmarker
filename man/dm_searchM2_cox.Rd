@@ -50,6 +50,8 @@ dm_searchM2_cox(
 \item{m2.cat.pos}{positive value for categorical marker2}
 
 \item{m2.cat.neg}{negative value for categorical marker2}
+
+\item{p.adjust.method}{see also p.adjust.methods}
 }
 \description{
 search M2 to combine with M1 using Cox model

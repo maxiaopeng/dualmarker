@@ -4,7 +4,7 @@
 \alias{.summary_logit}
 \title{summarize logistic regression model}
 \usage{
-.summary_logit(logit.model, auc = F)
+.summary_logit(logit.model, auc = T)
 }
 \arguments{
 \item{logit.model}{logistic regression model}

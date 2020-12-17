@@ -8,7 +8,8 @@ dm_searchM2_topPlot(
   res.searchM2,
   top.n = 30,
   show.padj = F,
-  line.sig = c(0.01, 0.05)
+  line.sig = c(0.01, 0.05),
+  palette = "default"
 )
 }
 \arguments{
