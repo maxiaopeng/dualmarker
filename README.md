@@ -844,8 +844,10 @@ res.m2.cox %>%
 
 ## Example4: evaluation for all combinations
 
-*dm\_combineM\_logit* and *dm\_combineM\_cox* will evaluate all
-combinations of dual-markers. We demonstrate with only 4 biomarkers.
+*dm\_combM\_logit* and *dm\_combM\_cox* will evaluate all combinations
+of dual-markers.Searching all biomarker pairs is time-consuming for
+thousands of gene expression biomarker. Here we demonstrate with only 4
+biomarkers.
 
 ``` r
 m.candidates <- c("TMB", "gep_CD274","gep_CXCL13", "gepscore_TGFb.19gene", "mut_ARID1A")
@@ -855,7 +857,7 @@ res.combM.logit <- dm_combM_logit(
    response.pos = "CR/PR",
    response.neg = "SD/PD", 
    candidates = m.candidates,
-   m.binarize = F
+   m.binarize = F # don't dichotomize marker
    )
 ```
 
