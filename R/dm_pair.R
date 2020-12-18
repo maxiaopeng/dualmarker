@@ -1,11 +1,12 @@
 
 #' Visualization and statistics of dual marker pair
 #'
-#' Plot and statistics of dual markers that reveal the association between two markers,
-#' response and survival. It takes the marker1, marker2, response or survival as input,
-#' and returns plots (response.plot, survival.plot) and statistic results (response.stats,
-#' survival.stats) from logistic regression for binary outcome(response) and Cox regression
-#' for time-to-event outcome(survival).
+#' visualization and statistics of one pair of specific biomarkers. It takes the marker1,
+#' marker2, covariates (optional), binary outcome(response) or time-to-event outcome(survival)
+#' variable as input, and returns list of comprehensive plots (in response.plot,
+#' survival.plot object) and statistic results (in response.stats, survival.stats object)
+#' from logistic regression for binary outcome(response) and Cox regression for
+#' time-to-event outcome(survival).
 #'
 #' @param data data frame
 #' @param response response variable
@@ -16,16 +17,16 @@
 #' @param event survival event
 #' @param marker1 marker1 variable
 #' @param marker2 marker2 variable
-#' @param covariates covariates
+#' @param covariates covariates, optional, default NULL
 #' @param m1.num.cut cut method or value for numeric marker1, default "median", can be specific
 #'  value or 'median', 'mean', 'mean+sd', 'mean-sd', 'upper-tertile', 'lower-tertile'
-#' @param m2.num.cut cut method or value for numeric marker2, default "median"
+#' @param m2.num.cut cut method or value for numeric marker2, default "median", see m1.num.cut
 #' @param m1.cat.pos positive value(s) if marker1 is categorical
 #' @param m1.cat.neg negative value(s) if marker1 is categorical
 #' @param m2.cat.pos positive value(s) if marker2 is categorical
 #' @param m2.cat.neg negative value(s) if marker2 is categorical
-#' @param label.m1 label of marker1, default using marker1 variable
-#' @param label.m2 label of marker2, default using marker2 variable
+#' @param label.m1 label of marker1, default marker1 variable
+#' @param label.m2 label of marker2, default marker2 variable
 #' @param label.m1.pos label of positive value(s) for marker1
 #' @param label.m1.neg label of negative value(s) for marker1
 #' @param label.m2.pos label of positive value(s) for marker2
@@ -36,8 +37,8 @@
 #'  color palette e.g. c("blue", "red"); and scientific journal palettes from ggsci R package,
 #'  e.g.: "npg", "aaas", "lancet", "jco", "ucscgb", "uchicago", "simpsons" and "rickandmorty".
 #' @param palette.4quadrant the color palette to be used for coloring or filling four quadrants.
-#'   same with palette.other
-#' @param output output 'stat' and/or 'plot', default c("stat", "plot"), i.e both stat and plot
+#'   see palette.other
+#' @param output return 'stat' and/or 'plot', default c("stat", "plot"), i.e both stat and plot
 #' @return list of 'response.plot', 'response.stats', 'survival.plot' and 'survival.stats'
 #' @examples
 #'
@@ -446,7 +447,7 @@ dm_pair <- function(data,
                         four.quadrant = g.response.4quad,
                         roc = g.roc)
   response.stats <- list(logit = stats.logit,
-                         four.quadrant = stats.response.4quad)
+                         four.quadrant = stats.response.4quad[c("param","stats")])
   # survival
   survival.plot <- list(km.m1m2 = g.survplot$km.m1m2,
                         scatter.m1m2 = g.survplot$scatter.m1m2,

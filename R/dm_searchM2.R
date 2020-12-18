@@ -22,11 +22,32 @@
 #'   if m1.binarize is TRUE and marker2 is categorical
 #' @param m2.cat.neg negative value for categorical marker2
 #'   if m1.binarize is TRUE and marker2 is categorical
-#' @param covariates confounding factor
+#' @param covariates covariates
 #' @param auc report AUC, default FALSE
-#' @param p.adjust.method see also p.adjust.methods
-#' @seealso \code{\link[stats]{p.adjust}}
+#' @param p.adjust.method see \code{\link[stats]{p.adjust}}
 #' @export
+#' @examples
+#'
+#' #' # Search among gene expression candidates to combine with ARID1A mutation using dm_searchM2_cox
+#' m2.candidates <- stringr::str_subset(colnames(clin_bmk_IMvigor210),"gep_")
+#' res.m2.logit <- dm_searchM2_logit(
+#'  data = clin_bmk_IMvigor210,
+#'  # response
+#'  response = "binaryResponse",
+#'  response.pos = "CR/PR",
+#'  response.neg = "SD/PD",
+#'  # marker1
+#'  marker1 = "TMB",
+#'  m1.binarize = F,
+#'  # marker2 candidate
+#'  m2.candidates = m2.candidates,
+#'  m2.binarize = F, # as continuous variables
+#'  p.adjust.method = "BH")
+#'
+#'  # plot top20 biomarker pairs based on nominal p-values, not adjusted p-values
+#'  dm_searchM2_topPlot(res.m2.logit, top=20, show.padj = F, palette = "nejm")
+#'
+#'
 dm_searchM2_logit <- function(data,
                               response,
                               response.pos,
@@ -42,7 +63,7 @@ dm_searchM2_logit <- function(data,
                               m2.num.cut = "median",
                               m2.cat.pos = NULL,
                               m2.cat.neg = NULL,
-                              auc = T,
+                              auc = F,
                               p.adjust.method = "BH")
 {
   .assert_colname(data, c(response, marker1, covariates))
@@ -110,16 +131,44 @@ dm_searchM2_logit <- function(data,
 #' @param event survival event
 #' @param marker1 marker1
 #' @param m2.candidates marker2 candidates
-#' @param covariates confounding factor
 #' @param m1.binarize binarize marker1, default FALSE
 #' @param m2.binarize binarize marker2, default FALSE
 #' @param m1.num.cut cut method/values for numeric marker1
+#'   if m1.binarize is TRUE and marker1 is numeric
 #' @param m2.num.cut cut method/values for numeric marker2
+#'   if m1.binarize is TRUE and marker2 is numeric
 #' @param m1.cat.pos positive value for categorical marker1
+#'   if m1.binarize is TRUE and marker1 is categorical
 #' @param m1.cat.neg negative value for categorical marker1
+#'   if m1.binarize is TRUE and marker1 is categorical
 #' @param m2.cat.pos positive value for categorical marker2
+#'   if m1.binarize is TRUE and marker2 is categorical
 #' @param m2.cat.neg negative value for categorical marker2
-#' @param p.adjust.method see also p.adjust.methods
+#'   if m1.binarize is TRUE and marker2 is categorical
+#' @param covariates covariates
+#' @param p.adjust.method see \code{\link{p.adjust.methods}}
+#' @examples
+#'
+#' # Search among gene expression candidates to combine with ARID1A mutation using dm_searchM2_cox
+#' m2.candidates <- stringr::str_subset(colnames(clin_bmk_IMvigor210),"gep_")
+#' res.m2.cox <- dm_searchM2_cox(
+#'  data = clin_bmk_IMvigor210,
+#'  # survival
+#'  time = "os",
+#'  event = "censOS",
+#'  # marker1
+#'  marker1 = "mut_ARID1A",
+#'  m1.binarize = T,
+#'  m1.cat.pos = "YES",
+#'  m1.cat.neg = "NO",
+#'  # marker2
+#'  m2.candidates = m2.candidates,
+#'  m2.binarize = F, # as continuous variables
+#'  p.adjust.method = "BH")
+#'
+#'  # plot top20 biomarker pairs based on nominal p-values, not adjusted p-values
+#'  dm_searchM2_topPlot(res.m2.cox, top=20, show.padj = F, palette = "jco")
+#'
 #' @export
 dm_searchM2_cox <- function(data,
                             time,
@@ -218,8 +267,11 @@ plot_pval_stat <- function(data, p.cols, pval.cut = c(0.01, 0.05, 0.1, 0.2))
 
 #' plot search M2 result
 #'
-#' @param res.searchM2 result of search M2
-#' @param top.n top-N
+#' @param res.searchM2 result of dm_searchM2_cox or dm_searchM2_logit
+#' @param top.n top-n significant biomarker pairs based on p-values
+#' @param show.padj show adjusted p-values or nominal p-values(default)
+#' @param line.sig pvalues reference line
+#' @param palette see \code{\link[ggpubr]{get_palette}}
 #' @return an ggplot object
 #' @export
 dm_searchM2_topPlot <- function(res.searchM2,

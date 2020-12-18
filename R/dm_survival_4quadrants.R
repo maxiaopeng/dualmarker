@@ -160,6 +160,6 @@ dm_survival_4quad <- function(data, time, event,
     cutpoint.m1 = cutpoint.m1, m1.cat.pos = toString(m1.cat.pos), m1.cat.neg = toString(m1.cat.neg),
     cutpoint.m2 = cutpoint.m2, m2.cat.pos = toString(m2.cat.pos), m2.cat.neg = toString(m2.cat.neg)
     )
-  out
+  out[c("param","stats")]
 }
 

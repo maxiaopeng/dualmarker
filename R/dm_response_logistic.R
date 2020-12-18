@@ -24,7 +24,7 @@
   #pR2 <- res.nag$Pseudo.R.squared.for.model.vs.null
 
   # 5. ROC
-  res.auc <- NA
+  res.auc <- tibble(auc = NA, auc.lower95 = NA, auc.upper95 = NA)
   if(auc){
     errFlag <- F
     res.auc <- tryCatch({
@@ -40,7 +40,7 @@
     }, error = function(e) errFlag <<- T,
     warning = function(w) errFlag <<- T
     )
-    if(errFlag)  res.auc <- NA
+    if(errFlag)    res.auc <- tibble(auc = NA, auc.lower95 = NA, auc.upper95 = NA)
   }
   list(coef = coef,
     glance = glance,
