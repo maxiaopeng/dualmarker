@@ -1,6 +1,6 @@
 Package: dualmarker
 Type: Package
-Title: Dual marker analysis for response and survival data
+Title: Exploratory analysis of combinatorial dual biomarkers for clinical efficacy
 Version: 0.1.0
 Authors@R: c(
          person("xiaopeng", "ma", email = "xiaopeng.ma@beigene.coms", role = c("aut", "cre")),

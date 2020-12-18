@@ -11,29 +11,28 @@
 for dual biomarkers. It provides intuitive visualizations and extensive
 assessment of two marker combinations using logistic regression model
 for binary outcome (response analysis) and Cox regression for
-time-to-event outcome (survival analysis). It performs dual marker
-analysis via two distinct modules, one for evaluation of specific
-biomarker pair through *dm\_pair* function, which comprehensively
-reveals the correlation among two markers, response and survival using
-over 14 sub-plots,such as boxplots, scatterplots, ROCs, and Kaplan-Meier
-plots. Another module is de-novo identification and prioritization of
+time-to-event outcome (survival analysis).  
+It performs dual marker analysis via two distinct modules:  
+\- One module is evaluation of specific biomarker pair through
+*dm\_pair* function, which comprehensively reveals the correlation among
+two markers, response and survival using over 14 sub-plots,such as
+boxplots, scatterplots, ROCs, and Kaplan-Meier plots.  
+\- Another module is de-novo identification and prioritization of
 marker2 among candidate markers in combination with known marker1 to
 predict response and survival through *dm\_searchM2\_cox* and
 *dm\_searchM2\_logit* function, its expansion version works for all
 biomarker combination to prioritize the most significant pair through
-*dm\_combM\_cox* and *dm\_combM\_logit* function. It is applicable for
-both response and survival analyses and compatible with both continuous
-and categorical variables. This figure illustrates the framework of this
-package.
+*dm\_combM\_cox* and *dm\_combM\_logit* function.  
+It is applicable for both response and survival analyses and compatible
+with both continuous and categorical variables. This figure illustrates
+the framework of this package.
 
 ![dualmarker\_overview](man/figures/dualmarker_overview.png)
 
 ## Installation
 
-  - Install the latest developmental version from
-    [GitHub](https://github.com/maxiaopeng/dualmarker) as follow:
-
-<!-- end list -->
+Install the latest developmental version from
+[GitHub](https://github.com/maxiaopeng/dualmarker) as follow:
 
 ``` r
 if(!require(devtools)) install.packages("devtools")
@@ -46,16 +45,20 @@ Plenty of commands and functions are wrapped into five main functions:
 *dm\_pair* for visualization and statistics of given dual marker pairs,
 *dm\_searchM2\_cox* and *dm\_searchM2\_logit* for de novo identification
 of novel marker2 to combine with marker1 using Cox survival model and
-logistic regression model.
+logistic regression model; *dm\_combM\_cox* and *dm\_combM\_logit* for
+de novo identification of marker pairs among all dual marker
+combinations.
 
 ### *dm\_pair*
 
-*dm\_pair* is the main function for dual marker visualization and
-statistics. It takes the marker1, marker2, response or survival as
-input, and returns plots (response.plot, survival.plot) and statistic
-results (response.stats, survival.stats) from logistic regression for
-binary outcome(response) and Cox regression for time-to-event
-outcome(survival) . The detailed results are shown in the following
+**dm\_pair** is the main function for visualization and statistics of
+one pair of specific biomarkers. It takes the marker1, marker2,
+covariates (optional), binary outcome(response) or time-to-event
+outcome(survival) variable as input, and returns list of comprehensive
+plots (in *response.plot*, *survival.plot* object) and statistic results
+(in *response.stats*, *survival.stats* object) from logistic regression
+for binary outcome(response) and Cox regression for time-to-event
+outcome(survival) . The result is a *list* object with the following
 structure:
 
   - response.plot
@@ -81,39 +84,40 @@ structure:
           - param
           - stats
 
-the overview plot:
+All visualizations are shown in this overall plot
 ![dualmarker\_plot](man/figures/dualmarker_pair_plot.png)
 
 ### *dm\_searchM2\_cox/logit*
 
-These two functions are the main functions for do novo identification of
-marker2 to combine with marker1. It takes marker1, and m2.candidates,
-optional covariates, response or time/event as input and returns the
-statistical result of Cox or logistic regression model. Four regression
+The main functions for do novo identification of marker2 from candidates
+(m2.candidates) to combine with marker1. It takes marker1, and
+m2.candidates, covariates (optional), binary outcome(response) or
+time-to-event outcome(survival) variables as input and returns the
+statistical result of logistic or Cox regression model. Four regression
 models are built using single marker and dual marker w/ or w/o
-interaction term, as follows:
+interaction term:
 
   - model1: Surv/Resp \~ marker1 + covariates, labeled as ‘SM1’ for
-    short
+    short  
   - model2: Surv/Resp \~ marker2 + covariates , labeled as ‘SM2’ for
-    short
+    short  
   - model3: Surv/Resp \~ marker1 + marker2 + covariates, labeled as ‘DM’
-    for short, i.e. dual-marker
+    for short, i.e. dual-marker  
   - model4: Surv/Resp \~ marker1 \* marker2 (with interaction term) +
     covariates, labeled as ‘DMI’ for short, i.e. dual-marker with
     interaction
 
-Model comparison is performed to test the difference of dual-marker
-model and single-marker model by Likihood ratio test(LRT) using *anova*
-function for SM1-vs-DM, SM1-vs-DMI, SM2-vs-DM, SM2-vs-DMI.
+Model comparison is performed between dual-marker and single-marker
+models by Likihood ratio test(LRT) using *anova* function.
 *dm\_searchM2\_topPlot* can facilitate the glance of top candidate
-marker2s for both logistic and cox regression model.
-
-The statistics of logistic regression contains the basic information of
-marker1, marker2, covariates, response, time, event; the estimate and
-p-values from 4 models, AUC(for logistic regression)/ concordant
-probability CPE(for Cox regression), AIC, p-values of model comparisons.
-Here is an example of logistic regression:
+marker2s for both logistic and Cox regression.  
+The statistics of regression include the basic information of marker1,
+marker2, covariates, response, time, event; the estimate and p-values
+from 4 models, ROC/AUC(for binary outcome), concordant probability
+estimate(CPE, for survival analysis), AIC, p-values of model
+comparisons. Users can filter and get interesting dual-marker pairs
+using the statistics and model performance metrics. Here is an example
+of logistic regression:
 
 | colnames             | example values | description                          |
 | -------------------- | -------------- | ------------------------------------ |
@@ -158,22 +162,28 @@ Here is an example of logistic regression:
 | pval\_SM1\_vs\_DMI   | 0.009765815    | pvalue of SM1-vs-DMI model           |
 | pval\_SM2\_vs\_DMI   | 7.84323e-09    | pvalue of SM2-vs-DMI model           |
 
+### *dm\_combM\_cox/logit*
+
+two functions for de novo identification of biomarker pairs from all
+dual-marker combinations. They use the similar input and get same output
+as *dm\_searchM2\_cox/logit*.
+
 ## dataset
 
 We demonstrate the package using
 [Imvigor210](http://research-pub.gene.com/IMvigor210CoreBiologies)
 biomarker data. This dataset includes the baseline characterization of
-PDL1 IHC, gene expression profiling(GEP) and mutations on 348 advanced
-UC patients as well as response and Overall survival(OS) data treated by
-Atezolizumab. The demographic info, clinical efficacy and biomarker data
-is stored in **clin\_bmk\_IMvigor210** dataframe, with gene expression
-variables containing ‘gep\_’ prefix, gene signature score variables
-containing ‘gepscore\_’ prefix and mutation variables containing ‘mut\_’
-prefix. The GEP data and gene signature score is processed according to
-the IMvigor210CoreBiologies package and gene signature score is
-calculated using *hallmark* genesets from MsigDBv7.0 as well as
-signatures from the IMvigor210CoreBiologies package. The data is
-confirmed with the original publication.
+PDL1 protein level(IHC), gene expression profiling(GEP) and mutations on
+348 advanced UC patients as well as response and Overall survival(OS)
+data treated by Atezolizumab.  
+The demographic info, clinical efficacy and biomarker data is stored in
+**clin\_bmk\_IMvigor210** dataframe, with gene expression variables
+containing ‘gep\_’ prefix, gene signature score variables containing
+‘gepscore\_’ prefix and mutation variables containing ‘mut\_’ prefix.
+The GEP data and gene signature score is processed according to the
+IMvigor210CoreBiologies package and gene signature score is calculated
+using *hallmark* genesets from MsigDBv7.0 as well as signatures from the
+IMvigor210CoreBiologies package.
 
 ``` r
 library(dualmarker)
@@ -183,12 +193,12 @@ library(dplyr)
 
 ## Example1: marker pair of TMB + TGF-beta signature
 
-Here we demonstrate the response analysis of TMB + TGF-beta gene
-signature(gepscore\_TGFb.19gene) using *dm\_pair* function. This pair of
-biomarker is studied in [Nature.2018
+Here we demonstrate the binary outcome (drug response) analysis of TMB +
+TGF-beta gene signature(gepscore\_TGFb.19gene) using *dm\_pair*
+function. This pair of biomarker is studied in [Nature.2018
 Feb 22;554(7693):544-548](https://pubmed.ncbi.nlm.nih.gov/29443960/).
-The *response* should be dichotomous by setting *response.pos* and
-*response.neg* values.
+The *response* variable should be dichotomized by setting *response.pos*
+and *response.neg* values.
 
 ``` r
 res.pair <- dm_pair(
@@ -221,9 +231,9 @@ res.pair <- dm_pair(
 ```
 
   - plot-1: \[response analysis\] Single marker  
-    The correlation between single marker and response is shown in
-    boxplot, and p-value of Wilcoxon test between positive and negative
-    response is added to the plot.
+    The correlation between single marker and drug response is shown in
+    boxplot, labeled with p-values of Wilcoxon test between positive and
+    negative outcome(response).
 
 <!-- end list -->
 
@@ -234,9 +244,9 @@ res.pair$response.plot$boxplot
 ![](man/figures/README-unnamed-chunk-4-1.png)<!-- -->
 
   - plot-2: \[response analysis\] Scatter chart  
-    The correlation between marker1, maker2 and response is shown in
-    scatter-chart. If marker1 and/or marker2 is categorical, the jitter
-    plot will be shown with color indicating response status.
+    The correlation between marker1, maker2 and drug response is shown
+    in scatter-chart with color indicating response status. If marker1
+    and/or marker2 is categorical, the jitter plot will be shown.
 
 <!-- end list -->
 
@@ -247,14 +257,15 @@ res.pair$response.plot$scatter.chart
 ![](man/figures/README-unnamed-chunk-5-1.png)<!-- -->
 
   - plot-3: \[response analysis\] Four-quadrant chart  
-    Samples are split into four groups/quadrants, according to cutoffs
-    for continuous markers, default using ‘median’. The independence of
-    each quadrant is tested by Fisher exact test. Response rate, sample
-    size and confidence interval are shown in matrix, doughnut chart and
-    line chart. For the doughnut chart, response rate is corresponding
-    to red arc fraction and sample size to width of ring, and the line
-    chart reveals the response rate and potential statistical
-    interaction for two markers if lines are crossed.
+    Samples are split into four groups/quadrants(R1-R4), according to
+    cutoffs for continuous markers, default using ‘median’. The
+    independence of each group/quadrant is tested by Fisher exact test.
+    Response rate, sample size and confidence interval are shown in
+    matrix, doughnut chart and line chart. For the doughnut chart,
+    response rate is corresponding to red arc fraction and sample size
+    to width of ring, and the line chart reveals the response rate and
+    potential statistical interaction from two markers if lines are
+    crossed.
 
 <!-- end list -->
 
@@ -265,10 +276,10 @@ res.pair$response.plot$four.quadrant
 ![](man/figures/README-unnamed-chunk-6-1.png)<!-- -->
 
   - plot-4: \[response analysis\] ROC curve  
-    The single and dual marker prediction of response is also shown on
-    ROC curve. Logistics regression model is applied w/ or w/o
+    The single and dual marker prediction of drug response is also shown
+    on ROC curve. Logistics regression model is applied w/ or w/o
     interaction term between two biomarkers. AUC value and its
-    confidence interval is also drawn on the graph.
+    confidence interval is also drawn on the plot
 
 <!-- end list -->
 
@@ -289,12 +300,11 @@ res.pair$response.plot$roc
 
   - stats-1: \[response analysis\] Four-quadrant statistics  
     *\(response.stats\)four.quadrant* contains four-quadrant statistics
-    of response
-
-  - *param* contains the note of marker1,marker2, cutoff methods et al
-
-  - *stats* contains the sample number, response rate and its confidence
-    interval in each quadrant, R1-R4
+    of response, in the following 2 objects:
+    
+      - *param* contains the information of marker1,marker2, et al.
+      - *stats* contains the sample number, response rate and its
+        confidence interval in each quadrant, R1-R4
 
 <!-- end list -->
 
@@ -316,32 +326,36 @@ res.4q$stats
 ```
 
   - stats-2: \[response analysis\] Logistic regression result  
-    Four logistic regression models are built, and model comparison is
-    performed to test the difference of dual-marker model and
-    single-marker model by Likelihood ratio test(LRT) using *anova*
-    function for model3-vs-model1, model4-vs-model1, model3-vs-model2,
-    model4-vs-model2.
+    Four logistic regression models are built. Model comparison between
+    dual-marker and single-marker models is performed by Likelihood
+    ratio test(LRT) using *anova* function::
+    
+      - model1: Resp \~ marker1 + covariates, labeled as ‘M1’ for
+        short  
+      - model2: Resp \~ marker2 + covariates, labeled as ‘M2’ for
+        short  
+      - model3: Resp \~ marker1 + marker2 + covariates, labeled as ‘MD’
+        for short, i.e. dual-marker  
+      - model4: Resp \~ marker1 \* marker2 + covariates (with
+        interaction term), labeled as ‘MDI’ for short, i.e. dual-marker
+        with interaction
 
-  - model1: Resp \~ marker1 + covariates, labeled as ‘M1’ for short
+Logistic regression models return the following values:
 
-  - model2: Resp \~ marker2 + covariates, labeled as ‘M2’ for short
+1.  basic parameters: time, event, m1(marker1), m2(marker2), cut point
+    of m1/m2 if m1/m2 are continuous, positive/negative values if m1/m2
+    is categorical  
+2.  logistic regression parameters: estimate(weight) and p-value(Wald
+    test) of each predictive variable in model1(SM1), model2(SM2),
+    model3(DM), model4(DMI). ‘MDI\_.m1:.m2\_estimate’ and
+    ‘MDI\_m1:m2\_pval’ is estimate and p-value of the interaction term
+    of marker1 and marker2  
+3.  AIC: AIC of SM1,SM2,DM and DMI models  
+4.  model comparison: p-values of Likelihood Ratio Test(LRT) for
+    SM1-vs-NULL(null model, no marker), SM2-vs-NULL, SM1-vs-DM,
+    SM2-vs-DM, SM1-vs-DMI, SM2-vs-DMI
 
-  - model3: Resp \~ marker1 + marker2 + covariates, labeled as ‘MD’ for
-    short, i.e. dual-marker
-
-  - model4: Resp \~ marker1 \* marker2 + covariates (with interaction
-    term), labeled as ‘MDI’ for short, i.e. dual-marker with interaction
-
-Logistic regression models return the following information 1. basic
-information: response, m1(marker1), m2(marker2), cut point for
-continuous m1/m2, positive/negative values for categorical m1/2 2.
-logistic regression parameters: estimate(weight) and p-value(Wald test)
-of each predictive variable in model1(SM1), model2(SM2), model3(DM),
-model4(DMI). ‘MDI\_.m1:.m2\_estimate’ and ‘MDI\_m1:m2\_pval’ is estimate
-and p-value of the interaction term of marker1 and marker2. 3. AIC: AIC
-of model SM1,SM2,DM and DMI 4. model comparison: p-value of Likelihood
-Ratio Test(LRT) for SM1-vs-NULL(null model, no marker), SM2-vs-NULL,
-SM1-vs-DM, SM2-vs-DM, SM1-vs-DMI, SM2-vs-DMI
+<!-- end list -->
 
 ``` r
 dplyr::glimpse(res.pair$response.stats$logit)
@@ -397,7 +411,7 @@ dplyr::glimpse(res.pair$response.stats$logit)
 
 ## Example2: marker pair of ARID1A mutation + CXCL13 expression
 
-Here we demonstrated the visualization of CXCL13 expression and ARID1A
+Here we demonstrate the visualization of CXCL13 expression and ARID1A
 mutation , this biomarker pair is studied by [Sci Transl Med. 2020
 Jun 17;12(548):eabc4220](https://pubmed.ncbi.nlm.nih.gov/32554706/), we
 showed the same result here.
@@ -428,11 +442,11 @@ res.pair <- dm_pair(
    label.m2.pos = "Hi", 
    label.m2.neg = "Lo",
    # palette
-   palette.4quadrant = "jco",
-   palette.other = "jco", 
+   palette.4quadrant = "jco", # color scheme for four-quadrants
+   palette.other = "jco",  # color scheme for others
    # others
-   na.rm.response = T, # donot show NA in response variable
-   na.rm.marker = T # donot show NA in biomarker variable: mut_ARID1A & gep_CXCL13
+   na.rm.response = T, # show NA in response variable
+   na.rm.marker = T # show NA in biomarker variable: mut_ARID1A, gep_CXCL13
 )
 ```
 
@@ -455,6 +469,8 @@ res.pair <- dm_pair(
       - *survival.plot$scatter.m1m2*: scatter-plot of survival
         time(y-axis) and marker1/marker2(x-axis) on two parallel
         sub-plots, response status(if provided) is shown as color.
+        Nominal survival time is shown and labeled with different shape
+        for the censored data point.
 
 <!-- end list -->
 
@@ -477,12 +493,14 @@ res.pair$survival.plot$scatter.m1m2
       - *km.dualmarker.facet*: conditional KMplot of dual marker. The
         conditional KMplot represents the survival curve of marker1 on
         condition of marker2-level (+/hi or -/lo), and marker2 on
-        condition of marker1 level. It reveals the correlation between
+        condition of marker1 level. It reveals the association between
         survival and marker1 on the context of marker2 level and vice
-        verse.
+        verse. P-values of log-rank test and adjusted p-values by
+        ‘Bonferroni’ method are shown on each sub-plot.
       - *scatter.dualmarker*: scatter-plot of marker1 and marker2 with
         survival time shown as the size of dot and response (if
-        provided) as color
+        provided) as color. Nominal survival time is shown and labeled
+        with different shape for the censored data point.
 
 <!-- end list -->
 
@@ -507,15 +525,14 @@ res.pair$survival.plot$scatter.dualmarker
   - plot-7: \[survival analysis\] Four-quadrant chart  
     Like response analysis, four-quadrant plots for survival also
     contains 4 sub-figures.
-
-<!-- end list -->
-
-1.  Area proportion chart shows the sample size in each quadrant, this
-    chart may be different from counterpart in response analysis owning
-    to samples with missing data of survival and response.
-2.  Statistic matrix: median survival time and confidence interval
-3.  KMplot of four quadrants
-4.  Line chart of median survival time for each quadrant
+    
+    1.  Area proportion chart: shows the sample size in each quadrant,
+        this chart may be different from counterpart in response
+        analysis owning to different missing samples of survival and
+        response data.  
+    2.  Statistic matrix: median survival time and confidence interval  
+    3.  KMplot of four quadrants  
+    4.  Line chart of median survival time for each quadrant
 
 <!-- end list -->
 
@@ -533,12 +550,12 @@ res.pair$survival.plot$four.quadrant
 
   - stats-3: \[survival analysis\] Four-quadrant statistics  
     *\(survival.stats\)four.quadrant* contains four-quadrant statistics
-    of survival
-
-  - *param* contains the note of marker1,marker2, cutoff methods et al.
-
-  - *stats* contains the sample number, median survival and confidence
-    interval in each quadrant, R1-R4
+    of survival in the following 2 objects:
+    
+      - *param* contains the note of marker1,marker2, cutoff methods et
+        al.
+      - *stats* contains the sample number, median survival and
+        confidence interval in each quadrant, R1-R4
 
 <!-- end list -->
 
@@ -561,33 +578,39 @@ stats.4q$stats
 ```
 
   - stats-4: \[survival analysis\] Cox regression result  
-    Very similar to response analysis, four cox regression models are
-    built, and model comparison is performed to test the difference of
-    dual-marker model and single-marker model by Likihood ratio
-    test(LRT) using *anova* function for model3-vs-model1,
-    model4-vs-model1, model3-vs-model2, model4-vs-model2.
+    Like binary outcome (response) analysis, four Cox regression models
+    are built. Model comparison between dual-marker and single-marker
+    models is performed by Likelihood ratio test(LRT) using *anova*
+    function:
+    
+      - model1: Surv \~ marker1 + covariates, labeled as ‘SM1’ for
+        short  
+      - model2: Surv \~ marker2 + covariates, labeled as ‘SM2’ for
+        short  
+      - model3: Surv \~ marker1 + marker2 + covariates, labeled as ‘DM’
+        for short, i.e. dual-marker  
+      - model4: Surv \~ marker1 \* marker2 + covariates (with
+        interaction term), labeled as ‘DMI’ for short, i.e. dual-marker
+        with interaction
 
-  - model1: Surv \~ marker1 + covariates, labeled as ‘SM1’ for short
+Cox regression models return the following values:
 
-  - model2: Surv \~ marker2 + covariates, labeled as ‘SM2’ for short
+1.  basic parameters: time, event, m1(marker1), m2(marker2), cut point
+    of m1/m2 if m1/m2 are continuous, positive/negative values if m1/m2
+    is categorical  
+2.  Cox regression parameters: estimate(weight) and p-value(Wald test)
+    of each predictive variable in model1(SM1), model2(SM2), model3(DM),
+    model4(DMI). ‘DMI\_m1:m2\_estimate’ and ‘DMI\_m1:m2\_pval’ is
+    estimate and p-value of the interaction term of marker1 and
+    marker2.  
+3.  AIC: AIC of SM1, SM2, DM, DMI model  
+4.  CPE: concordant probability estimate to evaluate the performance of
+    Cox model using *CPE* package  
+5.  model comparison: p-values of Likelihood Ratio Test(LRT) for
+    SM1-vs-NULL(R \~ 1, no marker), SM2-vs-NULL, SM1-vs-MD, SM2-vs-DM,
+    SM1-vs-DMI, SM2-vs-DMI
 
-  - model3: Surv \~ marker1 + marker2 + covariates, labeled as ‘DM’ for
-    short, i.e. dual-marker
-
-  - model4: Surv \~ marker1 \* marker2 + covariates (with interaction
-    term), labeled as ‘DMI’ for short, i.e. dual-marker with interaction
-
-Cox regression models return the following results:  
-1\. basic parameters: time, event, m1(marker1), m2(marker2), cut point
-for continuous m1/m2, positive/negative values for categorical m1/2 2.
-Cox regression parameters: estimate(weight) and p-value(Wald test) of
-each predictive variable in model1(SM1), model2(SM2), model3(DM),
-model4(DMI). ‘DMI\_m1:m2\_estimate’ and ‘DMI\_m1:m2\_pval’ is estimate
-and p-value of the interaction term of marker1 and marker2. 3. AIC: AIC
-of model SM1, SM2, DM, DMI 4. CPE: concordant probability to evaluate
-the performance of Cox model using CPE package for SM1, SM2, DM, DMI 5.
-model comparison: p-value of LRT for M1.vs.null(R \~ 1, no marker),
-M2.vs.null, M1.vs.MD, M2.vs.MD, M1.vs.MDI, M2.vs.MDI
+<!-- end list -->
 
 ``` r
 dplyr::glimpse(res.pair$survival.stats$cox)
@@ -636,7 +659,7 @@ dplyr::glimpse(res.pair$survival.stats$cox)
 
 ## Example3: search GEP candidates marker2 to combine with mut\_ARID1A for survival analysis
 
-Search among gene expression candidate to combine with ARID1A mutation
+Search among gene expression candidates to combine with ARID1A mutation
 using *dm\_searchM2\_cox*
 
 ``` r
@@ -658,14 +681,18 @@ res.m2.cox <- dm_searchM2_cox(
 )
 ```
 
-Glance of the top candidates gene  
-*dm\_searchM2\_topPlot* takes the result of either *dm\_searchM2\_cox*
-or *dm\_searchM2\_logit* as input, and returns 3 figures. +
-*\(m2_effect* dot-chart showing top significant marker2s using model comparison dual-vs-marker1 + *\)interact*
-dot-chart showing top significant marker2s having statistical
-interaction with marker1 + *$m1\_m2\_effect* scatter-plot showing
-log10-p-value of all marker2s in model comparison of dual-vs-marker1 and
-dual-vs-marker2
+Glance of the top candidates gene: *dm\_searchM2\_topPlot* takes the
+result of either *dm\_searchM2\_cox* or *dm\_searchM2\_logit* as input,
+and returns following figures:
+
+  - *$m2\_effect* dot-chart showing top significant marker2s using model
+    comparison dual-vs-marker1  
+  - *$interact* dot-chart showing top significant marker2s having
+    statistical interaction with marker1  
+  - *$m1\_m2\_effect* scatter-plot showing log10-p-value of all marker2s
+    in model comparison of dual-vs-marker1 and dual-vs-marker2
+
+<!-- end list -->
 
 ``` r
 plot.m2.cox <- dm_searchM2_topPlot(res.m2.cox, top.n = 20, 
@@ -677,9 +704,9 @@ plot.m2.cox <- dm_searchM2_topPlot(res.m2.cox, top.n = 20,
     whose introduction to dual-maker model(w/ or w/o interaction)
     significantly increase the prediction of survival or response.
     Likelihood ratio test(LRT) is carried out to compare dual-marker
-    model and marker1 solo model, the signed log10-pValue is shown on
+    model and marker1 single model, the signed log10-pValue is shown on
     x-axis, and ‘sign’ indicates the effect direction of marker2(single
-    marker) to survival. Genes with negative values on the left are
+    marker) to survival. i.e. genes with negative values on the left are
     positive survival predictors.
 
 <!-- end list -->
@@ -692,8 +719,8 @@ plot.m2.cox$m2_effect
 
   - plot-2: marker2’s interaction  
     ‘interaction’ is dot-chart, showing the top significant marker2s,
-    which has statistical interaction with given marker1. Signed
-    log10-pValue is shown like ‘m2\_effect’
+    which has statistical interaction with marker1. Signed log10-pValue
+    is shown like ‘m2\_effect’
 
 <!-- end list -->
 
@@ -704,10 +731,10 @@ plot.m2.cox$interact
 ![](man/figures/README-unnamed-chunk-19-1.png)<!-- -->
 
   - plot-3: m1 and m2 effect  
-    ‘m1\_m2\_effect’ is scatter-plot, showing the log10-pValue of model
+    ‘m1\_m2\_effect’ is scatter-plot, showing the -log10-pValue of model
     comparison, i.e. dual-vs-marker1 and dual-vs-marker2. Dual model
-    that superior to both marker1 and marker2 is preferred, located
-    top-right on the figure.
+    that superior to both marker1 and marker2 single marker model is
+    preferred, located top-right on the figure.
 
 <!-- end list -->
 
@@ -717,8 +744,8 @@ plot.m2.cox$m1_m2_effect
 
 ![](man/figures/README-unnamed-chunk-20-1.png)<!-- -->
 
-  - plot-4: CPE ‘CPE’ is concordant probability to evaluate the
-    performance of Cox model using CPE package
+  - plot-4: CPE ‘CPE’ is concordant probability estimate to evaluate the
+    performance of Cox model using *CPE* package
 
 <!-- end list -->
 
@@ -729,8 +756,7 @@ plot.m2.cox$CPE
 ![](man/figures/README-unnamed-chunk-21-1.png)<!-- -->
 
   - stats: cox result  
-    this shows the same information with
-    *res\_pair\(survival.stats\)cox* or
+    this shows the same values with *res\_pair\(survival.stats\)cox* or
     *res\_pair\(response.stats\)logit*
 
 <!-- end list -->
@@ -793,8 +819,7 @@ dplyr::glimpse(res.m2.cox)
 #> $ padj_SM2_vs_DMI      <dbl> 0.1545506, 0.1545506, 0.1545506, 0.1545506, 0.15…
 ```
 
-top 10 dual marker models with the highest concordant probability(CPE),
-i.e. best performance of Cox model
+Top 10 dual marker pairs with the highest concordant probability(CPE)
 
 ``` r
 res.m2.cox %>% 
@@ -909,8 +934,8 @@ Users can filter and get interesting dual-marker pairs using plenty of
 statistics and model performance metrics, for example, AUC for response
 analysis (logistic regression), concordant probability CPE for survival
 analysis (Cox regression), p-value of dual-vs-single model comparison
-and statistical interaction of two markers. Top 2 dual-marker with the
-highest AUC, i.e. best performance of logistic regression.
+and statistical interaction of two markers.  
+Top 2 dual-marker pairs with the highest AUC
 
 ``` r
 res.combM.logit %>% 
